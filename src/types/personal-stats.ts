@@ -62,6 +62,8 @@ export interface PersonalStats {
 
 export interface PersonalSettings {
   myName: string;
+  linkedPlayerId?: string; // Link to a player in the team system
   isTrackingEnabled: boolean;
   showQuickLog: boolean; // Show quick log button during games
+  syncWithTeamStats: boolean; // Whether to sync personal bag logs with team player stats
 }

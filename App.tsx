@@ -26,6 +26,7 @@ import PressurePracticeScreen from "./src/screens/PressurePracticeScreen";
 import PersonalStatsScreen from "./src/screens/PersonalStatsScreen";
 import PersonalQuickLogScreen from "./src/screens/PersonalQuickLogScreen";
 import PersonalMatchLogScreen from "./src/screens/PersonalMatchLogScreen";
+import PersonalSettingsScreen from "./src/screens/PersonalSettingsScreen";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -62,6 +63,7 @@ export default function App() {
             <Stack.Screen name="PersonalStats" component={PersonalStatsScreen} />
             <Stack.Screen name="PersonalQuickLog" component={PersonalQuickLogScreen} />
             <Stack.Screen name="PersonalMatchLog" component={PersonalMatchLogScreen} />
+            <Stack.Screen name="PersonalSettings" component={PersonalSettingsScreen} />
           </Stack.Navigator>
           <StatusBar style="light" />
         </NavigationContainer>

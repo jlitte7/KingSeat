@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Pressable, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, TextInput, Pressable, ScrollView, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -14,15 +14,35 @@ export default function AddPlayerScreen() {
   const navigation = useNavigation<AddPlayerNavigationProp>();
   const route = useRoute<AddPlayerRouteProp>();
   const { teamId } = route.params;
-  const { createPlayer } = useTossSeriesStore();
+  const createPlayer = useTossSeriesStore((s) => s.createPlayer);
+  const players = useTossSeriesStore((s) => s.players);
   const [playerName, setPlayerName] = useState('');
   const [nickname, setNickname] = useState('');
 
   const handleCreate = () => {
-    if (playerName.trim()) {
-      createPlayer(teamId, playerName.trim(), nickname.trim() || undefined);
-      navigation.goBack();
+    const trimmedName = playerName.trim();
+
+    if (!trimmedName) {
+      Alert.alert("Error", "Please enter a player name");
+      return;
     }
+
+    // Check for duplicate names (case insensitive)
+    const existingPlayer = players.find(
+      (p) => p.name.toLowerCase() === trimmedName.toLowerCase()
+    );
+
+    if (existingPlayer) {
+      Alert.alert(
+        "Duplicate Name",
+        `A player named "${existingPlayer.name}" already exists. Please use a different name or add a nickname to differentiate.`,
+        [{ text: "OK" }]
+      );
+      return;
+    }
+
+    createPlayer(teamId, trimmedName, nickname.trim() || undefined);
+    navigation.goBack();
   };
 
   return (

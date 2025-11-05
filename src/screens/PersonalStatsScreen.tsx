@@ -34,12 +34,20 @@ export default function PersonalStatsScreen() {
               <Text className="text-gray-400 text-sm">{settings.myName}</Text>
             </View>
           </View>
-          <Pressable
-            onPress={() => navigation.navigate("PersonalQuickLog")}
-            className="bg-purple-600 px-4 py-2 rounded-lg"
-          >
-            <Text className="text-white font-bold">Quick Log</Text>
-          </Pressable>
+          <View className="flex-row gap-3">
+            <Pressable
+              onPress={() => navigation.navigate("PersonalSettings")}
+              className="mr-2"
+            >
+              <Ionicons name="settings-outline" size={24} color="#9ca3af" />
+            </Pressable>
+            <Pressable
+              onPress={() => navigation.navigate("PersonalQuickLog")}
+              className="bg-purple-600 px-4 py-2 rounded-lg"
+            >
+              <Text className="text-white font-bold">Quick Log</Text>
+            </Pressable>
+          </View>
         </View>
 
         {!hasStats ? (

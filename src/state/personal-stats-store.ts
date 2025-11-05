@@ -65,6 +65,7 @@ const createInitialSettings = (): PersonalSettings => ({
   myName: "Me",
   isTrackingEnabled: true,
   showQuickLog: true,
+  syncWithTeamStats: false,
 });
 
 export const usePersonalStatsStore = create<PersonalStatsState>()(

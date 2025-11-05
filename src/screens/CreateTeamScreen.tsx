@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Pressable, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, TextInput, Pressable, ScrollView, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -11,17 +11,37 @@ type CreateTeamNavigationProp = NativeStackNavigationProp<RootStackParamList, 'C
 
 export default function CreateTeamScreen() {
   const navigation = useNavigation<CreateTeamNavigationProp>();
-  const { createTeam } = useTossSeriesStore();
+  const createTeam = useTossSeriesStore((s) => s.createTeam);
+  const teams = useTossSeriesStore((s) => s.teams);
   const [teamName, setTeamName] = useState('');
 
   const handleCreate = () => {
-    if (teamName.trim()) {
-      const team = createTeam(teamName.trim());
-      navigation.goBack();
-      setTimeout(() => {
-        navigation.navigate('TeamDetail', { teamId: team.id });
-      }, 100);
+    const trimmedName = teamName.trim();
+
+    if (!trimmedName) {
+      Alert.alert("Error", "Please enter a team name");
+      return;
     }
+
+    // Check for duplicate team names (case insensitive)
+    const existingTeam = teams.find(
+      (t) => t.name.toLowerCase() === trimmedName.toLowerCase()
+    );
+
+    if (existingTeam) {
+      Alert.alert(
+        "Duplicate Name",
+        `A team named "${existingTeam.name}" already exists. Please use a different name.`,
+        [{ text: "OK" }]
+      );
+      return;
+    }
+
+    const team = createTeam(trimmedName);
+    navigation.goBack();
+    setTimeout(() => {
+      navigation.navigate('TeamDetail', { teamId: team.id });
+    }, 100);
   };
 
   return (

@@ -13,6 +13,48 @@ A comprehensive cornhole league management and scoring app built with Expo and R
 - **Game Completion**: Winner announcement with final stats
 - **Flexible Rounds**: Play unlimited rounds or set a specific limit
 
+### 📊 My Stats (Personal Bag Tracking)
+A dedicated personal tracking system that works independently from team stats:
+
+- **Personal Stats Dashboard**: Track your individual performance
+  - Total throws and accuracy percentages (In%, On%, Board%, Miss%)
+  - Current and best streaks (both "in" streaks and board streaks)
+  - Four-baggers and three-baggers counts
+  - Match record and win percentage
+  - Recent match history with dates and scores
+
+- **Quick Log Mode**: Fast bag throw logging for practice
+  - Big, colorful buttons for instant logging (In/On/Miss)
+  - Real-time stats updates showing session performance
+  - Live streak tracking
+  - Perfect for solo practice or casual play
+
+- **Match Logging**: Full game tracking with detailed stats
+  - Log complete matches with opponent names
+  - Track all 4 throws per round with visual indicators
+  - Enter opponent scores for win/loss tracking
+  - View round history during active matches
+  - Automatic score calculation from your throws
+
+- **Player Linking**: Connect your personal stats to team profiles
+  - Link to an existing player in the Clubhouse
+  - Prevents duplicate names across the system
+  - Optional syncing with team stats
+  - Maintains separate personal history
+
+- **Settings & Management**:
+  - Configure your name and linked player profile
+  - Toggle quick log visibility during games
+  - Enable/disable team stats syncing
+  - Reset personal stats if needed
+
+**Key Benefits**:
+- Track your bags separately from team games
+- Works for solo practice, playing with teammates, or against multiple opponents
+- Your personal stats never interfere with team-based CornholeIQ stats
+- Focus on YOUR performance, not overall game outcomes
+- Build a complete history of your bag throwing accuracy over time
+
 ### 🏆 Clubhouse (League Management)
 - **Team Management**: Create and organize teams
 - **Player Rosters**: Add 8+ players per team for league matches
@@ -151,6 +193,24 @@ Transform your game with comprehensive practice modes designed to elevate your s
 4. Once you have 2+ teams with enough players, start a league series
 5. Play through a 12-game series with player selection
 
+**Note**: Duplicate team and player names are automatically prevented
+
+### Track Your Personal Bags (My Stats)
+1. Tap **📊 My Stats** from home
+2. Choose how you want to track:
+   - **Quick Log**: Tap In/On/Miss buttons for each throw during practice
+   - **Log Match**: Track a full game with opponent scores
+3. View your stats dashboard to see:
+   - Accuracy percentages and current streaks
+   - Four-baggers and performance history
+   - Match records (if logging full games)
+4. Tap the settings icon to:
+   - Link your profile to a Clubhouse player (prevents duplicate names)
+   - Enable syncing with team stats (optional)
+   - Configure tracking preferences
+
+**Tip**: Link to a Clubhouse player to ensure your stats are tracked correctly across all games and avoid duplicate names in the system.
+
 ### View Stats (CornholeIQ)
 1. Tap **📈 CornholeIQ** from home
 2. View all players ranked by performance
@@ -214,6 +274,10 @@ src/
 │   ├── PlayerProfileScreen.tsx
 │   ├── SeriesSetupScreen.tsx
 │   ├── CornholeIQScreen.tsx
+│   ├── PersonalStatsScreen.tsx
+│   ├── PersonalQuickLogScreen.tsx
+│   ├── PersonalMatchLogScreen.tsx
+│   ├── PersonalSettingsScreen.tsx
 │   ├── TossOffScreen.tsx
 │   ├── CornHubScreen.tsx (Practice Hub)
 │   ├── GhostPlayerScreen.tsx
@@ -225,10 +289,12 @@ src/
 ├── navigation/
 │   └── types.ts      # Navigation type definitions
 ├── state/
-│   ├── toss-series-store.ts  # Main game state
-│   └── practice-store.ts      # Practice mode state
+│   ├── toss-series-store.ts     # Main game state
+│   ├── personal-stats-store.ts  # Personal bag tracking state
+│   └── practice-store.ts        # Practice mode state
 └── types/
-    └── toss-series.ts        # TypeScript interfaces
+    ├── toss-series.ts           # TypeScript interfaces
+    └── personal-stats.ts        # Personal tracking interfaces
 ```
 
 ### Data Persistence
@@ -236,6 +302,8 @@ All data is automatically saved to device storage:
 - Teams and player rosters
 - Game history with full round-by-round data
 - Player statistics and achievements
+- Personal bag tracking (separate from team stats)
+- Personal match history and throw logs
 - Tournament and series data
 - Practice session records (all modes)
 - Practice statistics and streaks
