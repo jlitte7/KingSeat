@@ -190,3 +190,49 @@ export interface PracticeSession {
   duration: number;
   createdAt: string;
 }
+
+export interface League {
+  id: string;
+  name: string;
+  teamIds: string[];
+  numberOfWeeks: number;
+  schedule: WeekSchedule[];
+  currentWeek: number;
+  started: boolean;
+  completed: boolean;
+  createdAt: string;
+  completedAt?: string;
+}
+
+export interface WeekSchedule {
+  weekNumber: number;
+  matches: LeagueMatch[];
+}
+
+export interface LeagueMatch {
+  id: string;
+  weekNumber: number;
+  homeTeamId: string;
+  awayTeamId: string;
+  homeTeamName: string;
+  awayTeamName: string;
+  games: LeagueGame[];
+  homeTeamScore: number;
+  awayTeamScore: number;
+  completed: boolean;
+  scheduledDate?: string;
+}
+
+export interface LeagueGame {
+  gameNumber: number; // 1-12
+  player1Id?: string;
+  player2Id?: string;
+  player1Name?: string;
+  player2Name?: string;
+  player1Score: number;
+  player2Score: number;
+  rounds: Round[];
+  winnerId?: string;
+  completed: boolean;
+  inProgress: boolean;
+}

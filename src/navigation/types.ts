@@ -28,6 +28,14 @@ export type RootStackParamList = {
     gameIndex: number;
   };
   SeriesComplete: { seriesId: string };
+  CreateLeague: undefined;
+  LeagueSchedule: { leagueId: string };
+  LeagueMatchDetail: { matchId: string; leagueId: string };
+  LeagueGameScoreboard: {
+    matchId: string;
+    leagueId: string;
+    gameNumber: number;
+  };
   GhostPlayer: undefined;
   BagRun: undefined;
   AirmailRun: undefined;

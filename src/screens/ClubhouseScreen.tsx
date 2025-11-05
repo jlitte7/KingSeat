@@ -167,11 +167,19 @@ export default function ClubhouseScreen() {
         {teams.length >= 2 && (
           <View className="px-4 pb-4 pt-2 border-t border-gray-800">
             <Pressable
+              onPress={() => navigation.navigate("CreateLeague")}
+              className="bg-purple-600 py-4 rounded-lg items-center mb-3"
+            >
+              <Text className="text-white font-bold text-lg">
+                🏆 Create League
+              </Text>
+            </Pressable>
+            <Pressable
               onPress={() => navigation.navigate("SeriesSetup")}
               className="bg-red-600 py-4 rounded-lg items-center"
             >
               <Text className="text-white font-bold text-lg">
-                🎯 Start League Match
+                🎯 Start Single Match
               </Text>
             </Pressable>
           </View>

@@ -20,6 +20,10 @@ import SeriesSetupScreen from "./src/screens/SeriesSetupScreen";
 import SeriesPlayerSelectionScreen from "./src/screens/SeriesPlayerSelectionScreen";
 import SeriesGameScreen from "./src/screens/SeriesGameScreen";
 import SeriesCompleteScreen from "./src/screens/SeriesCompleteScreen";
+import CreateLeagueScreen from "./src/screens/CreateLeagueScreen";
+import LeagueScheduleScreen from "./src/screens/LeagueScheduleScreen";
+import LeagueMatchDetailScreen from "./src/screens/LeagueMatchDetailScreen";
+import LeagueGameScoreboardScreen from "./src/screens/LeagueGameScoreboardScreen";
 import GhostPlayerScreen from "./src/screens/GhostPlayerScreen";
 import BagRunScreen from "./src/screens/BagRunScreen";
 import AirmailRunScreen from "./src/screens/AirmailRunScreen";
@@ -59,6 +63,10 @@ export default function App() {
             <Stack.Screen name="SeriesPlayerSelection" component={SeriesPlayerSelectionScreen} />
             <Stack.Screen name="SeriesGame" component={SeriesGameScreen} />
             <Stack.Screen name="SeriesComplete" component={SeriesCompleteScreen} />
+            <Stack.Screen name="CreateLeague" component={CreateLeagueScreen} />
+            <Stack.Screen name="LeagueSchedule" component={LeagueScheduleScreen} />
+            <Stack.Screen name="LeagueMatchDetail" component={LeagueMatchDetailScreen} />
+            <Stack.Screen name="LeagueGameScoreboard" component={LeagueGameScoreboardScreen} />
             <Stack.Screen name="GhostPlayer" component={GhostPlayerScreen} />
             <Stack.Screen name="BagRun" component={BagRunScreen} />
             <Stack.Screen name="AirmailRun" component={AirmailRunScreen} />

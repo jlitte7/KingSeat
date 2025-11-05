@@ -55,15 +55,28 @@ A dedicated personal tracking system that works independently from team stats:
 - Focus on YOUR performance, not overall game outcomes
 - Build a complete history of your bag throwing accuracy over time
 
-### 🏆 Clubhouse (League Management)
+### 🏆 Clubhouse (League & Match Management)
 - **Team Management**: Create and organize teams
-- **Player Rosters**: Add players to teams (minimum 8 for league series)
+- **Player Rosters**: Add players to teams (minimum 2 for matches)
 - **Team Stats**: Track wins, losses, and total games
 - **Player Profiles**: View detailed stats for each player
-- **League Series**: Set up 12-game matches between teams with 8-player rosters
-- **Player Selection**: Choose 8 players per team for each series (max 3 games per player)
-- **Easy Navigation**: Quick access to team and player details
 - **Sample Data Generator**: Instantly create 6 teams with 10 players each via the "Sample Data" button in Clubhouse header
+
+#### League System
+- **Create Leagues**: Set up multi-week leagues with any number of teams
+- **Custom Duration**: Choose how many weeks the league should run
+- **Round-Robin Scheduling**: Automatic schedule generation where each team plays every other team
+- **Weekly Matches**: One match per week per team (12 games per match)
+- **League Schedule View**: See all weeks and matches at a glance
+- **Match Details**: Click on any match to view all 12 games
+- **Player Selection**: Dropdown selection for each game (choose from team rosters)
+- **Live Scoring**: Real-time scorekeeping for each game with cancellation scoring
+- **Match Tracking**: Automatic score updates as games complete
+
+#### Single Matches
+- **Quick Setup**: Set up individual 12-game matches between two teams
+- **8-Player Rosters**: Select 8 players per team (max 3 games per player)
+- **Series Tracking**: Track game-by-game results
 
 ### 📈 CornholeIQ (Statistics Dashboard)
 - **Player Rankings**: Sorted by Dominance Rating (composite performance score)
@@ -189,13 +202,49 @@ Transform your game with comprehensive practice modes designed to elevate your s
 7. Game ends at 21 points or when rounds complete
 
 ### League Management (Clubhouse)
-1. Tap **🏆 Clubhouse** from home
-2. Create your first team with **+ Team**
-3. Add players to the team (need 8+ for league matches)
-4. Once you have 2+ teams with enough players, start a league series
-5. Play through a 12-game series with player selection
 
-**Quick Testing**: Tap **Generate Sample Data** to instantly create 6 teams with 10 players each for testing league functionality.
+#### Creating Teams & Players
+1. Tap **🏆 Clubhouse** from home
+2. Create teams with **+ Team** button
+3. Add players to each team (need at least 2 teams for leagues)
+4. **Quick Testing**: Tap gray **Sample Data** button in header to instantly create 6 teams with 10 players each
+
+#### Creating a League
+1. From Clubhouse, tap **🏆 Create League** (appears when you have 2+ teams)
+2. Enter league name (e.g., "Summer League 2025")
+3. Set number of weeks (e.g., 8, 10, 12)
+4. Select which teams to include (minimum 2)
+5. Tap **Create League**
+
+The app automatically generates a complete round-robin schedule where:
+- Each team plays every other team once before rotation
+- One match per week per team
+- Schedule continues for the specified number of weeks
+
+#### Playing League Matches
+1. View the league schedule (organized by week)
+2. Tap on any match to see all 12 games
+3. Expand a game to select players:
+   - Choose away team player from dropdown
+   - Choose home team player from dropdown
+4. Tap **Start Game** to begin live scoring
+5. Use counters to track bags in/on for each player
+6. Tap **Enter** after each round
+7. Game automatically completes at 21 points
+8. Match score updates automatically as games finish
+
+**Key Features**:
+- Games can be played in any order within a match
+- Player selections are made per-game (not locked for entire match)
+- Live round-by-round scoring with cancellation rules
+- Automatic winner detection
+- Match completion tracking (X/12 games)
+
+#### Single Matches (Non-League)
+1. From Clubhouse, tap **🎯 Start Single Match**
+2. Select away and home teams
+3. Select 8 players per team (max 3 games each)
+4. Play through 12-game series
 
 **Note**: Duplicate team and player names are automatically prevented
 

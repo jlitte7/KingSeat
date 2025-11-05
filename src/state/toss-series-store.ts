@@ -13,6 +13,10 @@ import {
   Achievement,
   PlayerStats,
   TeamStats,
+  League,
+  WeekSchedule,
+  LeagueMatch,
+  LeagueGame,
 } from "../types/toss-series";
 
 interface TossSeriesState {
@@ -22,7 +26,9 @@ interface TossSeriesState {
   series: Series[];
   tournaments: Tournament[];
   practiceSessions: PracticeSession[];
+  leagues: League[];
   currentSeries: Series | null;
+  currentLeague: League | null;
 
   // Team actions
   createTeam: (name: string, logo?: string) => Team;
@@ -64,6 +70,16 @@ interface TossSeriesState {
 
   // Tournament actions
   createTournament: (name: string, teamIds: string[]) => Tournament;
+
+  // League actions
+  createLeague: (name: string, teamIds: string[], numberOfWeeks: number) => League;
+  getLeagueById: (leagueId: string) => League | undefined;
+  getMatchById: (matchId: string, leagueId: string) => LeagueMatch | undefined;
+  updateLeagueMatch: (leagueId: string, matchId: string, updates: Partial<LeagueMatch>) => void;
+  updateLeagueGame: (leagueId: string, matchId: string, gameNumber: number, updates: Partial<LeagueGame>) => void;
+  addRoundToLeagueGame: (leagueId: string, matchId: string, gameNumber: number, round: Round) => void;
+  completeLeagueGame: (leagueId: string, matchId: string, gameNumber: number, winnerId: string) => void;
+  setCurrentLeague: (league: League | null) => void;
 
   // Utility
   resetAll: () => void;
@@ -137,7 +153,9 @@ export const useTossSeriesStore = create<TossSeriesState>()(
       series: [],
       tournaments: [],
       practiceSessions: [],
+      leagues: [],
       currentSeries: null,
+      currentLeague: null,
 
       // Team actions
       createTeam: (name: string, logo?: string) => {
@@ -726,6 +744,226 @@ export const useTossSeriesStore = create<TossSeriesState>()(
         return tournament;
       },
 
+      // League actions
+      createLeague: (name: string, teamIds: string[], numberOfWeeks: number) => {
+        const store = get();
+
+        // Generate round-robin schedule
+        const schedule: WeekSchedule[] = [];
+        const numTeams = teamIds.length;
+
+        if (numTeams < 2) {
+          throw new Error("Need at least 2 teams for a league");
+        }
+
+        // Round-robin algorithm
+        const teamsArray = [...teamIds];
+        const rounds = numTeams % 2 === 0 ? numTeams - 1 : numTeams;
+        const matchesPerRound = Math.floor(numTeams / 2);
+
+        let currentWeek = 1;
+
+        // Generate schedule for the requested number of weeks
+        for (let rotation = 0; currentWeek <= numberOfWeeks; rotation++) {
+          for (let round = 0; round < rounds && currentWeek <= numberOfWeeks; round++) {
+            const weekMatches: LeagueMatch[] = [];
+
+            for (let match = 0; match < matchesPerRound; match++) {
+              const home = (round + match) % (numTeams - 1);
+              const away = (numTeams - 1 - match + round) % (numTeams - 1);
+
+              const homeIndex = home === 0 && match === 0 ? numTeams - 1 : home < numTeams - 1 ? home : home + 1;
+              const awayIndex = away === 0 && match === 0 ? numTeams - 1 : away < numTeams - 1 ? away : away + 1;
+
+              const homeTeamId = teamsArray[homeIndex];
+              const awayTeamId = teamsArray[awayIndex];
+              const homeTeam = store.getTeamById(homeTeamId);
+              const awayTeam = store.getTeamById(awayTeamId);
+
+              if (homeTeam && awayTeam) {
+                const leagueMatch: LeagueMatch = {
+                  id: uuidv4(),
+                  weekNumber: currentWeek,
+                  homeTeamId,
+                  awayTeamId,
+                  homeTeamName: homeTeam.name,
+                  awayTeamName: awayTeam.name,
+                  games: Array.from({ length: 12 }, (_, i) => ({
+                    gameNumber: i + 1,
+                    player1Score: 0,
+                    player2Score: 0,
+                    rounds: [],
+                    completed: false,
+                    inProgress: false,
+                  })),
+                  homeTeamScore: 0,
+                  awayTeamScore: 0,
+                  completed: false,
+                };
+                weekMatches.push(leagueMatch);
+              }
+            }
+
+            schedule.push({
+              weekNumber: currentWeek,
+              matches: weekMatches,
+            });
+
+            currentWeek++;
+          }
+        }
+
+        const league: League = {
+          id: uuidv4(),
+          name,
+          teamIds,
+          numberOfWeeks,
+          schedule,
+          currentWeek: 1,
+          started: false,
+          completed: false,
+          createdAt: new Date().toISOString(),
+        };
+
+        set((state) => ({
+          leagues: [...state.leagues, league],
+        }));
+
+        return league;
+      },
+
+      getLeagueById: (leagueId: string) => {
+        return get().leagues.find((l) => l.id === leagueId);
+      },
+
+      getMatchById: (matchId: string, leagueId: string) => {
+        const league = get().getLeagueById(leagueId);
+        if (!league) return undefined;
+
+        for (const week of league.schedule) {
+          const match = week.matches.find((m) => m.id === matchId);
+          if (match) return match;
+        }
+        return undefined;
+      },
+
+      updateLeagueMatch: (leagueId: string, matchId: string, updates: Partial<LeagueMatch>) => {
+        set((state) => ({
+          leagues: state.leagues.map((league) => {
+            if (league.id !== leagueId) return league;
+
+            return {
+              ...league,
+              schedule: league.schedule.map((week) => ({
+                ...week,
+                matches: week.matches.map((match) =>
+                  match.id === matchId ? { ...match, ...updates } : match
+                ),
+              })),
+            };
+          }),
+        }));
+      },
+
+      updateLeagueGame: (
+        leagueId: string,
+        matchId: string,
+        gameNumber: number,
+        updates: Partial<LeagueGame>
+      ) => {
+        set((state) => ({
+          leagues: state.leagues.map((league) => {
+            if (league.id !== leagueId) return league;
+
+            return {
+              ...league,
+              schedule: league.schedule.map((week) => ({
+                ...week,
+                matches: week.matches.map((match) => {
+                  if (match.id !== matchId) return match;
+
+                  return {
+                    ...match,
+                    games: match.games.map((game) =>
+                      game.gameNumber === gameNumber ? { ...game, ...updates } : game
+                    ),
+                  };
+                }),
+              })),
+            };
+          }),
+        }));
+      },
+
+      addRoundToLeagueGame: (
+        leagueId: string,
+        matchId: string,
+        gameNumber: number,
+        round: Round
+      ) => {
+        const store = get();
+        const league = store.getLeagueById(leagueId);
+        if (!league) return;
+
+        const match = store.getMatchById(matchId, leagueId);
+        if (!match) return;
+
+        const game = match.games.find((g) => g.gameNumber === gameNumber);
+        if (!game) return;
+
+        store.updateLeagueGame(leagueId, matchId, gameNumber, {
+          rounds: [...game.rounds, round],
+          player1Score: game.player1Score + round.p1Score,
+          player2Score: game.player2Score + round.p2Score,
+        });
+      },
+
+      completeLeagueGame: (
+        leagueId: string,
+        matchId: string,
+        gameNumber: number,
+        winnerId: string
+      ) => {
+        const store = get();
+        const match = store.getMatchById(matchId, leagueId);
+        if (!match) return;
+
+        const game = match.games.find((g) => g.gameNumber === gameNumber);
+        if (!game) return;
+
+        // Update game completion
+        store.updateLeagueGame(leagueId, matchId, gameNumber, {
+          winnerId,
+          completed: true,
+          inProgress: false,
+        });
+
+        // Update match scores
+        const isPlayer1HomeTeam = game.player1Id ?
+          store.getPlayerById(game.player1Id)?.teamId === match.homeTeamId : false;
+
+        const homeWon = (isPlayer1HomeTeam && winnerId === game.player1Id) ||
+                       (!isPlayer1HomeTeam && winnerId === game.player2Id);
+
+        store.updateLeagueMatch(leagueId, matchId, {
+          homeTeamScore: homeWon ? match.homeTeamScore + 1 : match.homeTeamScore,
+          awayTeamScore: !homeWon ? match.awayTeamScore + 1 : match.awayTeamScore,
+        });
+
+        // Check if match is complete (all 12 games done)
+        const updatedMatch = store.getMatchById(matchId, leagueId);
+        if (updatedMatch) {
+          const allGamesComplete = updatedMatch.games.every((g) => g.completed);
+          if (allGamesComplete) {
+            store.updateLeagueMatch(leagueId, matchId, { completed: true });
+          }
+        }
+      },
+
+      setCurrentLeague: (league: League | null) => {
+        set({ currentLeague: league });
+      },
+
       // Utility
       resetAll: () => {
         set({
@@ -735,7 +973,9 @@ export const useTossSeriesStore = create<TossSeriesState>()(
           series: [],
           tournaments: [],
           practiceSessions: [],
+          leagues: [],
           currentSeries: null,
+          currentLeague: null,
         });
       },
 
@@ -819,6 +1059,7 @@ export const useTossSeriesStore = create<TossSeriesState>()(
         series: state.series,
         tournaments: state.tournaments,
         practiceSessions: state.practiceSessions,
+        leagues: state.leagues,
       }),
     }
   )
