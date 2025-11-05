@@ -80,12 +80,15 @@ A comprehensive cornhole league management and scoring app built with Expo and R
 ### 🌽 CornHub (Practice Area)
 Transform your game with comprehensive practice modes designed to elevate your skills. All practice modes now feature the intuitive bag counter interface from the main scoreboard for consistent scoring experience:
 
-- **Ghost Player Mode**: Practice against AI opponents at 4 difficulty levels
-  - Beginner (~1 PPR) - Learn the basics
-  - Intermediate (~2.5 PPR) - Average competition
-  - Advanced (~4 PPR) - Strong opponents
-  - Pro (~6 PPR) - Expert level challenge
+- **Ghost Player Mode**: Practice against AI opponents at 4 difficulty levels (Scoreholio-style)
+  - Ghost Easy (1-3 PPR) - New to cornhole
+  - Ghost Medium (4-6 PPR) - Average competition
+  - Ghost Hard (7-9 PPR) - Strong opponents
+  - Ghost Expert (10-12 PPR) - Expert level challenge
+  - See ghost throws after each round
+  - Live PPR tracking for both players
   - Uses bag counter interface for easy score entry
+  - Game continues past 21 (no "exactly 21" rule)
 
 - **Bag Run**: Track consecutive bags made in a row
   - 4 bags per round tracking
@@ -173,7 +176,7 @@ Transform your game with comprehensive practice modes designed to elevate your s
 - **Bags On (Board)**: 1 point each
 - **Cancellation Scoring**: Only the difference between players counts per round
   - Example: P1 scores 9 (3 in), P2 scores 4 (4 on) → P1 gets 5 points
-- **Winning**: First player to 21 points wins (or highest score at round limit)
+- **Winning**: First player to reach 21+ points wins (can go over 21, no "exactly 21" rule)
 
 ### League Series Format
 - Teams need 8+ players to participate

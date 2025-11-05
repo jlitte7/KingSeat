@@ -26,32 +26,32 @@ interface DifficultyConfig {
 
 const difficultySettings: Record<Difficulty, DifficultyConfig> = {
   easy: {
-    name: "Beginner",
-    description: "New to cornhole - ~1 PPR",
+    name: "Ghost Easy (1-3)",
+    description: "New to cornhole",
     avgBagsIn: 0.3,
     avgBagsOn: 1.5,
     color1: "#34d399",
     color2: "#10b981",
   },
   medium: {
-    name: "Intermediate",
-    description: "Average player - ~2.5 PPR",
+    name: "Ghost Medium (4-6)",
+    description: "Average player",
     avgBagsIn: 0.8,
     avgBagsOn: 1.0,
     color1: "#fbbf24",
     color2: "#f59e0b",
   },
   hard: {
-    name: "Advanced",
-    description: "Strong player - ~4 PPR",
+    name: "Ghost Hard (7-9)",
+    description: "Strong player",
     avgBagsIn: 1.3,
     avgBagsOn: 0.9,
     color1: "#f97316",
     color2: "#ea580c",
   },
   pro: {
-    name: "Pro",
-    description: "Expert level - ~6 PPR",
+    name: "Ghost Expert (10-12)",
+    description: "Expert level",
     avgBagsIn: 2.0,
     avgBagsOn: 0.5,
     color1: "#dc2626",
@@ -246,12 +246,8 @@ export default function GhostPlayerScreen() {
                               <Text className="text-white text-2xl font-bold mb-1">
                                 {config.name}
                               </Text>
-                              <Text className="text-white text-sm opacity-90 mb-2">
+                              <Text className="text-white text-sm opacity-90">
                                 {config.description}
-                              </Text>
-                              <Text className="text-white text-xs opacity-75">
-                                Avg: {config.avgBagsIn.toFixed(1)} in /{" "}
-                                {config.avgBagsOn.toFixed(1)} on per round
                               </Text>
                             </View>
                             <Ionicons
@@ -282,7 +278,7 @@ export default function GhostPlayerScreen() {
                   </View>
                   <View className="flex-1 bg-red-600 rounded-2xl p-6">
                     <Text className="text-red-200 text-sm mb-1">
-                      Ghost {difficulty && `(${difficultySettings[difficulty].name})`}
+                      {difficulty && difficultySettings[difficulty].name}
                     </Text>
                     <Text className="text-white text-5xl font-bold">
                       {ghostScore}
