@@ -77,11 +77,18 @@ export interface TeamStats {
 }
 
 export interface Round {
+  // Team 1 thrower
+  p1ThrowerId?: string; // Player ID who threw for team 1
+  p1ThrowerName?: string; // Player name for display
   p1In: number;
   p1On: number;
+  p1Score: number;
+
+  // Team 2 thrower
+  p2ThrowerId?: string; // Player ID who threw for team 2
+  p2ThrowerName?: string; // Player name for display
   p2In: number;
   p2On: number;
-  p1Score: number;
   p2Score: number;
 }
 
