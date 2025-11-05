@@ -17,6 +17,12 @@ import TossOffScreen from "./src/screens/TossOffScreen";
 import CornHubScreen from "./src/screens/CornHubScreen";
 import CornholeIQScreen from "./src/screens/CornholeIQScreen";
 import SeriesSetupScreen from "./src/screens/SeriesSetupScreen";
+import GhostPlayerScreen from "./src/screens/GhostPlayerScreen";
+import BagRunScreen from "./src/screens/BagRunScreen";
+import AirmailRunScreen from "./src/screens/AirmailRunScreen";
+import SituationalGamesScreen from "./src/screens/SituationalGamesScreen";
+import BestGameChallengeScreen from "./src/screens/BestGameChallengeScreen";
+import PressurePracticeScreen from "./src/screens/PressurePracticeScreen";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -44,6 +50,12 @@ export default function App() {
             <Stack.Screen name="CornHub" component={CornHubScreen} />
             <Stack.Screen name="CornholeIQ" component={CornholeIQScreen} />
             <Stack.Screen name="SeriesSetup" component={SeriesSetupScreen} />
+            <Stack.Screen name="GhostPlayer" component={GhostPlayerScreen} />
+            <Stack.Screen name="BagRun" component={BagRunScreen} />
+            <Stack.Screen name="AirmailRun" component={AirmailRunScreen} />
+            <Stack.Screen name="SituationalGames" component={SituationalGamesScreen} />
+            <Stack.Screen name="BestGameChallenge" component={BestGameChallengeScreen} />
+            <Stack.Screen name="PressurePractice" component={PressurePracticeScreen} />
           </Stack.Navigator>
           <StatusBar style="light" />
         </NavigationContainer>

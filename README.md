@@ -40,9 +40,56 @@ A comprehensive cornhole league management and scoring app built with Expo and R
 - **Shutout**: Win without opponent scoring
 - Achievements automatically unlock during gameplay
 
+### 🌽 CornHub (Practice Area)
+Transform your game with comprehensive practice modes designed to elevate your skills:
+
+- **Ghost Player Mode**: Practice against AI opponents at 4 difficulty levels
+  - Beginner (~1 PPR) - Learn the basics
+  - Intermediate (~2.5 PPR) - Average competition
+  - Advanced (~4 PPR) - Strong opponents
+  - Pro (~6 PPR) - Expert level challenge
+
+- **Bag Run**: Track consecutive bags made in a row
+  - 4 bags per round tracking
+  - Real-time streak counter
+  - Longest streak records
+  - Overall accuracy stats
+
+- **Airmail Run**: Track consecutive airmail shots (clean drops)
+  - Focus on precision throwing
+  - No board contact allowed
+  - Build airmail consistency
+
+- **Situational Games**: Drop into mid-game scenarios
+  - "Comeback Time" - Down 15-8, can you recover?
+  - "Close Game" - Tied 18-18, clutch time!
+  - "Hold the Lead" - Up 12-7, don't blow it
+  - "Clutch Moment" - Down 19-16, need a big round
+  - "Late Game Pressure" - Up 20-17, close it out
+  - "Blowout Recovery" - Down 18-6, miracle time
+
+- **Best Game Challenge**: Play against your personal best performance
+  - Automatically calculates your best game stats
+  - Simulates your peak performance as opponent
+  - Push yourself to new heights
+
+- **Pressure Practice**: Practice clutch shots in critical moments
+  - "Game Winner" - Need 3+ points at 18
+  - "Four-Bagger Clutch" - All 4 must go in
+  - "Comeback Round" - 2 in + 2 on required
+  - "Consistency Test" - Get 3 bags in
+  - "No Misses" - All 4 must hit board
+  - "Perfect Closer" - Hit exactly 21
+
+- **Practice Stats Dashboard**: Track all your practice progress
+  - Ghost game win rates
+  - Best bag run streaks
+  - Best airmail streaks
+  - Situational game records
+  - Pressure practice success rates
+
 ### 🎯 Coming Soon
 - **TossOff**: Tournament brackets and playoff tracking
-- **CornHub**: Practice mode with drills and skill progression
 
 ## 🎮 How to Use
 
@@ -67,6 +114,18 @@ A comprehensive cornhole league management and scoring app built with Expo and R
 2. View all players ranked by performance
 3. Tap any player to see their detailed profile
 4. Check achievements, game history, and trends
+
+### Practice Your Skills (CornHub)
+1. Tap **🌽 CornHub** from home
+2. Choose a practice mode based on what you want to improve:
+   - **Ghost Player**: Play full games against AI at your skill level
+   - **Bag Run**: See how many consecutive bags you can make
+   - **Airmail Run**: Practice clean drops without touching the board
+   - **Situational Games**: Train for critical game moments
+   - **Best Game Challenge**: Try to beat your personal best
+   - **Pressure Practice**: Master clutch shots
+3. Track your progress with detailed statistics
+4. Return to practice regularly to see improvement over time
 
 ## 🎲 Game Rules
 
@@ -114,11 +173,18 @@ src/
 │   ├── SeriesSetupScreen.tsx
 │   ├── CornholeIQScreen.tsx
 │   ├── TossOffScreen.tsx
-│   └── CornHubScreen.tsx
+│   ├── CornHubScreen.tsx (Practice Hub)
+│   ├── GhostPlayerScreen.tsx
+│   ├── BagRunScreen.tsx
+│   ├── AirmailRunScreen.tsx
+│   ├── SituationalGamesScreen.tsx
+│   ├── BestGameChallengeScreen.tsx
+│   └── PressurePracticeScreen.tsx
 ├── navigation/
 │   └── types.ts      # Navigation type definitions
 ├── state/
-│   └── toss-series-store.ts  # Zustand store
+│   ├── toss-series-store.ts  # Main game state
+│   └── practice-store.ts      # Practice mode state
 └── types/
     └── toss-series.ts        # TypeScript interfaces
 ```
@@ -129,7 +195,8 @@ All data is automatically saved to device storage:
 - Game history with full round-by-round data
 - Player statistics and achievements
 - Tournament and series data
-- Practice session records
+- Practice session records (all modes)
+- Practice statistics and streaks
 
 ### Performance Optimizations
 - Zustand selectors to prevent unnecessary re-renders
@@ -175,7 +242,8 @@ The app automatically opens to the home screen. From there:
 - Play a quick game with **Scoreboard**
 - Build your league with **Clubhouse**
 - Review performance in **CornholeIQ**
-- Explore upcoming features in **TossOff** and **CornHub**
+- Improve your skills in **CornHub** practice area
+- Compete in tournaments with **TossOff** (coming soon)
 
 ## 📝 Notes
 

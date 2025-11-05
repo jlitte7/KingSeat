@@ -28,4 +28,10 @@ export type RootStackParamList = {
     gameIndex: number;
   };
   SeriesComplete: { seriesId: string };
+  GhostPlayer: undefined;
+  BagRun: undefined;
+  AirmailRun: undefined;
+  SituationalGames: undefined;
+  BestGameChallenge: undefined;
+  PressurePractice: undefined;
 };
