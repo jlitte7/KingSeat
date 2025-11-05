@@ -70,6 +70,7 @@ interface TossSeriesState {
 }
 
 const createInitialPlayerStats = (): PlayerStats => ({
+  // Core Stats
   totalGames: 0,
   totalWins: 0,
   totalLosses: 0,
@@ -77,13 +78,46 @@ const createInitialPlayerStats = (): PlayerStats => ({
   totalBagsIn: 0,
   totalBagsOn: 0,
   totalBagsThrown: 0,
-  fourBaggers: 0,
-  comebackWins: 0,
-  longestWinStreak: 0,
-  currentWinStreak: 0,
-  averagePointsPerRound: 0,
+
+  // Accuracy & Efficiency
   bagsInPercentage: 0,
   bagsOnPercentage: 0,
+  boardPercentage: 0,
+  missPercentage: 0,
+  threeBaggerRate: 0,
+  fourBaggers: 0,
+  fourBaggerRate: 0,
+
+  // Scoring Performance
+  averagePointsPerRound: 0,
+  averagePointsPerGame: 0,
+  highestGameScore: 0,
+  shutoutWins: 0,
+  dominantWins: 0,
+  closeWins: 0,
+
+  // Momentum & Consistency
+  comebackWins: 0,
+  comebacksFrom10Plus: 0,
+  blowoutLosses: 0,
+  closeLosses: 0,
+  perfectRounds: 0,
+  zeroPointRounds: 0,
+
+  // Win Streaks & Patterns
+  longestWinStreak: 0,
+  currentWinStreak: 0,
+  longestLosingStreak: 0,
+  currentLosingStreak: 0,
+
+  // Head-to-Head Performance
+  totalOpponents: 0,
+
+  // Advanced Metrics
+  clutchFactor: 0,
+  consistency: 0,
+  winPercentage: 0,
+  dominanceRating: 0,
 });
 
 const createInitialTeamStats = (): TeamStats => ({
@@ -365,7 +399,10 @@ export const useTossSeriesStore = create<TossSeriesState>()(
         const isPlayer1 = game.player1Id === playerId;
         const isWinner = game.winnerId === playerId;
         const playerScore = isPlayer1 ? game.player1Score : game.player2Score;
+        const opponentScore = isPlayer1 ? game.player2Score : game.player1Score;
+        const opponentId = isPlayer1 ? game.player2Id : game.player1Id;
 
+        // Calculate game-specific stats
         const totalBagsIn = game.rounds.reduce(
           (sum, r) => sum + (isPlayer1 ? r.p1In : r.p2In),
           0
@@ -375,31 +412,110 @@ export const useTossSeriesStore = create<TossSeriesState>()(
           0
         );
         const totalBagsThrown = game.rounds.length * 4;
+        const totalBagsOnBoard = totalBagsIn + totalBagsOn;
+        const totalBagsMissed = totalBagsThrown - totalBagsOnBoard;
+
+        // Round-specific calculations
         const fourBaggers = game.rounds.filter((r) =>
           isPlayer1 ? r.p1In === 4 : r.p2In === 4
         ).length;
+        const threeBaggers = game.rounds.filter((r) =>
+          isPlayer1 ? r.p1In === 3 : r.p2In === 3
+        ).length;
+        const perfectRounds = fourBaggers;
+        const zeroPointRounds = game.rounds.filter((r) =>
+          isPlayer1 ? r.p1Score === 0 : r.p2Score === 0
+        ).length;
 
+        // Win/Loss analysis
+        const scoreDiff = Math.abs(playerScore - opponentScore);
+        const isShutout = isWinner && opponentScore === 0;
+        const isDominant = isWinner && scoreDiff >= 10;
+        const isClose = scoreDiff <= 3;
+
+        // Comeback detection
+        let maxDeficit = 0;
+        let runningP1Score = 0;
+        let runningP2Score = 0;
+        game.rounds.forEach((round) => {
+          runningP1Score += round.p1Score;
+          runningP2Score += round.p2Score;
+          const deficit = isPlayer1
+            ? runningP2Score - runningP1Score
+            : runningP1Score - runningP2Score;
+          maxDeficit = Math.max(maxDeficit, deficit);
+        });
+        const isComebackWin = isWinner && maxDeficit > 0;
+        const isComebackFrom10Plus = isWinner && maxDeficit >= 10;
+
+        // Update cumulative stats
         const newTotalGames = player.stats.totalGames + 1;
-        const newTotalWins = isWinner
-          ? player.stats.totalWins + 1
-          : player.stats.totalWins;
-        const newTotalLosses = !isWinner
-          ? player.stats.totalLosses + 1
-          : player.stats.totalLosses;
+        const newTotalWins = isWinner ? player.stats.totalWins + 1 : player.stats.totalWins;
+        const newTotalLosses = !isWinner ? player.stats.totalLosses + 1 : player.stats.totalLosses;
         const newTotalPoints = player.stats.totalPoints + playerScore;
         const newTotalBagsIn = player.stats.totalBagsIn + totalBagsIn;
         const newTotalBagsOn = player.stats.totalBagsOn + totalBagsOn;
         const newTotalBagsThrown = player.stats.totalBagsThrown + totalBagsThrown;
         const newFourBaggers = player.stats.fourBaggers + fourBaggers;
-        const newCurrentWinStreak = isWinner
-          ? player.stats.currentWinStreak + 1
-          : 0;
-        const newLongestWinStreak = Math.max(
-          newCurrentWinStreak,
-          player.stats.longestWinStreak
+        const newPerfectRounds = player.stats.perfectRounds + perfectRounds;
+        const newZeroPointRounds = player.stats.zeroPointRounds + zeroPointRounds;
+
+        // Win/Loss streaks
+        const newCurrentWinStreak = isWinner ? player.stats.currentWinStreak + 1 : 0;
+        const newCurrentLosingStreak = !isWinner ? player.stats.currentLosingStreak + 1 : 0;
+        const newLongestWinStreak = Math.max(newCurrentWinStreak, player.stats.longestWinStreak);
+        const newLongestLosingStreak = Math.max(newCurrentLosingStreak, player.stats.longestLosingStreak);
+
+        // Conditional counters
+        const newShutoutWins = player.stats.shutoutWins + (isShutout ? 1 : 0);
+        const newDominantWins = player.stats.dominantWins + (isDominant ? 1 : 0);
+        const newCloseWins = player.stats.closeWins + (isWinner && isClose ? 1 : 0);
+        const newCloseLosses = player.stats.closeLosses + (!isWinner && isClose ? 1 : 0);
+        const newBlowoutLosses = player.stats.blowoutLosses + (!isWinner && scoreDiff >= 10 ? 1 : 0);
+        const newComebackWins = player.stats.comebackWins + (isComebackWin ? 1 : 0);
+        const newComebacksFrom10Plus = player.stats.comebacksFrom10Plus + (isComebackFrom10Plus ? 1 : 0);
+        const newHighestGameScore = Math.max(playerScore, player.stats.highestGameScore);
+
+        // Track unique opponents
+        const playerGames = get().games.filter((g) =>
+          g.completed && (g.player1Id === playerId || g.player2Id === playerId)
+        );
+        const uniqueOpponents = new Set(
+          playerGames.map((g) => g.player1Id === playerId ? g.player2Id : g.player1Id)
+        );
+        const newTotalOpponents = uniqueOpponents.size;
+
+        // Calculate percentages and averages
+        const bagsInPct = newTotalBagsThrown > 0 ? (newTotalBagsIn / newTotalBagsThrown) * 100 : 0;
+        const bagsOnPct = newTotalBagsThrown > 0 ? (newTotalBagsOn / newTotalBagsThrown) * 100 : 0;
+        const boardPct = newTotalBagsThrown > 0 ? ((newTotalBagsIn + newTotalBagsOn) / newTotalBagsThrown) * 100 : 0;
+        const missPct = 100 - boardPct;
+
+        const totalRoundsPlayed = playerGames.reduce((sum, g) => sum + g.rounds.length, 0) + game.rounds.length;
+        const threeBaggerRate = totalRoundsPlayed > 0 ? (threeBaggers / totalRoundsPlayed) * 100 : 0;
+        const fourBaggerRate = totalRoundsPlayed > 0 ? (newFourBaggers / totalRoundsPlayed) * 100 : 0;
+
+        const avgPointsPerRound = totalRoundsPlayed > 0 ? newTotalPoints / totalRoundsPlayed : 0;
+        const avgPointsPerGame = newTotalGames > 0 ? newTotalPoints / newTotalGames : 0;
+        const winPct = newTotalGames > 0 ? (newTotalWins / newTotalGames) * 100 : 0;
+
+        // Calculate clutch factor (win rate in close games)
+        const totalCloseGames = newCloseWins + newCloseLosses;
+        const clutchFactor = totalCloseGames > 0 ? (newCloseWins / totalCloseGames) * 100 : 0;
+
+        // Calculate consistency (simplified as inverse of variance in scoring)
+        const consistency = avgPointsPerRound > 0 ? Math.min(100, (avgPointsPerRound / 10) * 100) : 0;
+
+        // Calculate dominance rating (composite score)
+        const dominanceRating = (
+          (winPct * 0.3) +
+          (bagsInPct * 0.25) +
+          (avgPointsPerRound * 10 * 0.25) +
+          (clutchFactor * 0.2)
         );
 
         const newStats: PlayerStats = {
+          // Core Stats
           totalGames: newTotalGames,
           totalWins: newTotalWins,
           totalLosses: newTotalLosses,
@@ -407,20 +523,46 @@ export const useTossSeriesStore = create<TossSeriesState>()(
           totalBagsIn: newTotalBagsIn,
           totalBagsOn: newTotalBagsOn,
           totalBagsThrown: newTotalBagsThrown,
+
+          // Accuracy & Efficiency
+          bagsInPercentage: bagsInPct,
+          bagsOnPercentage: bagsOnPct,
+          boardPercentage: boardPct,
+          missPercentage: missPct,
+          threeBaggerRate: threeBaggerRate,
           fourBaggers: newFourBaggers,
-          comebackWins: player.stats.comebackWins,
-          currentWinStreak: newCurrentWinStreak,
+          fourBaggerRate: fourBaggerRate,
+
+          // Scoring Performance
+          averagePointsPerRound: avgPointsPerRound,
+          averagePointsPerGame: avgPointsPerGame,
+          highestGameScore: newHighestGameScore,
+          shutoutWins: newShutoutWins,
+          dominantWins: newDominantWins,
+          closeWins: newCloseWins,
+
+          // Momentum & Consistency
+          comebackWins: newComebackWins,
+          comebacksFrom10Plus: newComebacksFrom10Plus,
+          blowoutLosses: newBlowoutLosses,
+          closeLosses: newCloseLosses,
+          perfectRounds: newPerfectRounds,
+          zeroPointRounds: newZeroPointRounds,
+
+          // Win Streaks & Patterns
           longestWinStreak: newLongestWinStreak,
-          averagePointsPerRound:
-            game.rounds.length > 0 ? newTotalPoints / game.rounds.length : 0,
-          bagsInPercentage:
-            newTotalBagsThrown > 0
-              ? (newTotalBagsIn / newTotalBagsThrown) * 100
-              : 0,
-          bagsOnPercentage:
-            newTotalBagsThrown > 0
-              ? (newTotalBagsOn / newTotalBagsThrown) * 100
-              : 0,
+          currentWinStreak: newCurrentWinStreak,
+          longestLosingStreak: newLongestLosingStreak,
+          currentLosingStreak: newCurrentLosingStreak,
+
+          // Head-to-Head Performance
+          totalOpponents: newTotalOpponents,
+
+          // Advanced Metrics
+          clutchFactor: clutchFactor,
+          consistency: consistency,
+          winPercentage: winPct,
+          dominanceRating: dominanceRating,
         };
 
         get().updatePlayer(playerId, { stats: newStats });

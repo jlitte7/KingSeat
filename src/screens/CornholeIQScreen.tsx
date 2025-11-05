@@ -2,15 +2,19 @@ import React from 'react';
 import { View, Text, Pressable, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../navigation/types';
 import { useTossSeriesStore } from '../state/toss-series-store';
 import { Ionicons } from '@expo/vector-icons';
 
+type CornholeIQNavigationProp = NativeStackNavigationProp<RootStackParamList, 'CornholeIQ'>;
+
 export default function CornholeIQScreen() {
-  const navigation = useNavigation();
+  const navigation = useNavigation<CornholeIQNavigationProp>();
   const players = useTossSeriesStore((s) => s.players);
 
   const sortedPlayers = [...players].sort(
-    (a, b) => b.stats.bagsInPercentage - a.stats.bagsInPercentage
+    (a, b) => b.stats.dominanceRating - a.stats.dominanceRating
   );
 
   return (
@@ -35,15 +39,16 @@ export default function CornholeIQScreen() {
           </View>
         ) : (
           <ScrollView className="flex-1 px-4 pt-4">
-            <Text className="text-white text-lg font-bold mb-4">Top Players</Text>
+            <Text className="text-white text-lg font-bold mb-4">Top Players (by Dominance Rating)</Text>
             {sortedPlayers.map((player, index) => (
-              <View
+              <Pressable
                 key={player.id}
+                onPress={() => navigation.navigate('PlayerProfile', { playerId: player.id })}
                 className="bg-gray-800 rounded-lg p-4 mb-3 border border-gray-700"
               >
                 <View className="flex-row items-center mb-3">
                   <View className="w-8 h-8 rounded-full bg-purple-600 items-center justify-center mr-3">
-                    <Text className="text-white font-bold">#{index + 1}</Text>
+                    <Text className="text-white font-bold text-sm">#{index + 1}</Text>
                   </View>
                   <View className="flex-1">
                     <Text className="text-white font-bold text-lg">{player.name}</Text>
@@ -51,46 +56,57 @@ export default function CornholeIQScreen() {
                       <Text className="text-gray-400 text-sm">{player.nickname}</Text>
                     )}
                   </View>
+                  <View className="items-end">
+                    <Text className="text-yellow-400 font-bold text-lg">
+                      {player.stats.dominanceRating.toFixed(1)}
+                    </Text>
+                    <Text className="text-gray-500 text-xs">Dominance</Text>
+                  </View>
                 </View>
 
                 <View className="flex-row flex-wrap">
-                  <View className="w-1/2 mb-2">
-                    <Text className="text-gray-400 text-xs">Games</Text>
-                    <Text className="text-white font-bold">{player.stats.totalGames}</Text>
-                  </View>
-                  <View className="w-1/2 mb-2">
-                    <Text className="text-gray-400 text-xs">Win Rate</Text>
+                  <View className="w-1/3 mb-2">
+                    <Text className="text-gray-400 text-xs">Record</Text>
                     <Text className="text-white font-bold">
-                      {player.stats.totalGames > 0
-                        ? ((player.stats.totalWins / player.stats.totalGames) * 100).toFixed(1)
-                        : '0.0'}
-                      %
+                      {player.stats.totalWins}-{player.stats.totalLosses}
                     </Text>
                   </View>
-                  <View className="w-1/2 mb-2">
-                    <Text className="text-gray-400 text-xs">Bags In</Text>
+                  <View className="w-1/3 mb-2">
+                    <Text className="text-gray-400 text-xs">Win %</Text>
                     <Text className="text-white font-bold">
-                      {player.stats.bagsInPercentage.toFixed(1)}%
+                      {player.stats.winPercentage.toFixed(1)}%
                     </Text>
                   </View>
-                  <View className="w-1/2 mb-2">
-                    <Text className="text-gray-400 text-xs">Four Baggers</Text>
-                    <Text className="text-white font-bold">{player.stats.fourBaggers}</Text>
-                  </View>
-                  <View className="w-1/2">
+                  <View className="w-1/3 mb-2">
                     <Text className="text-gray-400 text-xs">PPR</Text>
                     <Text className="text-white font-bold">
                       {player.stats.averagePointsPerRound.toFixed(1)}
                     </Text>
                   </View>
-                  <View className="w-1/2">
-                    <Text className="text-gray-400 text-xs">Win Streak</Text>
+                  <View className="w-1/3 mb-2">
+                    <Text className="text-gray-400 text-xs">Bags In</Text>
                     <Text className="text-white font-bold">
-                      {player.stats.longestWinStreak}
+                      {player.stats.bagsInPercentage.toFixed(1)}%
+                    </Text>
+                  </View>
+                  <View className="w-1/3 mb-2">
+                    <Text className="text-gray-400 text-xs">Board %</Text>
+                    <Text className="text-white font-bold">
+                      {player.stats.boardPercentage.toFixed(1)}%
+                    </Text>
+                  </View>
+                  <View className="w-1/3 mb-2">
+                    <Text className="text-gray-400 text-xs">Clutch</Text>
+                    <Text className="text-white font-bold">
+                      {player.stats.clutchFactor.toFixed(1)}%
                     </Text>
                   </View>
                 </View>
-              </View>
+
+                <View className="flex-row items-center justify-end mt-1">
+                  <Ionicons name="chevron-forward" size={16} color="#9ca3af" />
+                </View>
+              </Pressable>
             ))}
           </ScrollView>
         )}

@@ -10,6 +10,7 @@ export interface Player {
 }
 
 export interface PlayerStats {
+  // Core Stats
   totalGames: number;
   totalWins: number;
   totalLosses: number;
@@ -17,13 +18,46 @@ export interface PlayerStats {
   totalBagsIn: number;
   totalBagsOn: number;
   totalBagsThrown: number;
-  fourBaggers: number;
-  comebackWins: number;
-  longestWinStreak: number;
-  currentWinStreak: number;
-  averagePointsPerRound: number;
+
+  // Accuracy & Efficiency
   bagsInPercentage: number;
   bagsOnPercentage: number;
+  boardPercentage: number; // Combined bags in + on (landing accuracy)
+  missPercentage: number; // Bags that completely missed
+  threeBaggerRate: number; // Percentage of rounds with 3 bags in
+  fourBaggers: number;
+  fourBaggerRate: number; // Percentage of rounds with 4 bags in
+
+  // Scoring Performance
+  averagePointsPerRound: number;
+  averagePointsPerGame: number;
+  highestGameScore: number;
+  shutoutWins: number; // Games won without opponent scoring
+  dominantWins: number; // Games won by 10+ points
+  closeWins: number; // Games won by 3 points or less
+
+  // Momentum & Consistency
+  comebackWins: number;
+  comebacksFrom10Plus: number; // Specific stat for down 10+
+  blowoutLosses: number; // Lost by 10+ points
+  closeLosses: number; // Lost by 3 points or less
+  perfectRounds: number; // Rounds with all 4 bags in
+  zeroPointRounds: number; // Rounds where player scored 0
+
+  // Win Streaks & Patterns
+  longestWinStreak: number;
+  currentWinStreak: number;
+  longestLosingStreak: number;
+  currentLosingStreak: number;
+
+  // Head-to-Head Performance
+  totalOpponents: number; // Number of unique opponents faced
+
+  // Advanced Metrics
+  clutchFactor: number; // Win rate in close games (within 3 points)
+  consistency: number; // Standard deviation of PPR (lower is more consistent)
+  winPercentage: number;
+  dominanceRating: number; // Composite score of performance
 }
 
 export interface Team {

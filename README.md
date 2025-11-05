@@ -22,15 +22,52 @@ A comprehensive cornhole league management and scoring app built with Expo and R
 - **Easy Navigation**: Quick access to team and player details
 
 ### 📈 CornholeIQ (Statistics Dashboard)
-- **Player Rankings**: Sorted by bag-in percentage
-- **Comprehensive Stats**:
-  - Win/Loss records
-  - Bag accuracy percentages (In % and On %)
-  - Points Per Round (PPR)
-  - Four-bagger counts and percentages
-  - Win streaks (current and longest)
+- **Player Rankings**: Sorted by Dominance Rating (composite performance score)
+- **Comprehensive Stats Categories**:
+
+#### Core Stats
+  - Win/Loss records and percentages
   - Total games played
   - Total points scored
+  - Opponents faced
+
+#### Accuracy & Efficiency
+  - Bags In % (percentage of bags that go in the hole)
+  - Bags On % (percentage of bags that land on the board)
+  - Board % (combined In + On - overall landing accuracy)
+  - Miss % (bags that completely miss)
+  - Four Bagger Rate (% of rounds with all 4 bags in)
+  - Three Bagger Rate (% of rounds with 3 bags in)
+  - Perfect Rounds (total four-baggers)
+  - Zero Point Rounds (rounds scored 0)
+
+#### Scoring Performance
+  - Points Per Round (PPR) - average points scored per round
+  - Average Points Per Game
+  - Highest Game Score
+  - Total Career Points
+
+#### Win Quality
+  - Shutout Wins (opponent scored 0)
+  - Dominant Wins (won by 10+ points)
+  - Close Wins (won by 3 points or less)
+  - Comeback Wins (won after being behind)
+  - Comebacks from 10+ down
+
+#### Loss Analysis
+  - Close Losses (lost by 3 points or less)
+  - Blowout Losses (lost by 10+ points)
+
+#### Streaks & Momentum
+  - Current Win Streak
+  - Longest Win Streak
+  - Current Losing Streak
+  - Longest Losing Streak
+
+#### Advanced Metrics
+  - **Dominance Rating**: Composite score combining win%, accuracy, scoring, and clutch performance
+  - **Clutch Factor**: Win rate in close games (within 3 points)
+  - **Consistency Score**: Measure of scoring reliability
 
 ### 🏅 Achievement System
 - **First Blood**: Win your first game

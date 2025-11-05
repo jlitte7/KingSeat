@@ -26,6 +26,22 @@ export default function PlayerProfileScreen() {
     );
   }
 
+  const StatCard = ({ title, children }: { title: string; children: React.ReactNode }) => (
+    <View className="bg-gray-800 rounded-lg p-4 mb-4">
+      <Text className="text-gray-400 text-sm mb-3 font-bold">{title}</Text>
+      {children}
+    </View>
+  );
+
+  const StatRow = ({ label, value, highlight }: { label: string; value: string | number; highlight?: boolean }) => (
+    <View className="flex-row justify-between py-1.5">
+      <Text className="text-gray-300 text-sm">{label}</Text>
+      <Text className={`font-bold text-sm ${highlight ? 'text-yellow-400' : 'text-white'}`}>
+        {value}
+      </Text>
+    </View>
+  );
+
   return (
     <SafeAreaView className="flex-1 bg-gray-900">
       <View className="flex-1">
@@ -37,6 +53,7 @@ export default function PlayerProfileScreen() {
         </View>
 
         <ScrollView className="flex-1">
+          {/* Player Header */}
           <View className="px-4 py-6 bg-gray-800 border-b border-gray-700 items-center">
             <View className="w-24 h-24 rounded-full bg-purple-600 items-center justify-center mb-4">
               <Text className="text-white text-4xl font-bold">{player.name[0]}</Text>
@@ -45,80 +62,95 @@ export default function PlayerProfileScreen() {
             {player.nickname && (
               <Text className="text-gray-400 text-lg mt-1">{player.nickname}</Text>
             )}
+            <View className="mt-4 bg-yellow-500/10 px-4 py-2 rounded-full">
+              <Text className="text-yellow-400 font-bold text-lg">
+                {player.stats.dominanceRating.toFixed(1)} Dominance
+              </Text>
+            </View>
           </View>
 
           <View className="px-4 py-6">
-            <Text className="text-white text-lg font-bold mb-4">Statistics</Text>
-
-            <View className="bg-gray-800 rounded-lg p-4 mb-4">
-              <Text className="text-gray-400 text-sm mb-3">Game Record</Text>
-              <View className="flex-row">
-                <View className="flex-1 items-center">
-                  <Text className="text-white text-2xl font-bold">{player.stats.totalGames}</Text>
-                  <Text className="text-gray-400 text-xs">Games</Text>
+            {/* Core Record */}
+            <StatCard title="Game Record">
+              <View className="flex-row justify-around mb-2">
+                <View className="items-center">
+                  <Text className="text-white text-3xl font-bold">{player.stats.totalGames}</Text>
+                  <Text className="text-gray-400 text-xs mt-1">Games</Text>
                 </View>
-                <View className="flex-1 items-center">
-                  <Text className="text-green-500 text-2xl font-bold">{player.stats.totalWins}</Text>
-                  <Text className="text-gray-400 text-xs">Wins</Text>
+                <View className="items-center">
+                  <Text className="text-green-500 text-3xl font-bold">{player.stats.totalWins}</Text>
+                  <Text className="text-gray-400 text-xs mt-1">Wins</Text>
                 </View>
-                <View className="flex-1 items-center">
-                  <Text className="text-red-500 text-2xl font-bold">{player.stats.totalLosses}</Text>
-                  <Text className="text-gray-400 text-xs">Losses</Text>
+                <View className="items-center">
+                  <Text className="text-red-500 text-3xl font-bold">{player.stats.totalLosses}</Text>
+                  <Text className="text-gray-400 text-xs mt-1">Losses</Text>
                 </View>
               </View>
-            </View>
-
-            <View className="bg-gray-800 rounded-lg p-4 mb-4">
-              <Text className="text-gray-400 text-sm mb-3">Accuracy</Text>
-              <View className="space-y-2">
-                <View className="flex-row justify-between">
-                  <Text className="text-gray-300">Bags In %</Text>
-                  <Text className="text-white font-bold">
-                    {player.stats.bagsInPercentage.toFixed(1)}%
-                  </Text>
-                </View>
-                <View className="flex-row justify-between">
-                  <Text className="text-gray-300">Bags On %</Text>
-                  <Text className="text-white font-bold">
-                    {player.stats.bagsOnPercentage.toFixed(1)}%
-                  </Text>
-                </View>
-                <View className="flex-row justify-between">
-                  <Text className="text-gray-300">Four Baggers</Text>
-                  <Text className="text-white font-bold">{player.stats.fourBaggers}</Text>
-                </View>
+              <View className="border-t border-gray-700 mt-3 pt-3">
+                <StatRow label="Win Percentage" value={`${player.stats.winPercentage.toFixed(1)}%`} />
+                <StatRow label="Opponents Faced" value={player.stats.totalOpponents} />
               </View>
-            </View>
+            </StatCard>
 
-            <View className="bg-gray-800 rounded-lg p-4 mb-4">
-              <Text className="text-gray-400 text-sm mb-3">Performance</Text>
-              <View className="space-y-2">
-                <View className="flex-row justify-between">
-                  <Text className="text-gray-300">Avg Points Per Round</Text>
-                  <Text className="text-white font-bold">
-                    {player.stats.averagePointsPerRound.toFixed(1)}
-                  </Text>
-                </View>
-                <View className="flex-row justify-between">
-                  <Text className="text-gray-300">Total Points</Text>
-                  <Text className="text-white font-bold">{player.stats.totalPoints}</Text>
-                </View>
-                <View className="flex-row justify-between">
-                  <Text className="text-gray-300">Longest Win Streak</Text>
-                  <Text className="text-white font-bold">{player.stats.longestWinStreak}</Text>
-                </View>
-                <View className="flex-row justify-between">
-                  <Text className="text-gray-300">Current Win Streak</Text>
-                  <Text className="text-white font-bold">{player.stats.currentWinStreak}</Text>
-                </View>
+            {/* Accuracy & Efficiency */}
+            <StatCard title="Accuracy & Efficiency">
+              <StatRow label="Bags In %" value={`${player.stats.bagsInPercentage.toFixed(1)}%`} />
+              <StatRow label="Bags On %" value={`${player.stats.bagsOnPercentage.toFixed(1)}%`} />
+              <StatRow label="Board % (In + On)" value={`${player.stats.boardPercentage.toFixed(1)}%`} highlight />
+              <StatRow label="Miss %" value={`${player.stats.missPercentage.toFixed(1)}%`} />
+              <View className="border-t border-gray-700 mt-2 pt-2">
+                <StatRow label="Four Baggers" value={player.stats.fourBaggers} />
+                <StatRow label="Four Bagger Rate" value={`${player.stats.fourBaggerRate.toFixed(1)}%`} />
+                <StatRow label="Three Bagger Rate" value={`${player.stats.threeBaggerRate.toFixed(1)}%`} />
+                <StatRow label="Perfect Rounds" value={player.stats.perfectRounds} />
+                <StatRow label="Zero Point Rounds" value={player.stats.zeroPointRounds} />
               </View>
-            </View>
+            </StatCard>
 
+            {/* Scoring Performance */}
+            <StatCard title="Scoring Performance">
+              <StatRow label="Avg Points Per Round" value={player.stats.averagePointsPerRound.toFixed(2)} highlight />
+              <StatRow label="Avg Points Per Game" value={player.stats.averagePointsPerGame.toFixed(1)} />
+              <StatRow label="Highest Game Score" value={player.stats.highestGameScore} />
+              <StatRow label="Total Career Points" value={player.stats.totalPoints} />
+            </StatCard>
+
+            {/* Win Quality */}
+            <StatCard title="Win Quality">
+              <StatRow label="Shutout Wins" value={player.stats.shutoutWins} />
+              <StatRow label="Dominant Wins (10+ pts)" value={player.stats.dominantWins} />
+              <StatRow label="Close Wins (≤3 pts)" value={player.stats.closeWins} />
+              <StatRow label="Comeback Wins" value={player.stats.comebackWins} />
+              <StatRow label="Comebacks from 10+ down" value={player.stats.comebacksFrom10Plus} />
+            </StatCard>
+
+            {/* Loss Analysis */}
+            <StatCard title="Loss Analysis">
+              <StatRow label="Close Losses (≤3 pts)" value={player.stats.closeLosses} />
+              <StatRow label="Blowout Losses (10+ pts)" value={player.stats.blowoutLosses} />
+            </StatCard>
+
+            {/* Streaks */}
+            <StatCard title="Streaks & Momentum">
+              <StatRow label="Current Win Streak" value={player.stats.currentWinStreak} highlight={player.stats.currentWinStreak > 0} />
+              <StatRow label="Longest Win Streak" value={player.stats.longestWinStreak} />
+              <StatRow label="Current Losing Streak" value={player.stats.currentLosingStreak} highlight={player.stats.currentLosingStreak > 0} />
+              <StatRow label="Longest Losing Streak" value={player.stats.longestLosingStreak} />
+            </StatCard>
+
+            {/* Advanced Metrics */}
+            <StatCard title="Advanced Metrics">
+              <StatRow label="Clutch Factor" value={`${player.stats.clutchFactor.toFixed(1)}%`} highlight />
+              <Text className="text-gray-500 text-xs mb-2">Win rate in close games (≤3 pts)</Text>
+              <StatRow label="Consistency Score" value={player.stats.consistency.toFixed(1)} />
+              <Text className="text-gray-500 text-xs mb-2">Higher is more consistent scoring</Text>
+            </StatCard>
+
+            {/* Achievements */}
             {player.achievements.length > 0 && (
-              <View className="bg-gray-800 rounded-lg p-4">
-                <Text className="text-gray-400 text-sm mb-3">Achievements</Text>
+              <StatCard title="Achievements">
                 {player.achievements.map((achievement) => (
-                  <View key={achievement.id} className="flex-row items-center mb-3">
+                  <View key={achievement.id} className="flex-row items-center mb-3 bg-gray-900 p-3 rounded-lg">
                     <Text className="text-4xl mr-3">{achievement.icon}</Text>
                     <View className="flex-1">
                       <Text className="text-white font-bold">{achievement.title}</Text>
@@ -126,7 +158,7 @@ export default function PlayerProfileScreen() {
                     </View>
                   </View>
                 ))}
-              </View>
+              </StatCard>
             )}
           </View>
         </ScrollView>
