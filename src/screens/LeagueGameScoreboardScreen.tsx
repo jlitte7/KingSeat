@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { View, Text, Pressable, ScrollView, Alert } from "react-native";
+import React, { useState } from "react";
+import { View, Text, Pressable, Dimensions, Modal } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -7,6 +7,7 @@ import { RootStackParamList } from "../navigation/types";
 import { useTossSeriesStore } from "../state/toss-series-store";
 import { Ionicons } from "@expo/vector-icons";
 import { Round } from "../types/toss-series";
+import { LinearGradient } from "expo-linear-gradient";
 
 type LeagueGameScoreboardRouteProp = RouteProp<RootStackParamList, "LeagueGameScoreboard">;
 type LeagueGameScoreboardNavigationProp = NativeStackNavigationProp<
@@ -27,10 +28,13 @@ export default function LeagueGameScoreboardScreen() {
   const [awayOn, setAwayOn] = useState(0);
   const [homeIn, setHomeIn] = useState(0);
   const [homeOn, setHomeOn] = useState(0);
+  const [showGameOver, setShowGameOver] = useState(false);
+  const [winningTeam, setWinningTeam] = useState("");
+  const [finalScore, setFinalScore] = useState({ winner: 0, loser: 0 });
 
   // Track which player is throwing (rotates each round)
-  const [awayThrowerIndex, setAwayThrowerIndex] = useState(0); // 0 = player1, 1 = player2
-  const [homeThrowerIndex, setHomeThrowerIndex] = useState(0); // 0 = player1, 1 = player2
+  const [awayThrowerIndex, setAwayThrowerIndex] = useState(0);
+  const [homeThrowerIndex, setHomeThrowerIndex] = useState(0);
 
   const game = match?.games.find((g) => g.gameNumber === gameNumber);
 
@@ -59,6 +63,14 @@ export default function LeagueGameScoreboardScreen() {
 
   const currentRound = game.rounds.length + 1;
 
+  // Calculate preview scores with cancellation
+  const awayRawScore = awayIn * 3 + awayOn;
+  const homeRawScore = homeIn * 3 + homeOn;
+  const awayRoundPoints = Math.max(0, awayRawScore - homeRawScore);
+  const homeRoundPoints = Math.max(0, homeRawScore - awayRawScore);
+  const projectedAwayTotal = game.awayTeamScore + awayRoundPoints;
+  const projectedHomeTotal = game.homeTeamScore + homeRoundPoints;
+
   const handleReset = () => {
     setAwayIn(0);
     setAwayOn(0);
@@ -68,54 +80,35 @@ export default function LeagueGameScoreboardScreen() {
 
   const handleEnterRound = () => {
     if (game.awayTeamScore >= 21 || game.homeTeamScore >= 21) {
-      Alert.alert("Game Over", "This game has already been completed");
       return;
     }
 
-    // Cancellation scoring
-    const awayRawScore = awayIn * 3 + awayOn;
-    const homeRawScore = homeIn * 3 + homeOn;
-    const awayScore = Math.max(0, awayRawScore - homeRawScore);
-    const homeScore = Math.max(0, homeRawScore - awayRawScore);
-
     const round: Round = {
-      // Away team thrower
       p1ThrowerId: currentAwayThrower.id,
       p1ThrowerName: currentAwayThrower.name,
       p1In: awayIn,
       p1On: awayOn,
-      p1Score: awayScore,
-
-      // Home team thrower
+      p1Score: awayRoundPoints,
       p2ThrowerId: currentHomeThrower.id,
       p2ThrowerName: currentHomeThrower.name,
       p2In: homeIn,
       p2On: homeOn,
-      p2Score: homeScore,
+      p2Score: homeRoundPoints,
     };
 
     addRoundToLeagueGame(leagueId, matchId, gameNumber, round);
 
-    const newAwayTotal = game.awayTeamScore + awayScore;
-    const newHomeTotal = game.homeTeamScore + homeScore;
+    if (projectedAwayTotal >= 21 || projectedHomeTotal >= 21) {
+      const winner = projectedAwayTotal >= 21 ? "away" : "home";
+      completeLeagueGame(leagueId, matchId, gameNumber, winner);
 
-    // Check if game is over
-    if (newAwayTotal >= 21 || newHomeTotal >= 21) {
-      const winningTeam = newAwayTotal >= 21 ? "away" : "home";
-      completeLeagueGame(leagueId, matchId, gameNumber, winningTeam);
-
-      Alert.alert(
-        "Game Complete!",
-        `${winningTeam === "away" ? match.awayTeamName : match.homeTeamName} wins ${Math.max(newAwayTotal, newHomeTotal)} - ${Math.min(newAwayTotal, newHomeTotal)}`,
-        [
-          {
-            text: "Back to Match",
-            onPress: () => navigation.goBack(),
-          },
-        ]
-      );
+      setWinningTeam(winner === "away" ? match.awayTeamName : match.homeTeamName);
+      setFinalScore({
+        winner: Math.max(projectedAwayTotal, projectedHomeTotal),
+        loser: Math.min(projectedAwayTotal, projectedHomeTotal),
+      });
+      setShowGameOver(true);
     } else {
-      // Rotate to next thrower for next round
       setAwayThrowerIndex((prev) => (prev + 1) % 2);
       setHomeThrowerIndex((prev) => (prev + 1) % 2);
     }
@@ -123,153 +116,251 @@ export default function LeagueGameScoreboardScreen() {
     handleReset();
   };
 
-  const Counter = ({
+  const handleCloseGame = () => {
+    setShowGameOver(false);
+    navigation.goBack();
+  };
+
+  const NumberSelector = ({
     label,
     value,
-    onIncrement,
-    onDecrement,
+    onChange,
     color,
+    maxValue = 4,
   }: {
     label: string;
     value: number;
-    onIncrement: () => void;
-    onDecrement: () => void;
+    onChange: (val: number) => void;
     color: string;
+    maxValue?: number;
   }) => (
-    <View className="flex-1">
-      <Text className={`text-center font-bold mb-3 text-lg ${color}`}>{label}</Text>
-      <View className="flex-row items-center justify-center">
-        <Pressable
-          onPress={onDecrement}
-          className="w-16 h-16 bg-gray-700 rounded-full items-center justify-center"
-          disabled={value === 0}
-        >
-          <Ionicons name="remove" size={28} color={value === 0 ? "#4b5563" : "#fff"} />
-        </Pressable>
-        <Text className="text-white text-5xl font-bold mx-8 w-16 text-center">
-          {value}
-        </Text>
-        <Pressable
-          onPress={onIncrement}
-          className="w-16 h-16 bg-gray-700 rounded-full items-center justify-center"
-          disabled={value === 4}
-        >
-          <Ionicons name="add" size={28} color={value === 4 ? "#4b5563" : "#fff"} />
-        </Pressable>
+    <View className="items-center">
+      <Text className={`text-sm font-bold mb-2 ${color}`}>{label}</Text>
+      <View className="flex-row gap-1">
+        {[0, 1, 2, 3, 4].map((num) => {
+          const isDisabled = num > maxValue;
+          const isSelected = value === num;
+          return (
+            <Pressable
+              key={num}
+              onPress={() => !isDisabled && onChange(num)}
+              disabled={isDisabled}
+              className={`w-11 h-11 rounded-lg items-center justify-center ${
+                isSelected
+                  ? "bg-white"
+                  : isDisabled
+                  ? "bg-gray-800"
+                  : "bg-gray-700"
+              }`}
+            >
+              <Text
+                className={`text-xl font-bold ${
+                  isSelected
+                    ? color.replace("text-", "text-")
+                    : isDisabled
+                    ? "text-gray-600"
+                    : "text-gray-300"
+                }`}
+              >
+                {num}
+              </Text>
+            </Pressable>
+          );
+        })}
       </View>
     </View>
   );
 
+  const { width } = Dimensions.get("window");
+  const isCompact = width < 400;
+
   return (
-    <SafeAreaView className="flex-1 bg-gray-900">
-      <View className="flex-1">
+    <View className="flex-1 bg-black">
+      <SafeAreaView edges={["top"]} className="flex-1">
         {/* Header */}
-        <View className="px-4 py-3 flex-row items-center border-b border-gray-800">
-          <Pressable onPress={() => navigation.goBack()} className="mr-4">
+        <View className="px-4 py-3 flex-row items-center justify-between bg-gray-900 border-b border-gray-800">
+          <Pressable onPress={() => navigation.goBack()} className="p-1">
             <Ionicons name="arrow-back" size={24} color="#fff" />
           </Pressable>
-          <View>
-            <Text className="text-white text-xl font-bold">
-              Game {gameNumber} - 2v2
-            </Text>
-            <Text className="text-gray-400 text-sm">Round {currentRound}</Text>
+          <View className="items-center">
+            <Text className="text-white text-lg font-bold">Game {gameNumber}</Text>
+            <Text className="text-gray-400 text-xs">Round {currentRound}</Text>
+          </View>
+          <Pressable onPress={handleReset} className="p-1">
+            <Ionicons name="refresh" size={22} color="#fff" />
+          </Pressable>
+        </View>
+
+        {/* Live Score Display */}
+        <View className="px-4 py-6 bg-gradient-to-b from-gray-900 to-black">
+          <View className="flex-row items-center justify-center gap-8 mb-4">
+            <View className="items-center flex-1">
+              <Text className="text-blue-400 text-sm font-bold mb-1 text-center" numberOfLines={1}>
+                {match.awayTeamName}
+              </Text>
+              <Text
+                className="text-white font-black"
+                style={{
+                  fontSize: isCompact ? 56 : 72,
+                  textShadowColor: "rgba(59, 130, 246, 0.5)",
+                  textShadowOffset: { width: 0, height: 4 },
+                  textShadowRadius: 20,
+                }}
+              >
+                {projectedAwayTotal}
+              </Text>
+              {awayRoundPoints > 0 && (
+                <Text className="text-green-400 text-xs font-bold">
+                  +{awayRoundPoints}
+                </Text>
+              )}
+            </View>
+
+            <Text className="text-gray-600 text-4xl font-bold">-</Text>
+
+            <View className="items-center flex-1">
+              <Text className="text-red-400 text-sm font-bold mb-1 text-center" numberOfLines={1}>
+                {match.homeTeamName}
+              </Text>
+              <Text
+                className="text-white font-black"
+                style={{
+                  fontSize: isCompact ? 56 : 72,
+                  textShadowColor: "rgba(239, 68, 68, 0.5)",
+                  textShadowOffset: { width: 0, height: 4 },
+                  textShadowRadius: 20,
+                }}
+              >
+                {projectedHomeTotal}
+              </Text>
+              {homeRoundPoints > 0 && (
+                <Text className="text-green-400 text-xs font-bold">
+                  +{homeRoundPoints}
+                </Text>
+              )}
+            </View>
           </View>
         </View>
 
-        {/* Score Display - Compact */}
-        <View className="px-6 py-4 border-b border-gray-800">
-          <View className="flex-row justify-between items-center mb-2">
-            <View className="flex-1">
-              <Text className="text-blue-400 text-xs">{match.awayTeamName}</Text>
-              <Text className="text-blue-400 text-sm font-bold">
-                {awayPlayers[0].name} & {awayPlayers[1].name}
-              </Text>
+        {/* Away Team Input */}
+        <View className="flex-1 px-4 pt-6 pb-3">
+          <View className="bg-gray-900 rounded-2xl p-5 mb-4 border-2 border-blue-500/30">
+            <View className="flex-row items-center justify-between mb-4">
+              <View className="flex-1">
+                <Text className="text-blue-400 text-xs font-bold">
+                  {match.awayTeamName}
+                </Text>
+                <Text className="text-white text-lg font-bold">
+                  {currentAwayThrower.name}
+                </Text>
+              </View>
+              <View className="bg-blue-500/20 px-3 py-1 rounded-full">
+                <Text className="text-blue-400 font-bold text-sm">
+                  {awayRawScore} pts
+                </Text>
+              </View>
             </View>
-            <Text className="text-blue-400 text-4xl font-bold">{game.awayTeamScore}</Text>
-          </View>
-          <View className="flex-row justify-between items-center">
-            <View className="flex-1">
-              <Text className="text-red-400 text-xs">{match.homeTeamName}</Text>
-              <Text className="text-red-400 text-sm font-bold">
-                {homePlayers[0].name} & {homePlayers[1].name}
-              </Text>
-            </View>
-            <Text className="text-red-400 text-4xl font-bold">{game.homeTeamScore}</Text>
-          </View>
-        </View>
-
-        <ScrollView className="flex-1">
-          {/* Away Team Thrower */}
-          <View className="px-6 py-8 border-b-4 border-blue-600">
-            <Text className="text-blue-400 text-2xl font-bold mb-1 text-center">
-              {match.awayTeamName}
-            </Text>
-            <Text className="text-blue-300 text-base text-center mb-6">
-              {currentAwayThrower.name}
-            </Text>
-            <View className="flex-row">
-              <Counter
-                label="IN"
+            <View className="flex-row justify-around">
+              <NumberSelector
+                label="BAGS IN"
                 value={awayIn}
-                onIncrement={() => setAwayIn(Math.min(4, awayIn + 1))}
-                onDecrement={() => setAwayIn(Math.max(0, awayIn - 1))}
+                onChange={setAwayIn}
                 color="text-blue-400"
+                maxValue={4 - awayOn}
               />
-              <View className="w-8" />
-              <Counter
-                label="ON"
+              <NumberSelector
+                label="BAGS ON"
                 value={awayOn}
-                onIncrement={() => setAwayOn(Math.min(4, awayOn + 1))}
-                onDecrement={() => setAwayOn(Math.max(0, awayOn - 1))}
+                onChange={setAwayOn}
                 color="text-blue-400"
+                maxValue={4 - awayIn}
               />
             </View>
           </View>
 
-          {/* Home Team Thrower */}
-          <View className="px-6 py-8 border-b-4 border-red-600">
-            <Text className="text-red-400 text-2xl font-bold mb-1 text-center">
-              {match.homeTeamName}
-            </Text>
-            <Text className="text-red-300 text-base text-center mb-6">
-              {currentHomeThrower.name}
-            </Text>
-            <View className="flex-row">
-              <Counter
-                label="IN"
+          {/* Home Team Input */}
+          <View className="bg-gray-900 rounded-2xl p-5 border-2 border-red-500/30">
+            <View className="flex-row items-center justify-between mb-4">
+              <View className="flex-1">
+                <Text className="text-red-400 text-xs font-bold">
+                  {match.homeTeamName}
+                </Text>
+                <Text className="text-white text-lg font-bold">
+                  {currentHomeThrower.name}
+                </Text>
+              </View>
+              <View className="bg-red-500/20 px-3 py-1 rounded-full">
+                <Text className="text-red-400 font-bold text-sm">
+                  {homeRawScore} pts
+                </Text>
+              </View>
+            </View>
+            <View className="flex-row justify-around">
+              <NumberSelector
+                label="BAGS IN"
                 value={homeIn}
-                onIncrement={() => setHomeIn(Math.min(4, homeIn + 1))}
-                onDecrement={() => setHomeIn(Math.max(0, homeIn - 1))}
+                onChange={setHomeIn}
                 color="text-red-400"
+                maxValue={4 - homeOn}
               />
-              <View className="w-8" />
-              <Counter
-                label="ON"
+              <NumberSelector
+                label="BAGS ON"
                 value={homeOn}
-                onIncrement={() => setHomeOn(Math.min(4, homeOn + 1))}
-                onDecrement={() => setHomeOn(Math.max(0, homeOn - 1))}
+                onChange={setHomeOn}
                 color="text-red-400"
+                maxValue={4 - homeIn}
               />
             </View>
           </View>
-        </ScrollView>
-
-        {/* Action Buttons */}
-        <View className="px-6 py-4 flex-row border-t border-gray-800">
-          <Pressable
-            onPress={handleReset}
-            className="flex-1 bg-gray-700 py-4 rounded-lg mr-2"
-          >
-            <Text className="text-white font-bold text-center text-lg">Cancel</Text>
-          </Pressable>
-          <Pressable
-            onPress={handleEnterRound}
-            className="flex-1 bg-green-600 py-4 rounded-lg ml-2"
-          >
-            <Text className="text-white font-bold text-center text-lg">Enter</Text>
-          </Pressable>
         </View>
-      </View>
-    </SafeAreaView>
+
+        {/* Submit Button */}
+        <SafeAreaView edges={["bottom"]} className="bg-gray-900 border-t border-gray-800">
+          <View className="px-4 py-3">
+            <Pressable
+              onPress={handleEnterRound}
+              disabled={awayIn + awayOn === 0 && homeIn + homeOn === 0}
+              className={`py-4 rounded-xl items-center ${
+                awayIn + awayOn === 0 && homeIn + homeOn === 0
+                  ? "bg-gray-700"
+                  : "bg-green-600"
+              }`}
+            >
+              <Text className="text-white font-bold text-lg">
+                Submit Round {currentRound}
+              </Text>
+            </Pressable>
+          </View>
+        </SafeAreaView>
+      </SafeAreaView>
+
+      {/* Game Over Modal */}
+      <Modal visible={showGameOver} transparent animationType="fade">
+        <View className="flex-1 bg-black/95">
+          <SafeAreaView className="flex-1 items-center justify-center px-6">
+            <View className="bg-gray-900 rounded-3xl p-8 w-full max-w-md border border-gray-700">
+              <View className="items-center mb-6">
+                <Text className="text-yellow-400 text-6xl mb-4">🏆</Text>
+                <Text className="text-white text-3xl font-bold text-center mb-2">
+                  {winningTeam} Wins!
+                </Text>
+                <Text className="text-gray-300 text-5xl font-bold">
+                  {finalScore.winner} - {finalScore.loser}
+                </Text>
+              </View>
+
+              <Pressable
+                onPress={handleCloseGame}
+                className="bg-green-600 py-4 rounded-xl items-center"
+              >
+                <Text className="text-white font-bold text-lg">
+                  Back to Match
+                </Text>
+              </Pressable>
+            </View>
+          </SafeAreaView>
+        </View>
+      </Modal>
+    </View>
   );
 }
