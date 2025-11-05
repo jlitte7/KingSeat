@@ -81,7 +81,24 @@ export default function HomeScreen() {
                     📈 CornholeIQ
                   </Text>
                   <Text className="text-white/80 text-sm mt-1">
-                    View statistics
+                    View team statistics
+                  </Text>
+                </LinearGradient>
+              </Pressable>
+
+              <Pressable
+                onPress={() => navigation.navigate("PersonalStats")}
+                className="w-full rounded-2xl overflow-hidden"
+              >
+                <LinearGradient
+                  colors={["#a855f7", "#9333ea"]}
+                  style={{ padding: 20, alignItems: "center" }}
+                >
+                  <Text className="text-white font-bold text-xl">
+                    📊 My Stats
+                  </Text>
+                  <Text className="text-white/80 text-sm mt-1">
+                    Track your personal bags
                   </Text>
                 </LinearGradient>
               </Pressable>
