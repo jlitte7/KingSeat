@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { View, Text, Pressable, ScrollView, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
@@ -6,7 +6,6 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../navigation/types";
 import { useTossSeriesStore } from "../state/toss-series-store";
 import { Ionicons } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
 import { Round } from "../types/toss-series";
 
 type LeagueGameScoreboardRouteProp = RouteProp<RootStackParamList, "LeagueGameScoreboard">;
@@ -41,8 +40,8 @@ export default function LeagueGameScoreboardScreen() {
     );
   }
 
-  const player1Name = game.player1Name || "Player 1";
-  const player2Name = game.player2Name || "Player 2";
+  const awayTeamName = `${game.awayPlayer1Name || "?"} & ${game.awayPlayer2Name || "?"}`;
+  const homeTeamName = `${game.homePlayer1Name || "?"} & ${game.homePlayer2Name || "?"}`;
   const currentRound = game.rounds.length + 1;
 
   const handleReset = () => {
@@ -53,7 +52,7 @@ export default function LeagueGameScoreboardScreen() {
   };
 
   const handleEnterRound = () => {
-    if (game.player1Score >= 21 || game.player2Score >= 21) {
+    if (game.awayTeamScore >= 21 || game.homeTeamScore >= 21) {
       Alert.alert("Game Over", "This game has already been completed");
       return;
     }
@@ -75,26 +74,24 @@ export default function LeagueGameScoreboardScreen() {
 
     addRoundToLeagueGame(leagueId, matchId, gameNumber, round);
 
-    const newP1Total = game.player1Score + p1Score;
-    const newP2Total = game.player2Score + p2Score;
+    const newAwayTotal = game.awayTeamScore + p1Score;
+    const newHomeTotal = game.homeTeamScore + p2Score;
 
     // Check if game is over
-    if (newP1Total >= 21 || newP2Total >= 21) {
-      const winnerId = newP1Total >= 21 ? game.player1Id : game.player2Id;
-      if (winnerId) {
-        completeLeagueGame(leagueId, matchId, gameNumber, winnerId);
+    if (newAwayTotal >= 21 || newHomeTotal >= 21) {
+      const winningTeam = newAwayTotal >= 21 ? "away" : "home";
+      completeLeagueGame(leagueId, matchId, gameNumber, winningTeam);
 
-        Alert.alert(
-          "Game Complete!",
-          `${newP1Total >= 21 ? player1Name : player2Name} wins ${Math.max(newP1Total, newP2Total)} - ${Math.min(newP1Total, newP2Total)}`,
-          [
-            {
-              text: "Back to Match",
-              onPress: () => navigation.goBack(),
-            },
-          ]
-        );
-      }
+      Alert.alert(
+        "Game Complete!",
+        `${winningTeam === "away" ? match.awayTeamName : match.homeTeamName} wins ${Math.max(newAwayTotal, newHomeTotal)} - ${Math.min(newAwayTotal, newHomeTotal)}`,
+        [
+          {
+            text: "Back to Match",
+            onPress: () => navigation.goBack(),
+          },
+        ]
+      );
     }
 
     handleReset();
@@ -148,7 +145,7 @@ export default function LeagueGameScoreboardScreen() {
             </Pressable>
             <View>
               <Text className="text-white text-xl font-bold">
-                Game {gameNumber}
+                Game {gameNumber} - 2v2
               </Text>
               <Text className="text-gray-400 text-sm">Round {currentRound}</Text>
             </View>
@@ -157,25 +154,34 @@ export default function LeagueGameScoreboardScreen() {
 
         {/* Score Display */}
         <View className="px-6 py-4 bg-gray-800/50 border-b border-gray-700">
-          <View className="flex-row justify-between items-center mb-2">
-            <Text className="text-blue-400 text-lg font-bold flex-1">
-              {player1Name}
-            </Text>
-            <Text className="text-blue-400 text-3xl font-bold">{game.player1Score}</Text>
+          <View className="flex-row justify-between items-center mb-3">
+            <View className="flex-1">
+              <Text className="text-blue-400 text-xs mb-1">{match.awayTeamName}</Text>
+              <Text className="text-blue-400 text-sm font-bold">
+                {awayTeamName}
+              </Text>
+            </View>
+            <Text className="text-blue-400 text-3xl font-bold">{game.awayTeamScore}</Text>
           </View>
           <View className="flex-row justify-between items-center">
-            <Text className="text-red-400 text-lg font-bold flex-1">
-              {player2Name}
-            </Text>
-            <Text className="text-red-400 text-3xl font-bold">{game.player2Score}</Text>
+            <View className="flex-1">
+              <Text className="text-red-400 text-xs mb-1">{match.homeTeamName}</Text>
+              <Text className="text-red-400 text-sm font-bold">
+                {homeTeamName}
+              </Text>
+            </View>
+            <Text className="text-red-400 text-3xl font-bold">{game.homeTeamScore}</Text>
           </View>
         </View>
 
         <ScrollView className="flex-1">
-          {/* Player 1 Counters */}
+          {/* Away Team Counters */}
           <View className="px-6 py-6 border-b-2 border-blue-600">
-            <Text className="text-blue-400 text-xl font-bold mb-4 text-center">
-              {player1Name}
+            <Text className="text-blue-400 text-xl font-bold mb-2 text-center">
+              {match.awayTeamName}
+            </Text>
+            <Text className="text-blue-300 text-sm text-center mb-4">
+              {awayTeamName}
             </Text>
             <View className="flex-row">
               <Counter
@@ -196,10 +202,13 @@ export default function LeagueGameScoreboardScreen() {
             </View>
           </View>
 
-          {/* Player 2 Counters */}
+          {/* Home Team Counters */}
           <View className="px-6 py-6 border-b-2 border-red-600">
-            <Text className="text-red-400 text-xl font-bold mb-4 text-center">
-              {player2Name}
+            <Text className="text-red-400 text-xl font-bold mb-2 text-center">
+              {match.homeTeamName}
+            </Text>
+            <Text className="text-red-300 text-sm text-center mb-4">
+              {homeTeamName}
             </Text>
             <View className="flex-row">
               <Counter
@@ -229,18 +238,26 @@ export default function LeagueGameScoreboardScreen() {
               {game.rounds.slice().reverse().map((round, index) => (
                 <View
                   key={game.rounds.length - index}
-                  className="bg-gray-800 rounded-lg p-3 mb-2 flex-row justify-between"
+                  className="bg-gray-800 rounded-lg p-3 mb-2"
                 >
-                  <View className="flex-1">
+                  <View className="flex-row justify-between mb-1">
                     <Text className="text-blue-400 text-sm">
-                      {player1Name}: {round.p1In}in {round.p1On}on ({round.p1Score}pts)
+                      {match.awayTeamName}: {round.p1In}in {round.p1On}on
                     </Text>
-                    <Text className="text-red-400 text-sm">
-                      {player2Name}: {round.p2In}in {round.p2On}on ({round.p2Score}pts)
+                    <Text className="text-blue-400 text-sm font-bold">
+                      {round.p1Score}pts
                     </Text>
                   </View>
-                  <Text className="text-gray-500 text-sm">
-                    R{game.rounds.length - index}
+                  <View className="flex-row justify-between">
+                    <Text className="text-red-400 text-sm">
+                      {match.homeTeamName}: {round.p2In}in {round.p2On}on
+                    </Text>
+                    <Text className="text-red-400 text-sm font-bold">
+                      {round.p2Score}pts
+                    </Text>
+                  </View>
+                  <Text className="text-gray-500 text-xs text-right mt-1">
+                    Round {game.rounds.length - index}
                   </Text>
                 </View>
               ))}

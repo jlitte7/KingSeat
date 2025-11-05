@@ -224,16 +224,18 @@ The app automatically generates a complete round-robin schedule where:
 #### Playing League Matches
 1. View the league schedule (organized by week)
 2. Tap on any match to see all 12 games
-3. Expand a game to select players:
-   - Choose away team player from dropdown
-   - Choose home team player from dropdown
-4. Tap **Start Game** to begin live scoring
-5. Use counters to track bags in/on for each player
+3. Expand a game to select players **(2v2 Doubles Format)**:
+   - Choose **2 players** from away team (Player 1 & Player 2)
+   - Choose **2 players** from home team (Player 1 & Player 2)
+   - Total: **4 players per game** (2 from each team playing together)
+4. Tap **Start Game (2v2)** to begin live scoring
+5. Use counters to track combined bags in/on for each **team**
 6. Tap **Enter** after each round
 7. Game automatically completes at 21 points
 8. Match score updates automatically as games finish
 
 **Key Features**:
+- **2v2 Doubles Format**: Two players from each team play together as a team
 - Games can be played in any order within a match
 - Player selections are made per-game (not locked for entire match)
 - Live round-by-round scoring with cancellation rules

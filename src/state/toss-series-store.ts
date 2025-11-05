@@ -78,7 +78,7 @@ interface TossSeriesState {
   updateLeagueMatch: (leagueId: string, matchId: string, updates: Partial<LeagueMatch>) => void;
   updateLeagueGame: (leagueId: string, matchId: string, gameNumber: number, updates: Partial<LeagueGame>) => void;
   addRoundToLeagueGame: (leagueId: string, matchId: string, gameNumber: number, round: Round) => void;
-  completeLeagueGame: (leagueId: string, matchId: string, gameNumber: number, winnerId: string) => void;
+  completeLeagueGame: (leagueId: string, matchId: string, gameNumber: number, winningTeam: "away" | "home") => void;
   setCurrentLeague: (league: League | null) => void;
 
   // Utility
@@ -790,8 +790,8 @@ export const useTossSeriesStore = create<TossSeriesState>()(
                   awayTeamName: awayTeam.name,
                   games: Array.from({ length: 12 }, (_, i) => ({
                     gameNumber: i + 1,
-                    player1Score: 0,
-                    player2Score: 0,
+                    awayTeamScore: 0,
+                    homeTeamScore: 0,
                     rounds: [],
                     completed: false,
                     inProgress: false,
@@ -913,8 +913,8 @@ export const useTossSeriesStore = create<TossSeriesState>()(
 
         store.updateLeagueGame(leagueId, matchId, gameNumber, {
           rounds: [...game.rounds, round],
-          player1Score: game.player1Score + round.p1Score,
-          player2Score: game.player2Score + round.p2Score,
+          awayTeamScore: game.awayTeamScore + round.p1Score,
+          homeTeamScore: game.homeTeamScore + round.p2Score,
         });
       },
 
@@ -922,7 +922,7 @@ export const useTossSeriesStore = create<TossSeriesState>()(
         leagueId: string,
         matchId: string,
         gameNumber: number,
-        winnerId: string
+        winningTeam: "away" | "home"
       ) => {
         const store = get();
         const match = store.getMatchById(matchId, leagueId);
@@ -933,17 +933,13 @@ export const useTossSeriesStore = create<TossSeriesState>()(
 
         // Update game completion
         store.updateLeagueGame(leagueId, matchId, gameNumber, {
-          winnerId,
+          winningTeam,
           completed: true,
           inProgress: false,
         });
 
         // Update match scores
-        const isPlayer1HomeTeam = game.player1Id ?
-          store.getPlayerById(game.player1Id)?.teamId === match.homeTeamId : false;
-
-        const homeWon = (isPlayer1HomeTeam && winnerId === game.player1Id) ||
-                       (!isPlayer1HomeTeam && winnerId === game.player2Id);
+        const homeWon = winningTeam === "home";
 
         store.updateLeagueMatch(leagueId, matchId, {
           homeTeamScore: homeWon ? match.homeTeamScore + 1 : match.homeTeamScore,

@@ -38,33 +38,43 @@ export default function LeagueMatchDetailScreen() {
   const awayPlayers = players.filter((p) => p.teamId === match.awayTeamId);
   const homePlayers = players.filter((p) => p.teamId === match.homeTeamId);
 
-  const handleSelectPlayer = (gameNumber: number, side: "away" | "home") => {
+  const handleSelectPlayer = (gameNumber: number, team: "away" | "home", position: 1 | 2) => {
     const game = match.games.find((g) => g.gameNumber === gameNumber);
     if (!game) return;
 
-    const playerList = side === "away" ? awayPlayers : homePlayers;
+    const playerList = team === "away" ? awayPlayers : homePlayers;
 
     if (playerList.length === 0) {
-      Alert.alert("No Players", `${side === "away" ? match.awayTeamName : match.homeTeamName} has no players`);
+      Alert.alert("No Players", `${team === "away" ? match.awayTeamName : match.homeTeamName} has no players`);
       return;
     }
 
     Alert.alert(
-      `Select ${side === "away" ? "Away" : "Home"} Player`,
+      `Select ${team === "away" ? "Away" : "Home"} Player ${position}`,
       `Choose a player for Game ${gameNumber}`,
       [
         ...playerList.map((player) => ({
           text: player.nickname ? `${player.name} (${player.nickname})` : player.name,
           onPress: () => {
-            if (side === "away") {
+            if (team === "away" && position === 1) {
               updateLeagueGame(leagueId, matchId, gameNumber, {
-                player1Id: player.id,
-                player1Name: player.name,
+                awayPlayer1Id: player.id,
+                awayPlayer1Name: player.name,
               });
-            } else {
+            } else if (team === "away" && position === 2) {
               updateLeagueGame(leagueId, matchId, gameNumber, {
-                player2Id: player.id,
-                player2Name: player.name,
+                awayPlayer2Id: player.id,
+                awayPlayer2Name: player.name,
+              });
+            } else if (team === "home" && position === 1) {
+              updateLeagueGame(leagueId, matchId, gameNumber, {
+                homePlayer1Id: player.id,
+                homePlayer1Name: player.name,
+              });
+            } else if (team === "home" && position === 2) {
+              updateLeagueGame(leagueId, matchId, gameNumber, {
+                homePlayer2Id: player.id,
+                homePlayer2Name: player.name,
               });
             }
           },
@@ -78,8 +88,11 @@ export default function LeagueMatchDetailScreen() {
     const game = match.games.find((g) => g.gameNumber === gameNumber);
     if (!game) return;
 
-    if (!game.player1Id || !game.player2Id) {
-      Alert.alert("Players Required", "Please select both players before starting the game");
+    const allPlayersSelected = game.awayPlayer1Id && game.awayPlayer2Id &&
+                               game.homePlayer1Id && game.homePlayer2Id;
+
+    if (!allPlayersSelected) {
+      Alert.alert("Players Required", "Please select all 4 players (2 from each team) before starting the game");
       return;
     }
 
@@ -137,11 +150,13 @@ export default function LeagueMatchDetailScreen() {
 
         <ScrollView className="flex-1 px-4 pt-4">
           <Text className="text-gray-400 text-sm mb-3">
-            Tap on a game to expand and select players
+            Tap on a game to expand and select players (2v2 doubles format)
           </Text>
 
           {match.games.map((game) => {
             const isExpanded = expandedGame === game.gameNumber;
+            const awayTeam = `${game.awayPlayer1Name || "?"} & ${game.awayPlayer2Name || "?"}`;
+            const homeTeam = `${game.homePlayer1Name || "?"} & ${game.homePlayer2Name || "?"}`;
 
             return (
               <View key={game.gameNumber} className="mb-3">
@@ -166,10 +181,16 @@ export default function LeagueMatchDetailScreen() {
                           <Text className="text-white text-lg font-bold mb-1">
                             Game {game.gameNumber}
                           </Text>
-                          {game.player1Name && game.player2Name ? (
-                            <Text className="text-gray-300 text-sm">
-                              {game.player1Name} vs {game.player2Name}
-                            </Text>
+                          {game.awayPlayer1Name || game.awayPlayer2Name ||
+                           game.homePlayer1Name || game.homePlayer2Name ? (
+                            <View>
+                              <Text className="text-blue-300 text-sm">
+                                {awayTeam}
+                              </Text>
+                              <Text className="text-red-300 text-sm">
+                                vs {homeTeam}
+                              </Text>
+                            </View>
                           ) : (
                             <Text className="text-gray-500 text-sm">
                               No players selected
@@ -180,7 +201,7 @@ export default function LeagueMatchDetailScreen() {
                           {game.completed && (
                             <View className="bg-green-600/20 px-3 py-1 rounded mr-2">
                               <Text className="text-green-400 text-sm font-bold">
-                                {game.player1Score} - {game.player2Score}
+                                {game.awayTeamScore} - {game.homeTeamScore}
                               </Text>
                             </View>
                           )}
@@ -205,33 +226,57 @@ export default function LeagueMatchDetailScreen() {
                 {/* Expanded content */}
                 {isExpanded && !game.completed && (
                   <View className="bg-gray-800 rounded-b-xl border-x border-b border-gray-700 p-4 mt-[-8px]">
-                    {/* Away Player Selection */}
+                    {/* Away Team Players */}
+                    <Text className="text-blue-400 font-bold mb-2">
+                      {match.awayTeamName} (Away)
+                    </Text>
                     <View className="mb-3">
-                      <Text className="text-gray-400 text-sm mb-2">
-                        {match.awayTeamName} Player
-                      </Text>
+                      <Text className="text-gray-400 text-sm mb-2">Player 1</Text>
                       <Pressable
-                        onPress={() => handleSelectPlayer(game.gameNumber, "away")}
+                        onPress={() => handleSelectPlayer(game.gameNumber, "away", 1)}
+                        className="bg-gray-900 px-4 py-3 rounded-lg border border-gray-700 flex-row justify-between items-center mb-2"
+                      >
+                        <Text className="text-white">
+                          {game.awayPlayer1Name || "Select player..."}
+                        </Text>
+                        <Ionicons name="chevron-down" size={20} color="#9ca3af" />
+                      </Pressable>
+
+                      <Text className="text-gray-400 text-sm mb-2">Player 2</Text>
+                      <Pressable
+                        onPress={() => handleSelectPlayer(game.gameNumber, "away", 2)}
                         className="bg-gray-900 px-4 py-3 rounded-lg border border-gray-700 flex-row justify-between items-center"
                       >
                         <Text className="text-white">
-                          {game.player1Name || "Select player..."}
+                          {game.awayPlayer2Name || "Select player..."}
                         </Text>
                         <Ionicons name="chevron-down" size={20} color="#9ca3af" />
                       </Pressable>
                     </View>
 
-                    {/* Home Player Selection */}
+                    {/* Home Team Players */}
+                    <Text className="text-red-400 font-bold mb-2">
+                      {match.homeTeamName} (Home)
+                    </Text>
                     <View className="mb-4">
-                      <Text className="text-gray-400 text-sm mb-2">
-                        {match.homeTeamName} Player
-                      </Text>
+                      <Text className="text-gray-400 text-sm mb-2">Player 1</Text>
                       <Pressable
-                        onPress={() => handleSelectPlayer(game.gameNumber, "home")}
+                        onPress={() => handleSelectPlayer(game.gameNumber, "home", 1)}
+                        className="bg-gray-900 px-4 py-3 rounded-lg border border-gray-700 flex-row justify-between items-center mb-2"
+                      >
+                        <Text className="text-white">
+                          {game.homePlayer1Name || "Select player..."}
+                        </Text>
+                        <Ionicons name="chevron-down" size={20} color="#9ca3af" />
+                      </Pressable>
+
+                      <Text className="text-gray-400 text-sm mb-2">Player 2</Text>
+                      <Pressable
+                        onPress={() => handleSelectPlayer(game.gameNumber, "home", 2)}
                         className="bg-gray-900 px-4 py-3 rounded-lg border border-gray-700 flex-row justify-between items-center"
                       >
                         <Text className="text-white">
-                          {game.player2Name || "Select player..."}
+                          {game.homePlayer2Name || "Select player..."}
                         </Text>
                         <Ionicons name="chevron-down" size={20} color="#9ca3af" />
                       </Pressable>
@@ -240,15 +285,21 @@ export default function LeagueMatchDetailScreen() {
                     {/* Start Game Button */}
                     <Pressable
                       onPress={() => handleStartGame(game.gameNumber)}
-                      disabled={!game.player1Id || !game.player2Id || game.inProgress}
+                      disabled={
+                        !game.awayPlayer1Id || !game.awayPlayer2Id ||
+                        !game.homePlayer1Id || !game.homePlayer2Id ||
+                        game.inProgress
+                      }
                       className={`py-3 rounded-lg items-center ${
-                        game.player1Id && game.player2Id && !game.inProgress
+                        game.awayPlayer1Id && game.awayPlayer2Id &&
+                        game.homePlayer1Id && game.homePlayer2Id &&
+                        !game.inProgress
                           ? "bg-green-600"
                           : "bg-gray-700"
                       }`}
                     >
                       <Text className="text-white font-bold">
-                        {game.inProgress ? "Game in Progress" : "Start Game"}
+                        {game.inProgress ? "Game in Progress" : "Start Game (2v2)"}
                       </Text>
                     </Pressable>
                   </View>

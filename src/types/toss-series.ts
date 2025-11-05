@@ -225,14 +225,21 @@ export interface LeagueMatch {
 
 export interface LeagueGame {
   gameNumber: number; // 1-12
-  player1Id?: string;
-  player2Id?: string;
-  player1Name?: string;
-  player2Name?: string;
-  player1Score: number;
-  player2Score: number;
+  // Away team (team 1)
+  awayPlayer1Id?: string;
+  awayPlayer1Name?: string;
+  awayPlayer2Id?: string;
+  awayPlayer2Name?: string;
+  // Home team (team 2)
+  homePlayer1Id?: string;
+  homePlayer1Name?: string;
+  homePlayer2Id?: string;
+  homePlayer2Name?: string;
+  // Scores
+  awayTeamScore: number;
+  homeTeamScore: number;
   rounds: Round[];
-  winnerId?: string;
+  winningTeam?: "away" | "home";
   completed: boolean;
   inProgress: boolean;
 }
