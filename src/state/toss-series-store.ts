@@ -758,65 +758,80 @@ export const useTossSeriesStore = create<TossSeriesState>()(
           throw new Error("Need at least 2 teams for a league");
         }
 
-        // Round-robin algorithm
+        // Round-robin algorithm - proper implementation
         const teamsArray = [...teamIds];
-        const rounds = numTeams % 2 === 0 ? numTeams - 1 : numTeams;
+
+        // For even number of teams, we need (numTeams - 1) rounds for full rotation
+        // For odd number of teams, we need numTeams rounds (one team gets bye each week)
+        const totalRounds = numTeams % 2 === 0 ? numTeams - 1 : numTeams;
         const matchesPerRound = Math.floor(numTeams / 2);
 
         let currentWeek = 1;
 
         // Generate schedule for the requested number of weeks
-        for (let rotation = 0; currentWeek <= numberOfWeeks; rotation++) {
-          for (let round = 0; round < rounds && currentWeek <= numberOfWeeks; round++) {
-            const weekMatches: LeagueMatch[] = [];
+        // Repeat the rotation if numberOfWeeks exceeds totalRounds
+        for (let weekIndex = 0; weekIndex < numberOfWeeks; weekIndex++) {
+          const round = weekIndex % totalRounds;
+          const weekMatches: LeagueMatch[] = [];
 
-            for (let match = 0; match < matchesPerRound; match++) {
-              const home = (round + match) % (numTeams - 1);
-              const away = (numTeams - 1 - match + round) % (numTeams - 1);
+          // Fixed-position round-robin algorithm
+          for (let match = 0; match < matchesPerRound; match++) {
+            let homeIndex: number;
+            let awayIndex: number;
 
-              const homeIndex = home === 0 && match === 0 ? numTeams - 1 : home < numTeams - 1 ? home : home + 1;
-              const awayIndex = away === 0 && match === 0 ? numTeams - 1 : away < numTeams - 1 ? away : away + 1;
+            if (match === 0) {
+              // First match: fixed team (position 0) vs rotating team
+              homeIndex = 0;
+              awayIndex = round + 1;
+            } else {
+              // Other matches: calculate based on round and match number
+              homeIndex = round + match;
+              awayIndex = (round - match + totalRounds) % totalRounds + 1;
 
-              const homeTeamId = teamsArray[homeIndex];
-              const awayTeamId = teamsArray[awayIndex];
-
-              // Skip if same team (prevent team from playing itself)
-              if (homeTeamId === awayTeamId) continue;
-
-              const homeTeam = store.getTeamById(homeTeamId);
-              const awayTeam = store.getTeamById(awayTeamId);
-
-              if (homeTeam && awayTeam) {
-                const leagueMatch: LeagueMatch = {
-                  id: uuidv4(),
-                  weekNumber: currentWeek,
-                  homeTeamId,
-                  awayTeamId,
-                  homeTeamName: homeTeam.name,
-                  awayTeamName: awayTeam.name,
-                  games: Array.from({ length: 12 }, (_, i) => ({
-                    gameNumber: i + 1,
-                    awayTeamScore: 0,
-                    homeTeamScore: 0,
-                    rounds: [],
-                    completed: false,
-                    inProgress: false,
-                  })),
-                  homeTeamScore: 0,
-                  awayTeamScore: 0,
-                  completed: false,
-                };
-                weekMatches.push(leagueMatch);
-              }
+              // Adjust indices to stay within bounds
+              if (homeIndex >= numTeams) homeIndex = homeIndex - totalRounds;
+              if (awayIndex >= numTeams) awayIndex = awayIndex - totalRounds;
             }
 
-            schedule.push({
-              weekNumber: currentWeek,
-              matches: weekMatches,
-            });
+            const homeTeamId = teamsArray[homeIndex];
+            const awayTeamId = teamsArray[awayIndex];
 
-            currentWeek++;
+            // Skip if same team (should not happen with correct algorithm)
+            if (homeTeamId === awayTeamId) continue;
+
+            const homeTeam = store.getTeamById(homeTeamId);
+            const awayTeam = store.getTeamById(awayTeamId);
+
+            if (homeTeam && awayTeam) {
+              const leagueMatch: LeagueMatch = {
+                id: uuidv4(),
+                weekNumber: currentWeek,
+                homeTeamId,
+                awayTeamId,
+                homeTeamName: homeTeam.name,
+                awayTeamName: awayTeam.name,
+                games: Array.from({ length: 12 }, (_, i) => ({
+                  gameNumber: i + 1,
+                  awayTeamScore: 0,
+                  homeTeamScore: 0,
+                  rounds: [],
+                  completed: false,
+                  inProgress: false,
+                })),
+                homeTeamScore: 0,
+                awayTeamScore: 0,
+                completed: false,
+              };
+              weekMatches.push(leagueMatch);
+            }
           }
+
+          schedule.push({
+            weekNumber: currentWeek,
+            matches: weekMatches,
+          });
+
+          currentWeek++;
         }
 
         const league: League = {
