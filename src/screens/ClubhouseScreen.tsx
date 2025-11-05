@@ -63,12 +63,20 @@ export default function ClubhouseScreen() {
             </Pressable>
             <Text className="text-white text-xl font-bold">Clubhouse</Text>
           </View>
-          <Pressable
-            onPress={() => navigation.navigate("CreateTeam")}
-            className="bg-blue-600 px-4 py-2 rounded-lg"
-          >
-            <Text className="text-white font-bold">+ Team</Text>
-          </Pressable>
+          <View className="flex-row items-center">
+            <Pressable
+              onPress={handleGenerateSampleData}
+              className="bg-gray-700 px-3 py-2 rounded-lg mr-2 border border-gray-600"
+            >
+              <Text className="text-gray-300 font-bold text-xs">Sample Data</Text>
+            </Pressable>
+            <Pressable
+              onPress={() => navigation.navigate("CreateTeam")}
+              className="bg-blue-600 px-4 py-2 rounded-lg"
+            >
+              <Text className="text-white font-bold">+ Team</Text>
+            </Pressable>
+          </View>
         </View>
 
         {teams.length === 0 ? (
@@ -78,19 +86,13 @@ export default function ClubhouseScreen() {
               No Teams Yet
             </Text>
             <Text className="text-gray-500 text-center mb-6">
-              Create your first team to start tracking league games
+              Create your first team or generate sample data for testing
             </Text>
             <Pressable
               onPress={() => navigation.navigate("CreateTeam")}
-              className="bg-blue-600 px-6 py-3 rounded-lg mb-3"
+              className="bg-blue-600 px-6 py-3 rounded-lg"
             >
               <Text className="text-white font-bold">Create Team</Text>
-            </Pressable>
-            <Pressable
-              onPress={handleGenerateSampleData}
-              className="bg-gray-700 px-6 py-3 rounded-lg border border-gray-600"
-            >
-              <Text className="text-gray-300 font-bold">Generate Sample Data</Text>
             </Pressable>
           </View>
         ) : (
