@@ -7,14 +7,14 @@ import { Ionicons } from '@expo/vector-icons';
 
 export default function CornholeIQScreen() {
   const navigation = useNavigation();
-  const { players } = useTossSeriesStore();
+  const players = useTossSeriesStore((s) => s.players);
 
   const sortedPlayers = [...players].sort(
     (a, b) => b.stats.bagsInPercentage - a.stats.bagsInPercentage
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-900">
+    <SafeAreaView className="flex-1 bg-gray-900" edges={["top", "bottom"]}>
       <View className="flex-1">
         <View className="px-4 py-3 flex-row items-center border-b border-gray-800">
           <Pressable onPress={() => navigation.goBack()} className="mr-4">

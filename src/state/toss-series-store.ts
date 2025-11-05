@@ -1,7 +1,7 @@
-import { create } from 'zustand';
-import { createJSONStorage, persist } from 'zustand/middleware';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { v4 as uuidv4 } from 'uuid';
+import { create } from "zustand";
+import { createJSONStorage, persist } from "zustand/middleware";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { v4 as uuidv4 } from "uuid";
 import {
   Player,
   Team,
@@ -11,8 +11,9 @@ import {
   PracticeSession,
   Round,
   Achievement,
-  AchievementType,
-} from '../types/toss-series';
+  PlayerStats,
+  TeamStats,
+} from "../types/toss-series";
 
 interface TossSeriesState {
   teams: Team[];
@@ -27,23 +28,32 @@ interface TossSeriesState {
   createTeam: (name: string, logo?: string) => Team;
   deleteTeam: (teamId: string) => void;
   updateTeam: (teamId: string, updates: Partial<Team>) => void;
+  getTeamById: (teamId: string) => Team | undefined;
 
   // Player actions
-  createPlayer: (teamId: string, name: string, nickname?: string, photo?: string) => Player;
+  createPlayer: (
+    teamId: string,
+    name: string,
+    nickname?: string,
+    photo?: string
+  ) => Player;
   deletePlayer: (playerId: string) => void;
   updatePlayer: (playerId: string, updates: Partial<Player>) => void;
+  getPlayerById: (playerId: string) => Player | undefined;
 
   // Series actions
   createSeries: (homeTeamId: string, awayTeamId: string) => Series;
   setCurrentSeries: (series: Series | null) => void;
   addGameToSeries: (seriesId: string, game: Game) => void;
   completeSeries: (seriesId: string) => void;
+  getSeriesById: (seriesId: string) => Series | undefined;
 
   // Game actions
   createGame: (player1Id: string, player2Id: string, seriesId?: string) => Game;
   updateGame: (gameId: string, updates: Partial<Game>) => void;
   addRoundToGame: (gameId: string, round: Round) => void;
   completeGame: (gameId: string, winnerId: string) => void;
+  getGameById: (gameId: string) => Game | undefined;
 
   // Stats actions
   updatePlayerStats: (playerId: string, game: Game) => void;
@@ -56,14 +66,10 @@ interface TossSeriesState {
   createTournament: (name: string, teamIds: string[]) => Tournament;
 
   // Utility
-  getTeamById: (teamId: string) => Team | undefined;
-  getPlayerById: (playerId: string) => Player | undefined;
-  getSeriesById: (seriesId: string) => Series | undefined;
-  getGameById: (gameId: string) => Game | undefined;
   resetAll: () => void;
 }
 
-const initialPlayerStats = {
+const createInitialPlayerStats = (): PlayerStats => ({
   totalGames: 0,
   totalWins: 0,
   totalLosses: 0,
@@ -78,14 +84,14 @@ const initialPlayerStats = {
   averagePointsPerRound: 0,
   bagsInPercentage: 0,
   bagsOnPercentage: 0,
-};
+});
 
-const initialTeamStats = {
+const createInitialTeamStats = (): TeamStats => ({
   totalGames: 0,
   totalWins: 0,
   totalLosses: 0,
   totalPoints: 0,
-};
+});
 
 export const useTossSeriesStore = create<TossSeriesState>()(
   persist(
@@ -98,13 +104,14 @@ export const useTossSeriesStore = create<TossSeriesState>()(
       practiceSessions: [],
       currentSeries: null,
 
+      // Team actions
       createTeam: (name: string, logo?: string) => {
         const team: Team = {
           id: uuidv4(),
           name,
           logo,
           players: [],
-          stats: { ...initialTeamStats },
+          stats: createInitialTeamStats(),
           createdAt: new Date().toISOString(),
         };
         set((state) => ({ teams: [...state.teams, team] }));
@@ -120,18 +127,30 @@ export const useTossSeriesStore = create<TossSeriesState>()(
 
       updateTeam: (teamId: string, updates: Partial<Team>) => {
         set((state) => ({
-          teams: state.teams.map((t) => (t.id === teamId ? { ...t, ...updates } : t)),
+          teams: state.teams.map((t) =>
+            t.id === teamId ? { ...t, ...updates } : t
+          ),
         }));
       },
 
-      createPlayer: (teamId: string, name: string, nickname?: string, photo?: string) => {
+      getTeamById: (teamId: string) => {
+        return get().teams.find((t) => t.id === teamId);
+      },
+
+      // Player actions
+      createPlayer: (
+        teamId: string,
+        name: string,
+        nickname?: string,
+        photo?: string
+      ) => {
         const player: Player = {
           id: uuidv4(),
           name,
           nickname,
           photo,
           teamId,
-          stats: { ...initialPlayerStats },
+          stats: createInitialPlayerStats(),
           achievements: [],
           createdAt: new Date().toISOString(),
         };
@@ -160,16 +179,29 @@ export const useTossSeriesStore = create<TossSeriesState>()(
 
       updatePlayer: (playerId: string, updates: Partial<Player>) => {
         set((state) => ({
-          players: state.players.map((p) => (p.id === playerId ? { ...p, ...updates } : p)),
+          players: state.players.map((p) =>
+            p.id === playerId ? { ...p, ...updates } : p
+          ),
+          teams: state.teams.map((t) => ({
+            ...t,
+            players: t.players.map((p) =>
+              p.id === playerId ? { ...p, ...updates } : p
+            ),
+          })),
         }));
       },
 
+      getPlayerById: (playerId: string) => {
+        return get().players.find((p) => p.id === playerId);
+      },
+
+      // Series actions
       createSeries: (homeTeamId: string, awayTeamId: string) => {
         const homeTeam = get().getTeamById(homeTeamId);
         const awayTeam = get().getTeamById(awayTeamId);
 
         if (!homeTeam || !awayTeam) {
-          throw new Error('Teams not found');
+          throw new Error("Teams not found");
         }
 
         const series: Series = {
@@ -212,12 +244,17 @@ export const useTossSeriesStore = create<TossSeriesState>()(
         }));
       },
 
+      getSeriesById: (seriesId: string) => {
+        return get().series.find((s) => s.id === seriesId);
+      },
+
+      // Game actions
       createGame: (player1Id: string, player2Id: string, seriesId?: string) => {
         const player1 = get().getPlayerById(player1Id);
         const player2 = get().getPlayerById(player2Id);
 
         if (!player1 || !player2) {
-          throw new Error('Players not found');
+          throw new Error("Players not found");
         }
 
         const game: Game = {
@@ -240,7 +277,9 @@ export const useTossSeriesStore = create<TossSeriesState>()(
 
       updateGame: (gameId: string, updates: Partial<Game>) => {
         set((state) => ({
-          games: state.games.map((g) => (g.id === gameId ? { ...g, ...updates } : g)),
+          games: state.games.map((g) =>
+            g.id === gameId ? { ...g, ...updates } : g
+          ),
         }));
       },
 
@@ -263,26 +302,24 @@ export const useTossSeriesStore = create<TossSeriesState>()(
         const game = get().getGameById(gameId);
         if (!game) return;
 
+        const updatedGame = {
+          ...game,
+          winnerId,
+          completed: true,
+          completedAt: new Date().toISOString(),
+        };
+
         set((state) => ({
-          games: state.games.map((g) =>
-            g.id === gameId
-              ? {
-                  ...g,
-                  winnerId,
-                  completed: true,
-                  completedAt: new Date().toISOString(),
-                }
-              : g
-          ),
+          games: state.games.map((g) => (g.id === gameId ? updatedGame : g)),
         }));
 
         // Update player stats
-        get().updatePlayerStats(game.player1Id, { ...game, winnerId });
-        get().updatePlayerStats(game.player2Id, { ...game, winnerId });
+        get().updatePlayerStats(game.player1Id, updatedGame);
+        get().updatePlayerStats(game.player2Id, updatedGame);
 
         // Check achievements
-        get().checkAndAwardAchievements(game.player1Id, { ...game, winnerId });
-        get().checkAndAwardAchievements(game.player2Id, { ...game, winnerId });
+        get().checkAndAwardAchievements(game.player1Id, updatedGame);
+        get().checkAndAwardAchievements(game.player2Id, updatedGame);
 
         // Update series if applicable
         if (game.seriesId) {
@@ -292,8 +329,7 @@ export const useTossSeriesStore = create<TossSeriesState>()(
             const player2 = get().getPlayerById(game.player2Id);
 
             if (player1 && player2) {
-              const isHomeTeamWinner = player1.teamId === series.homeTeamId && winnerId === game.player1Id;
-              const isAwayTeamWinner = player1.teamId === series.awayTeamId && winnerId === game.player1Id;
+              const winner = winnerId === game.player1Id ? player1 : player2;
 
               set((state) => ({
                 series: state.series.map((s) =>
@@ -301,17 +337,13 @@ export const useTossSeriesStore = create<TossSeriesState>()(
                     ? {
                         ...s,
                         homeTeamScore:
-                          isHomeTeamWinner
+                          winner.teamId === s.homeTeamId
                             ? s.homeTeamScore + 1
-                            : isAwayTeamWinner
-                            ? s.homeTeamScore
-                            : s.homeTeamScore + (winnerId === game.player2Id && player2.teamId === s.homeTeamId ? 1 : 0),
+                            : s.homeTeamScore,
                         awayTeamScore:
-                          isAwayTeamWinner
+                          winner.teamId === s.awayTeamId
                             ? s.awayTeamScore + 1
-                            : isHomeTeamWinner
-                            ? s.awayTeamScore
-                            : s.awayTeamScore + (winnerId === game.player2Id && player2.teamId === s.awayTeamId ? 1 : 0),
+                            : s.awayTeamScore,
                       }
                     : s
                 ),
@@ -321,6 +353,11 @@ export const useTossSeriesStore = create<TossSeriesState>()(
         }
       },
 
+      getGameById: (gameId: string) => {
+        return get().games.find((g) => g.id === gameId);
+      },
+
+      // Stats actions
       updatePlayerStats: (playerId: string, game: Game) => {
         const player = get().getPlayerById(playerId);
         if (!player) return;
@@ -342,33 +379,49 @@ export const useTossSeriesStore = create<TossSeriesState>()(
           isPlayer1 ? r.p1In === 4 : r.p2In === 4
         ).length;
 
-        const newStats = {
-          ...player.stats,
-          totalGames: player.stats.totalGames + 1,
-          totalWins: isWinner ? player.stats.totalWins + 1 : player.stats.totalWins,
-          totalLosses: !isWinner ? player.stats.totalLosses + 1 : player.stats.totalLosses,
-          totalPoints: player.stats.totalPoints + playerScore,
-          totalBagsIn: player.stats.totalBagsIn + totalBagsIn,
-          totalBagsOn: player.stats.totalBagsOn + totalBagsOn,
-          totalBagsThrown: player.stats.totalBagsThrown + totalBagsThrown,
-          fourBaggers: player.stats.fourBaggers + fourBaggers,
-          currentWinStreak: isWinner ? player.stats.currentWinStreak + 1 : 0,
-        };
-
-        newStats.longestWinStreak = Math.max(
-          newStats.currentWinStreak,
+        const newTotalGames = player.stats.totalGames + 1;
+        const newTotalWins = isWinner
+          ? player.stats.totalWins + 1
+          : player.stats.totalWins;
+        const newTotalLosses = !isWinner
+          ? player.stats.totalLosses + 1
+          : player.stats.totalLosses;
+        const newTotalPoints = player.stats.totalPoints + playerScore;
+        const newTotalBagsIn = player.stats.totalBagsIn + totalBagsIn;
+        const newTotalBagsOn = player.stats.totalBagsOn + totalBagsOn;
+        const newTotalBagsThrown = player.stats.totalBagsThrown + totalBagsThrown;
+        const newFourBaggers = player.stats.fourBaggers + fourBaggers;
+        const newCurrentWinStreak = isWinner
+          ? player.stats.currentWinStreak + 1
+          : 0;
+        const newLongestWinStreak = Math.max(
+          newCurrentWinStreak,
           player.stats.longestWinStreak
         );
-        newStats.averagePointsPerRound =
-          newStats.totalGames > 0 ? newStats.totalPoints / newStats.totalGames : 0;
-        newStats.bagsInPercentage =
-          newStats.totalBagsThrown > 0
-            ? (newStats.totalBagsIn / newStats.totalBagsThrown) * 100
-            : 0;
-        newStats.bagsOnPercentage =
-          newStats.totalBagsThrown > 0
-            ? (newStats.totalBagsOn / newStats.totalBagsThrown) * 100
-            : 0;
+
+        const newStats: PlayerStats = {
+          totalGames: newTotalGames,
+          totalWins: newTotalWins,
+          totalLosses: newTotalLosses,
+          totalPoints: newTotalPoints,
+          totalBagsIn: newTotalBagsIn,
+          totalBagsOn: newTotalBagsOn,
+          totalBagsThrown: newTotalBagsThrown,
+          fourBaggers: newFourBaggers,
+          comebackWins: player.stats.comebackWins,
+          currentWinStreak: newCurrentWinStreak,
+          longestWinStreak: newLongestWinStreak,
+          averagePointsPerRound:
+            game.rounds.length > 0 ? newTotalPoints / game.rounds.length : 0,
+          bagsInPercentage:
+            newTotalBagsThrown > 0
+              ? (newTotalBagsIn / newTotalBagsThrown) * 100
+              : 0,
+          bagsOnPercentage:
+            newTotalBagsThrown > 0
+              ? (newTotalBagsOn / newTotalBagsThrown) * 100
+              : 0,
+        };
 
         get().updatePlayer(playerId, { stats: newStats });
       },
@@ -382,80 +435,110 @@ export const useTossSeriesStore = create<TossSeriesState>()(
         const isWinner = game.winnerId === playerId;
 
         // First win
-        if (player.stats.totalWins === 0 && isWinner) {
-          newAchievements.push({
-            id: uuidv4(),
-            type: 'first_win',
-            title: 'First Blood',
-            description: 'Win your first game',
-            icon: '🎯',
-            earnedAt: new Date().toISOString(),
-          });
+        if (player.stats.totalWins === 1 && isWinner) {
+          if (
+            !player.achievements.some((a) => a.type === "first_win")
+          ) {
+            newAchievements.push({
+              id: uuidv4(),
+              type: "first_win",
+              title: "First Blood",
+              description: "Win your first game",
+              icon: "🎯",
+              earnedAt: new Date().toISOString(),
+            });
+          }
         }
 
-        // Four bagger in this game
+        // Four bagger
         const hasFourBagger = game.rounds.some((r) =>
           isPlayer1 ? r.p1In === 4 : r.p2In === 4
         );
         if (hasFourBagger) {
           newAchievements.push({
             id: uuidv4(),
-            type: 'four_bagger',
-            title: 'Four Bagger!',
-            description: 'Get all 4 bags in the hole in one round',
-            icon: '🔥',
+            type: "four_bagger",
+            title: "Four Bagger!",
+            description: "Get all 4 bags in the hole in one round",
+            icon: "🔥",
             earnedAt: new Date().toISOString(),
           });
         }
 
-        // Comeback win (behind by 10+ points)
+        // Comeback win
         if (isWinner) {
-          const maxDeficit = game.rounds.reduce((max, _, idx) => {
-            const p1Score = game.rounds
-              .slice(0, idx + 1)
-              .reduce((s, r) => s + r.p1Score, 0);
-            const p2Score = game.rounds
-              .slice(0, idx + 1)
-              .reduce((s, r) => s + r.p2Score, 0);
-            const deficit = isPlayer1 ? p2Score - p1Score : p1Score - p2Score;
-            return Math.max(max, deficit);
-          }, 0);
+          let maxDeficit = 0;
+          let runningP1Score = 0;
+          let runningP2Score = 0;
+
+          game.rounds.forEach((round) => {
+            runningP1Score += round.p1Score;
+            runningP2Score += round.p2Score;
+            const deficit = isPlayer1
+              ? runningP2Score - runningP1Score
+              : runningP1Score - runningP2Score;
+            maxDeficit = Math.max(maxDeficit, deficit);
+          });
 
           if (maxDeficit >= 10) {
-            newAchievements.push({
-              id: uuidv4(),
-              type: 'comeback_win',
-              title: 'The Comeback Kid',
-              description: 'Win after being down by 10+ points',
-              icon: '💪',
-              earnedAt: new Date().toISOString(),
-            });
+            if (
+              !player.achievements.some(
+                (a) =>
+                  a.type === "comeback_win" &&
+                  new Date(a.earnedAt).toDateString() ===
+                    new Date().toDateString()
+              )
+            ) {
+              newAchievements.push({
+                id: uuidv4(),
+                type: "comeback_win",
+                title: "The Comeback Kid",
+                description: "Win after being down by 10+ points",
+                icon: "💪",
+                earnedAt: new Date().toISOString(),
+              });
+            }
           }
         }
 
         // Win streak
         if (player.stats.currentWinStreak === 5) {
-          newAchievements.push({
-            id: uuidv4(),
-            type: 'win_streak',
-            title: 'On Fire!',
-            description: 'Win 5 games in a row',
-            icon: '🔥',
-            earnedAt: new Date().toISOString(),
-          });
+          if (
+            !player.achievements.some((a) => a.type === "win_streak")
+          ) {
+            newAchievements.push({
+              id: uuidv4(),
+              type: "win_streak",
+              title: "On Fire!",
+              description: "Win 5 games in a row",
+              icon: "🔥",
+              earnedAt: new Date().toISOString(),
+            });
+          }
         }
 
-        // Shutout (opponent scores 0)
-        const opponentScore = isPlayer1 ? game.player2Score : game.player1Score;
+        // Shutout
+        const opponentScore = isPlayer1
+          ? game.player2Score
+          : game.player1Score;
         if (isWinner && opponentScore === 0) {
-          newAchievements.push({
-            id: uuidv4(),
-            type: 'shutout',
-            title: 'Shutout!',
-            description: "Win without letting your opponent score",
-            icon: '🛡️',
-            earnedAt: new Date().toISOString(),
-          });
+          if (
+            !player.achievements.some(
+              (a) =>
+                a.type === "shutout" &&
+                new Date(a.earnedAt).toDateString() ===
+                  new Date().toDateString()
+            )
+          ) {
+            newAchievements.push({
+              id: uuidv4(),
+              type: "shutout",
+              title: "Shutout!",
+              description: "Win without letting your opponent score",
+              icon: "🛡️",
+              earnedAt: new Date().toISOString(),
+            });
+          }
         }
 
         if (newAchievements.length > 0) {
@@ -465,6 +548,7 @@ export const useTossSeriesStore = create<TossSeriesState>()(
         }
       },
 
+      // Practice actions
       createPracticeSession: (playerId: string) => {
         const session: PracticeSession = {
           id: uuidv4(),
@@ -476,10 +560,13 @@ export const useTossSeriesStore = create<TossSeriesState>()(
           duration: 0,
           createdAt: new Date().toISOString(),
         };
-        set((state) => ({ practiceSessions: [...state.practiceSessions, session] }));
+        set((state) => ({
+          practiceSessions: [...state.practiceSessions, session],
+        }));
         return session;
       },
 
+      // Tournament actions
       createTournament: (name: string, teamIds: string[]) => {
         const tournament: Tournament = {
           id: uuidv4(),
@@ -490,26 +577,13 @@ export const useTossSeriesStore = create<TossSeriesState>()(
           completed: false,
           createdAt: new Date().toISOString(),
         };
-        set((state) => ({ tournaments: [...state.tournaments, tournament] }));
+        set((state) => ({
+          tournaments: [...state.tournaments, tournament],
+        }));
         return tournament;
       },
 
-      getTeamById: (teamId: string) => {
-        return get().teams.find((t) => t.id === teamId);
-      },
-
-      getPlayerById: (playerId: string) => {
-        return get().players.find((p) => p.id === playerId);
-      },
-
-      getSeriesById: (seriesId: string) => {
-        return get().series.find((s) => s.id === seriesId);
-      },
-
-      getGameById: (gameId: string) => {
-        return get().games.find((g) => g.id === gameId);
-      },
-
+      // Utility
       resetAll: () => {
         set({
           teams: [],
@@ -523,7 +597,7 @@ export const useTossSeriesStore = create<TossSeriesState>()(
       },
     }),
     {
-      name: 'toss-series-storage',
+      name: "toss-series-storage",
       storage: createJSONStorage(() => AsyncStorage),
       partialize: (state) => ({
         teams: state.teams,
