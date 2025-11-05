@@ -17,6 +17,9 @@ import TossOffScreen from "./src/screens/TossOffScreen";
 import CornHubScreen from "./src/screens/CornHubScreen";
 import CornholeIQScreen from "./src/screens/CornholeIQScreen";
 import SeriesSetupScreen from "./src/screens/SeriesSetupScreen";
+import SeriesPlayerSelectionScreen from "./src/screens/SeriesPlayerSelectionScreen";
+import SeriesGameScreen from "./src/screens/SeriesGameScreen";
+import SeriesCompleteScreen from "./src/screens/SeriesCompleteScreen";
 import GhostPlayerScreen from "./src/screens/GhostPlayerScreen";
 import BagRunScreen from "./src/screens/BagRunScreen";
 import AirmailRunScreen from "./src/screens/AirmailRunScreen";
@@ -53,6 +56,9 @@ export default function App() {
             <Stack.Screen name="CornHub" component={CornHubScreen} />
             <Stack.Screen name="CornholeIQ" component={CornholeIQScreen} />
             <Stack.Screen name="SeriesSetup" component={SeriesSetupScreen} />
+            <Stack.Screen name="SeriesPlayerSelection" component={SeriesPlayerSelectionScreen} />
+            <Stack.Screen name="SeriesGame" component={SeriesGameScreen} />
+            <Stack.Screen name="SeriesComplete" component={SeriesCompleteScreen} />
             <Stack.Screen name="GhostPlayer" component={GhostPlayerScreen} />
             <Stack.Screen name="BagRun" component={BagRunScreen} />
             <Stack.Screen name="AirmailRun" component={AirmailRunScreen} />

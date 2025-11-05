@@ -57,12 +57,13 @@ A dedicated personal tracking system that works independently from team stats:
 
 ### 🏆 Clubhouse (League Management)
 - **Team Management**: Create and organize teams
-- **Player Rosters**: Add 8+ players per team for league matches
+- **Player Rosters**: Add players to teams (minimum 8 for league series)
 - **Team Stats**: Track wins, losses, and total games
 - **Player Profiles**: View detailed stats for each player
-- **League Series**: Set up 12-game matches between teams
+- **League Series**: Set up 12-game matches between teams with 8-player rosters
+- **Player Selection**: Choose 8 players per team for each series (max 3 games per player)
 - **Easy Navigation**: Quick access to team and player details
-- **Sample Data Generator**: Generate 6 teams with 10 players each for testing league functionality
+- **Sample Data Generator**: Instantly create 6 teams with 10 players each via the "Sample Data" button in Clubhouse header
 
 ### 📈 CornholeIQ (Statistics Dashboard)
 - **Player Rankings**: Sorted by Dominance Rating (composite performance score)
