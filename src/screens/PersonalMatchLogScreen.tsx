@@ -17,21 +17,20 @@ export default function PersonalMatchLogScreen() {
   const currentMatch = usePersonalStatsStore((s) => s.currentMatch);
   const currentRound = usePersonalStatsStore((s) => s.currentRound);
   const startMatch = usePersonalStatsStore((s) => s.startMatch);
-  const logMyThrow = usePersonalStatsStore((s) => s.logMyThrow);
-  const undoMyLastThrow = usePersonalStatsStore((s) => s.undoMyLastThrow);
   const completeRound = usePersonalStatsStore((s) => s.completeRound);
   const startRound = usePersonalStatsStore((s) => s.startRound);
   const endMatch = usePersonalStatsStore((s) => s.endMatch);
   const cancelMatch = usePersonalStatsStore((s) => s.cancelMatch);
+  const settings = usePersonalStatsStore((s) => s.settings);
 
   const [opponent, setOpponent] = useState("");
   const [teammate, setTeammate] = useState("");
 
-  // Round completion inputs
-  const [myBagsIn, setMyBagsIn] = useState("");
-  const [myBagsOn, setMyBagsOn] = useState("");
-  const [oppBagsIn, setOppBagsIn] = useState("");
-  const [oppBagsOn, setOppBagsOn] = useState("");
+  // Round bag counts
+  const [myBagsIn, setMyBagsIn] = useState(0);
+  const [myBagsOn, setMyBagsOn] = useState(0);
+  const [oppBagsIn, setOppBagsIn] = useState(0);
+  const [oppBagsOn, setOppBagsOn] = useState(0);
 
   const handleStartMatch = () => {
     if (!opponent.trim()) {
@@ -43,36 +42,23 @@ export default function PersonalMatchLogScreen() {
   };
 
   const handleCompleteRound = () => {
-    const mIn = parseInt(myBagsIn) || 0;
-    const mOn = parseInt(myBagsOn) || 0;
-    const oIn = parseInt(oppBagsIn) || 0;
-    const oOn = parseInt(oppBagsOn) || 0;
-
     // Validation
-    if (mIn < 0 || mIn > 4 || mOn < 0 || mOn > 4) {
-      Alert.alert("Invalid Input", "Your bags must be between 0-4");
-      return;
-    }
-    if (oIn < 0 || oIn > 4 || oOn < 0 || oOn > 4) {
-      Alert.alert("Invalid Input", "Opponent bags must be between 0-4");
-      return;
-    }
-    if (mIn + mOn > 4) {
+    if (myBagsIn + myBagsOn > 4) {
       Alert.alert("Invalid Input", "Your total bags cannot exceed 4");
       return;
     }
-    if (oIn + oOn > 4) {
+    if (oppBagsIn + oppBagsOn > 4) {
       Alert.alert("Invalid Input", "Opponent total bags cannot exceed 4");
       return;
     }
 
-    completeRound(mIn, mOn, oIn, oOn);
+    completeRound(myBagsIn, myBagsOn, oppBagsIn, oppBagsOn);
 
-    // Reset inputs
-    setMyBagsIn("");
-    setMyBagsOn("");
-    setOppBagsIn("");
-    setOppBagsOn("");
+    // Reset counts
+    setMyBagsIn(0);
+    setMyBagsOn(0);
+    setOppBagsIn(0);
+    setOppBagsOn(0);
 
     // Auto-start next round if game not over
     setTimeout(() => {
@@ -117,18 +103,6 @@ export default function PersonalMatchLogScreen() {
         },
       ]
     );
-  };
-
-  const getThrowIcon = (result: "in" | "on" | "miss") => {
-    if (result === "in") return "checkmark-circle";
-    if (result === "on") return "remove-circle";
-    return "close-circle";
-  };
-
-  const getThrowColor = (result: "in" | "on" | "miss") => {
-    if (result === "in") return "text-green-400";
-    if (result === "on") return "text-yellow-400";
-    return "text-red-400";
   };
 
   // Setup screen
@@ -185,15 +159,12 @@ export default function PersonalMatchLogScreen() {
 
             <View className="mt-6 bg-gray-800 rounded-lg p-4 border border-gray-700">
               <Text className="text-gray-400 text-sm mb-2">
-                During each round, you will need to log:
+                During each round:
               </Text>
               <Text className="text-gray-300 text-sm leading-6">
-                • Your bags in the hole (0-4){"\n"}
-                • Your bags on the board (0-4){"\n"}
-                • Opponent bags in the hole (0-4){"\n"}
-                • Opponent bags on the board (0-4){"\n"}
-                {"\n"}
-                Scores are calculated automatically using cancellation scoring.
+                • Tap buttons to select bag counts for you and opponent{"\n"}
+                • Scores calculate automatically{"\n"}
+                • Game tracks all comprehensive stats
               </Text>
             </View>
           </ScrollView>
@@ -206,114 +177,161 @@ export default function PersonalMatchLogScreen() {
   const gameOver = currentMatch.myScore >= 21 || (currentMatch.opponentScore ?? 0) >= 21;
 
   return (
-    <View className="flex-1 bg-gray-900">
+    <View className="flex-1 bg-black">
       <SafeAreaView className="flex-1" edges={["top"]}>
         {/* Header */}
-        <View className="px-4 py-3 border-b border-gray-800">
-          <View className="flex-row items-center justify-between mb-2">
-            <Text className="text-white text-xl font-bold">
-              Round {currentMatch.rounds.length + (currentRound ? 1 : 0)}
+        <View className="px-4 py-3 flex-row items-center justify-between">
+          <Text className="text-white text-2xl font-bold">
+            Round {currentMatch.rounds.length + 1}
+          </Text>
+          <Pressable onPress={handleCancelMatch}>
+            <Text className="text-red-500 font-bold text-base">Cancel</Text>
+          </Pressable>
+        </View>
+
+        {/* Score Display */}
+        <View className="px-4 pb-4 flex-row justify-between items-center">
+          <View>
+            <Text className="text-gray-400 text-sm">{settings.myName}</Text>
+            <Text className="text-white text-5xl font-bold">
+              {currentMatch.myScore}
             </Text>
-            <Pressable onPress={handleCancelMatch}>
-              <Text className="text-red-400 font-bold">Cancel</Text>
-            </Pressable>
           </View>
-          <View className="flex-row justify-between">
-            <View>
-              <Text className="text-gray-400 text-xs">You</Text>
-              <Text className="text-white text-2xl font-bold">
-                {currentMatch.myScore}
-              </Text>
-            </View>
-            <View className="items-end">
-              <Text className="text-gray-400 text-xs">{currentMatch.opponent}</Text>
-              <Text className="text-white text-2xl font-bold">
-                {currentMatch.opponentScore ?? 0}
-              </Text>
-            </View>
+          <View className="items-end">
+            <Text className="text-gray-400 text-sm">{currentMatch.opponent}</Text>
+            <Text className="text-white text-5xl font-bold">
+              {currentMatch.opponentScore ?? 0}
+            </Text>
           </View>
         </View>
 
         <ScrollView className="flex-1">
-          {/* Current Round - Enter bag counts */}
+          {/* Current Round - Button Interface */}
           {currentRound && !gameOver && (
             <View className="px-4 pt-4">
-              <Text className="text-white text-lg font-bold mb-4">
-                Round {currentRound.roundNumber} - Enter Results
+              <Text className="text-white text-xl font-bold mb-4 text-center">
+                Round {currentRound.roundNumber} - Tap to Select
               </Text>
 
-              {/* Your Bags */}
-              <View className="bg-gray-800 rounded-lg p-4 mb-4 border border-gray-700">
-                <Text className="text-white font-bold mb-3">Your Bags</Text>
-                <View className="flex-row gap-3">
-                  <View className="flex-1">
-                    <Text className="text-gray-400 text-sm mb-2">In Hole</Text>
-                    <TextInput
-                      value={myBagsIn}
-                      onChangeText={setMyBagsIn}
-                      placeholder="0-4"
-                      placeholderTextColor="#6b7280"
-                      keyboardType="number-pad"
-                      maxLength={1}
-                      className="bg-gray-700 text-white px-4 py-3 rounded-lg text-lg text-center"
-                    />
+              <View className="flex-row justify-between mb-8">
+                {/* Your Bags Column */}
+                <View className="flex-1 mr-2">
+                  <Text className="text-red-500 text-xl font-bold text-center mb-2">
+                    {settings.myName}
+                  </Text>
+
+                  {/* Bags In */}
+                  <Text className="text-red-500 text-sm font-bold text-center mb-2">
+                    BAGS IN
+                  </Text>
+                  <View className="items-center mb-4">
+                    {[0, 1, 2, 3, 4].map((num) => (
+                      <Pressable
+                        key={`my-in-${num}`}
+                        onPress={() => setMyBagsIn(num)}
+                        className={`w-full py-3 rounded-lg mb-2 ${
+                          myBagsIn === num
+                            ? "bg-gray-700 border-2 border-white"
+                            : "bg-gray-800"
+                        }`}
+                      >
+                        <Text className="text-white text-2xl font-bold text-center">
+                          {num}
+                        </Text>
+                      </Pressable>
+                    ))}
                   </View>
-                  <View className="flex-1">
-                    <Text className="text-gray-400 text-sm mb-2">On Board</Text>
-                    <TextInput
-                      value={myBagsOn}
-                      onChangeText={setMyBagsOn}
-                      placeholder="0-4"
-                      placeholderTextColor="#6b7280"
-                      keyboardType="number-pad"
-                      maxLength={1}
-                      className="bg-gray-700 text-white px-4 py-3 rounded-lg text-lg text-center"
-                    />
+
+                  {/* Bags On */}
+                  <Text className="text-red-500 text-sm font-bold text-center mb-2">
+                    BAGS ON
+                  </Text>
+                  <View className="items-center">
+                    {[0, 1, 2, 3, 4].map((num) => (
+                      <Pressable
+                        key={`my-on-${num}`}
+                        onPress={() => setMyBagsOn(num)}
+                        className={`w-full py-3 rounded-lg mb-2 ${
+                          myBagsOn === num
+                            ? "bg-gray-700 border-2 border-white"
+                            : "bg-gray-800"
+                        }`}
+                      >
+                        <Text className="text-white text-2xl font-bold text-center">
+                          {num}
+                        </Text>
+                      </Pressable>
+                    ))}
+                  </View>
+                </View>
+
+                {/* Opponent Bags Column */}
+                <View className="flex-1 ml-2">
+                  <Text className="text-blue-500 text-xl font-bold text-center mb-2">
+                    {currentMatch.opponent}
+                  </Text>
+
+                  {/* Bags In */}
+                  <Text className="text-blue-500 text-sm font-bold text-center mb-2">
+                    BAGS IN
+                  </Text>
+                  <View className="items-center mb-4">
+                    {[0, 1, 2, 3, 4].map((num) => (
+                      <Pressable
+                        key={`opp-in-${num}`}
+                        onPress={() => setOppBagsIn(num)}
+                        className={`w-full py-3 rounded-lg mb-2 ${
+                          oppBagsIn === num
+                            ? "bg-gray-700 border-2 border-white"
+                            : "bg-gray-800"
+                        }`}
+                      >
+                        <Text className="text-white text-2xl font-bold text-center">
+                          {num}
+                        </Text>
+                      </Pressable>
+                    ))}
+                  </View>
+
+                  {/* Bags On */}
+                  <Text className="text-blue-500 text-sm font-bold text-center mb-2">
+                    BAGS ON
+                  </Text>
+                  <View className="items-center">
+                    {[0, 1, 2, 3, 4].map((num) => (
+                      <Pressable
+                        key={`opp-on-${num}`}
+                        onPress={() => setOppBagsOn(num)}
+                        className={`w-full py-3 rounded-lg mb-2 ${
+                          oppBagsOn === num
+                            ? "bg-gray-700 border-2 border-white"
+                            : "bg-gray-800"
+                        }`}
+                      >
+                        <Text className="text-white text-2xl font-bold text-center">
+                          {num}
+                        </Text>
+                      </Pressable>
+                    ))}
                   </View>
                 </View>
               </View>
 
-              {/* Opponent Bags */}
-              <View className="bg-gray-800 rounded-lg p-4 mb-4 border border-gray-700">
-                <Text className="text-white font-bold mb-3">
-                  {currentMatch.opponent} Bags
-                </Text>
-                <View className="flex-row gap-3">
-                  <View className="flex-1">
-                    <Text className="text-gray-400 text-sm mb-2">In Hole</Text>
-                    <TextInput
-                      value={oppBagsIn}
-                      onChangeText={setOppBagsIn}
-                      placeholder="0-4"
-                      placeholderTextColor="#6b7280"
-                      keyboardType="number-pad"
-                      maxLength={1}
-                      className="bg-gray-700 text-white px-4 py-3 rounded-lg text-lg text-center"
-                    />
-                  </View>
-                  <View className="flex-1">
-                    <Text className="text-gray-400 text-sm mb-2">On Board</Text>
-                    <TextInput
-                      value={oppBagsOn}
-                      onChangeText={setOppBagsOn}
-                      placeholder="0-4"
-                      placeholderTextColor="#6b7280"
-                      keyboardType="number-pad"
-                      maxLength={1}
-                      className="bg-gray-700 text-white px-4 py-3 rounded-lg text-center text-lg"
-                    />
-                  </View>
-                </View>
+              {/* Complete Round Buttons */}
+              <View className="flex-row gap-3 px-4 pb-6">
+                <Pressable
+                  onPress={handleCancelMatch}
+                  className="flex-1 bg-red-600 py-4 rounded-xl items-center"
+                >
+                  <Text className="text-white font-bold text-lg">Cancel</Text>
+                </Pressable>
+                <Pressable
+                  onPress={handleCompleteRound}
+                  className="flex-1 bg-green-600 py-4 rounded-xl items-center"
+                >
+                  <Text className="text-white font-bold text-lg">Enter</Text>
+                </Pressable>
               </View>
-
-              <Pressable
-                onPress={handleCompleteRound}
-                className="bg-purple-600 rounded-lg p-4 items-center"
-              >
-                <Text className="text-white font-bold text-lg">
-                  Complete Round
-                </Text>
-              </Pressable>
             </View>
           )}
 
