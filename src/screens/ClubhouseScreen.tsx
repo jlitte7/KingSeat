@@ -17,6 +17,7 @@ export default function ClubhouseScreen() {
   const navigation = useNavigation<ClubhouseNavigationProp>();
   const teams = useTossSeriesStore((s) => s.teams);
   const deleteTeam = useTossSeriesStore((s) => s.deleteTeam);
+  const generateSampleData = useTossSeriesStore((s) => s.generateSampleData);
 
   const handleDeleteTeam = (teamId: string, teamName: string) => {
     Alert.alert(
@@ -28,6 +29,23 @@ export default function ClubhouseScreen() {
           text: "Delete",
           style: "destructive",
           onPress: () => deleteTeam(teamId),
+        },
+      ]
+    );
+  };
+
+  const handleGenerateSampleData = () => {
+    Alert.alert(
+      "Generate Sample Data",
+      "This will create 6 teams with 10 players each for testing. Continue?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Generate",
+          onPress: () => {
+            generateSampleData();
+            Alert.alert("Success", "Sample data has been generated! 6 teams with 10 players each have been created.");
+          },
         },
       ]
     );
@@ -62,9 +80,15 @@ export default function ClubhouseScreen() {
             </Text>
             <Pressable
               onPress={() => navigation.navigate("CreateTeam")}
-              className="bg-blue-600 px-6 py-3 rounded-lg"
+              className="bg-blue-600 px-6 py-3 rounded-lg mb-3"
             >
               <Text className="text-white font-bold">Create Team</Text>
+            </Pressable>
+            <Pressable
+              onPress={handleGenerateSampleData}
+              className="bg-gray-700 px-6 py-3 rounded-lg border border-gray-600"
+            >
+              <Text className="text-gray-300 font-bold">Generate Sample Data</Text>
             </Pressable>
           </View>
         ) : (

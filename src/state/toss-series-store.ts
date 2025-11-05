@@ -67,6 +67,7 @@ interface TossSeriesState {
 
   // Utility
   resetAll: () => void;
+  generateSampleData: () => void;
 }
 
 const createInitialPlayerStats = (): PlayerStats => ({
@@ -736,6 +737,67 @@ export const useTossSeriesStore = create<TossSeriesState>()(
           practiceSessions: [],
           currentSeries: null,
         });
+      },
+
+      // Sample data generator for testing
+      generateSampleData: () => {
+        const teamNames = [
+          "Bag Bandits",
+          "Cornhole Crushers",
+          "Board Blazers",
+          "Hole-in-One Heroes",
+          "Toss Masters",
+          "Cornstar Champions",
+        ];
+
+        const firstNames = [
+          "Alex", "Jordan", "Casey", "Taylor", "Morgan", "Sam", "Riley", "Avery",
+          "Jamie", "Drew", "Quinn", "Blake", "Charlie", "Reese", "Dakota", "Sage",
+          "Rowan", "Kai", "River", "Phoenix", "Cameron", "Skyler", "Parker", "Hayden",
+          "Peyton", "Logan", "Carter", "Dylan", "Hunter", "Austin", "Devon", "Tyler",
+          "Bailey", "Sidney", "Kendall", "Jessie", "Emerson", "Ellis", "Harper", "Finley",
+          "Kennedy", "Marley", "Arden", "Monroe", "Sutton", "Lennon", "Rory", "Elliot",
+          "Madison", "Spencer", "Oakley", "Micah", "Wyatt", "Justice", "Haven", "Reagan",
+          "Shawn", "Keegan", "Taryn", "Landry", "Brooklyn", "Teagan"
+        ];
+
+        const lastNames = [
+          "Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis",
+          "Rodriguez", "Martinez", "Hernandez", "Lopez", "Gonzalez", "Wilson", "Anderson", "Thomas",
+          "Taylor", "Moore", "Jackson", "Martin", "Lee", "Perez", "Thompson", "White",
+          "Harris", "Sanchez", "Clark", "Ramirez", "Lewis", "Robinson", "Walker", "Young",
+          "Allen", "King", "Wright", "Scott", "Torres", "Nguyen", "Hill", "Flores",
+          "Green", "Adams", "Nelson", "Baker", "Hall", "Rivera", "Campbell", "Mitchell",
+          "Carter", "Roberts", "Gomez", "Phillips", "Evans", "Turner", "Diaz", "Parker",
+          "Cruz", "Edwards", "Collins", "Reyes", "Stewart", "Morris", "Morales", "Murphy"
+        ];
+
+        const nicknames = [
+          "Ace", "Clutch", "Sniper", "Eagle", "Blaze", "Flash", "Rocket", "Thunder",
+          "Ice", "Viper", "Fury", "Hawk", "Striker", "Bullet", "Tank", "Shadow",
+          "Chief", "Boss", "King", "Duke", null, null, null, null
+        ];
+
+        const { createTeam, createPlayer } = get();
+        const createdTeams: Team[] = [];
+
+        teamNames.forEach((teamName, teamIndex) => {
+          const team = createTeam(teamName);
+          createdTeams.push(team);
+
+          // Create 10 players per team
+          for (let i = 0; i < 10; i++) {
+            const firstName = firstNames[(teamIndex * 10 + i) % firstNames.length];
+            const lastName = lastNames[(teamIndex * 10 + i) % lastNames.length];
+            const playerName = `${firstName} ${lastName}`;
+            const nicknameValue = nicknames[(teamIndex * 10 + i) % nicknames.length];
+            const nickname = Math.random() > 0.6 && nicknameValue ? nicknameValue : undefined;
+
+            createPlayer(team.id, playerName, nickname);
+          }
+        });
+
+        console.log(`Generated ${createdTeams.length} teams with 10 players each`);
       },
     }),
     {

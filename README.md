@@ -62,6 +62,7 @@ A dedicated personal tracking system that works independently from team stats:
 - **Player Profiles**: View detailed stats for each player
 - **League Series**: Set up 12-game matches between teams
 - **Easy Navigation**: Quick access to team and player details
+- **Sample Data Generator**: Generate 6 teams with 10 players each for testing league functionality
 
 ### 📈 CornholeIQ (Statistics Dashboard)
 - **Player Rankings**: Sorted by Dominance Rating (composite performance score)
@@ -192,6 +193,8 @@ Transform your game with comprehensive practice modes designed to elevate your s
 3. Add players to the team (need 8+ for league matches)
 4. Once you have 2+ teams with enough players, start a league series
 5. Play through a 12-game series with player selection
+
+**Quick Testing**: Tap **Generate Sample Data** to instantly create 6 teams with 10 players each for testing league functionality.
 
 **Note**: Duplicate team and player names are automatically prevented
 
