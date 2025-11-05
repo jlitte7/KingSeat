@@ -28,6 +28,7 @@ export type RootStackParamList = {
     gameIndex: number;
   };
   SeriesComplete: { seriesId: string };
+  LeagueList: undefined;
   CreateLeague: undefined;
   LeagueSchedule: { leagueId: string };
   LeagueMatchDetail: { matchId: string; leagueId: string };

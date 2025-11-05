@@ -777,6 +777,10 @@ export const useTossSeriesStore = create<TossSeriesState>()(
 
               const homeTeamId = teamsArray[homeIndex];
               const awayTeamId = teamsArray[awayIndex];
+
+              // Skip if same team (prevent team from playing itself)
+              if (homeTeamId === awayTeamId) continue;
+
               const homeTeam = store.getTeamById(homeTeamId);
               const awayTeam = store.getTeamById(awayTeamId);
 

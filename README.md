@@ -210,16 +210,20 @@ Transform your game with comprehensive practice modes designed to elevate your s
 4. **Quick Testing**: Tap gray **Sample Data** button in header to instantly create 6 teams with 10 players each
 
 #### Creating a League
-1. From Clubhouse, tap **🏆 Create League** (appears when you have 2+ teams)
-2. Enter league name (e.g., "Summer League 2025")
-3. Set number of weeks (e.g., 8, 10, 12)
-4. Select which teams to include (minimum 2)
-5. Tap **Create League**
+1. From Clubhouse, tap **🏆 View Leagues**
+2. Tap **+ League** button to create a new league
+3. Enter league name (e.g., "Summer League 2025")
+4. Set number of weeks (e.g., 8, 10, 12)
+5. Select which teams to include (minimum 2)
+6. Tap **Create League**
 
 The app automatically generates a complete round-robin schedule where:
 - Each team plays every other team once before rotation
 - One match per week per team
 - Schedule continues for the specified number of weeks
+- **Smart Scheduling**: Teams never play against themselves
+
+**League Persistence**: All leagues are saved permanently! View all your leagues from the League List screen, track progress with visual progress bars, and jump back into any match at any time.
 
 #### Playing League Matches
 1. View the league schedule (organized by week)

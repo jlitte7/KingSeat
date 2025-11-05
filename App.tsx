@@ -21,6 +21,7 @@ import SeriesPlayerSelectionScreen from "./src/screens/SeriesPlayerSelectionScre
 import SeriesGameScreen from "./src/screens/SeriesGameScreen";
 import SeriesCompleteScreen from "./src/screens/SeriesCompleteScreen";
 import CreateLeagueScreen from "./src/screens/CreateLeagueScreen";
+import LeagueListScreen from "./src/screens/LeagueListScreen";
 import LeagueScheduleScreen from "./src/screens/LeagueScheduleScreen";
 import LeagueMatchDetailScreen from "./src/screens/LeagueMatchDetailScreen";
 import LeagueGameScoreboardScreen from "./src/screens/LeagueGameScoreboardScreen";
@@ -63,6 +64,7 @@ export default function App() {
             <Stack.Screen name="SeriesPlayerSelection" component={SeriesPlayerSelectionScreen} />
             <Stack.Screen name="SeriesGame" component={SeriesGameScreen} />
             <Stack.Screen name="SeriesComplete" component={SeriesCompleteScreen} />
+            <Stack.Screen name="LeagueList" component={LeagueListScreen} />
             <Stack.Screen name="CreateLeague" component={CreateLeagueScreen} />
             <Stack.Screen name="LeagueSchedule" component={LeagueScheduleScreen} />
             <Stack.Screen name="LeagueMatchDetail" component={LeagueMatchDetailScreen} />
