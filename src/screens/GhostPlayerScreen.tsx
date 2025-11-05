@@ -72,6 +72,9 @@ export default function GhostPlayerScreen() {
   const [currentRound, setCurrentRound] = useState(0);
   const [gameStarted, setGameStarted] = useState(false);
   const [showScoring, setShowScoring] = useState(false);
+  const [showGhostResult, setShowGhostResult] = useState(false);
+  const [lastGhostThrow, setLastGhostThrow] = useState<{ bagsIn: number; bagsOn: number } | null>(null);
+  const [lastRoundResult, setLastRoundResult] = useState<{ playerPoints: number; ghostPoints: number } | null>(null);
 
   // Bag counter states
   const [playerIn, setPlayerIn] = useState(0);
@@ -146,20 +149,29 @@ export default function GhostPlayerScreen() {
 
     setPlayerScore(newPlayerScore);
     setGhostScore(newGhostScore);
+    setLastGhostThrow(ghost);
+    setLastRoundResult({ playerPoints: pScore, ghostPoints: gScore });
 
-    // Check for winner
-    if (newPlayerScore >= 21 || newGhostScore >= 21) {
-      const winner = newPlayerScore >= 21 ? "player" : "ghost";
-      completeGame(gameId, winner);
-      setGameStarted(false);
-    } else {
-      setCurrentRound(currentRound + 1);
-    }
-
-    // Reset inputs
-    setPlayerIn(0);
-    setPlayerOn(0);
+    // Show ghost result
     setShowScoring(false);
+    setShowGhostResult(true);
+
+    // Check for winner after showing result
+    setTimeout(() => {
+      setShowGhostResult(false);
+
+      if (newPlayerScore >= 21 || newGhostScore >= 21) {
+        const winner = newPlayerScore >= 21 ? "player" : "ghost";
+        completeGame(gameId, winner);
+        setGameStarted(false);
+      } else {
+        setCurrentRound(currentRound + 1);
+      }
+
+      // Reset inputs
+      setPlayerIn(0);
+      setPlayerOn(0);
+    }, 3000);
   };
 
   const quitGame = () => {
@@ -291,8 +303,45 @@ export default function GhostPlayerScreen() {
                   </Text>
                 </View>
 
+                {/* Ghost Result Display */}
+                {showGhostResult && lastGhostThrow && lastRoundResult ? (
+                  <View className="bg-gray-800 rounded-2xl p-6 mb-4 border-2 border-red-600">
+                    <Text className="text-white text-lg font-bold mb-4 text-center">
+                      Ghost Threw
+                    </Text>
+                    <View className="flex-row justify-center gap-8 mb-4">
+                      <View className="items-center">
+                        <Text className="text-red-400 text-sm mb-2">IN</Text>
+                        <View className="bg-red-600 rounded-full w-16 h-16 items-center justify-center">
+                          <Text className="text-white text-3xl font-bold">{lastGhostThrow.bagsIn}</Text>
+                        </View>
+                      </View>
+                      <View className="items-center">
+                        <Text className="text-red-400 text-sm mb-2">ON</Text>
+                        <View className="bg-red-600 rounded-full w-16 h-16 items-center justify-center">
+                          <Text className="text-white text-3xl font-bold">{lastGhostThrow.bagsOn}</Text>
+                        </View>
+                      </View>
+                    </View>
+                    <View className="border-t border-gray-700 pt-4">
+                      <Text className="text-gray-400 text-sm text-center mb-2">Round Points</Text>
+                      <View className="flex-row justify-center gap-6">
+                        <View className="items-center">
+                          <Text className="text-blue-400 text-xs mb-1">You</Text>
+                          <Text className="text-white text-2xl font-bold">{lastRoundResult.playerPoints}</Text>
+                        </View>
+                        <Text className="text-gray-600 text-2xl font-bold">-</Text>
+                        <View className="items-center">
+                          <Text className="text-red-400 text-xs mb-1">Ghost</Text>
+                          <Text className="text-white text-2xl font-bold">{lastRoundResult.ghostPoints}</Text>
+                        </View>
+                      </View>
+                    </View>
+                  </View>
+                ) : null}
+
                 {/* Enter Score Button */}
-                {!showScoring ? (
+                {!showScoring && !showGhostResult && (
                   <Pressable
                     onPress={() => setShowScoring(true)}
                     className="bg-purple-600 py-6 rounded-2xl items-center mb-4"
@@ -302,7 +351,10 @@ export default function GhostPlayerScreen() {
                       Enter Your Score
                     </Text>
                   </Pressable>
-                ) : (
+                )}
+
+                {/* Scoring Input */}
+                {showScoring && (
                   <View className="bg-gray-800 rounded-2xl p-6 mb-4">
                     <Text className="text-white text-lg font-bold mb-4 text-center">
                       Your Bags - Round {currentRound}
@@ -349,7 +401,7 @@ export default function GhostPlayerScreen() {
                 )}
 
                 {/* Info */}
-                {!showScoring && (
+                {!showScoring && !showGhostResult && (
                   <View className="bg-gray-800/50 rounded-xl p-4">
                     <Text className="text-gray-400 text-sm text-center leading-5">
                       Enter how many bags you got in and on the board. The ghost

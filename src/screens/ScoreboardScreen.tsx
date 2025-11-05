@@ -46,6 +46,7 @@ export default function ScoreboardScreen() {
   const p1TotalScore = rounds.reduce((sum, r) => sum + r.p1Score, 0);
   const p2TotalScore = rounds.reduce((sum, r) => sum + r.p2Score, 0);
 
+  // Game continues past 21 - no "exactly 21" rule
   const gameWon = p1TotalScore >= 21 || p2TotalScore >= 21;
 
   const completedRounds = rounds.length;
