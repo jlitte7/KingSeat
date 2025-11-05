@@ -1,5 +1,5 @@
-import React from "react";
-import { View, Text, Pressable, ScrollView } from "react-native";
+import React, { useState } from "react";
+import { View, Text, Pressable, ScrollView, Alert, TextInput, Modal } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -13,6 +13,67 @@ type LeagueListNavigationProp = NativeStackNavigationProp<RootStackParamList, "L
 export default function LeagueListScreen() {
   const navigation = useNavigation<LeagueListNavigationProp>();
   const leagues = useTossSeriesStore((s) => s.leagues);
+  const deleteLeague = useTossSeriesStore((s) => s.deleteLeague);
+  const updateLeague = useTossSeriesStore((s) => s.updateLeague);
+
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [editingLeagueId, setEditingLeagueId] = useState<string | null>(null);
+  const [editName, setEditName] = useState("");
+  const [editWeeks, setEditWeeks] = useState("");
+
+  const handleDeleteLeague = (leagueId: string, leagueName: string) => {
+    Alert.alert(
+      "Delete League",
+      `Are you sure you want to delete "${leagueName}"? This will permanently delete all matches, games, and scores.`,
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: () => {
+            deleteLeague(leagueId);
+          },
+        },
+      ]
+    );
+  };
+
+  const handleEditLeague = (leagueId: string) => {
+    const league = leagues.find((l) => l.id === leagueId);
+    if (!league) return;
+
+    setEditingLeagueId(leagueId);
+    setEditName(league.name);
+    setEditWeeks(league.numberOfWeeks.toString());
+    setEditModalVisible(true);
+  };
+
+  const handleSaveEdit = () => {
+    if (!editingLeagueId) return;
+
+    const trimmedName = editName.trim();
+    const weeks = parseInt(editWeeks, 10);
+
+    if (!trimmedName) {
+      Alert.alert("Error", "League name cannot be empty");
+      return;
+    }
+
+    if (isNaN(weeks) || weeks < 1 || weeks > 52) {
+      Alert.alert("Error", "Please enter a valid number of weeks (1-52)");
+      return;
+    }
+
+    updateLeague(editingLeagueId, {
+      name: trimmedName,
+      numberOfWeeks: weeks,
+    });
+
+    setEditModalVisible(false);
+    setEditingLeagueId(null);
+    setEditName("");
+    setEditWeeks("");
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-gray-900">
@@ -64,39 +125,45 @@ export default function LeagueListScreen() {
                 totalMatches > 0 ? (completedMatches / totalMatches) * 100 : 0;
 
               return (
-                <Pressable
-                  key={league.id}
-                  onPress={() =>
-                    navigation.navigate("LeagueSchedule", { leagueId: league.id })
-                  }
-                  className="mb-3"
-                >
-                  <View className="rounded-xl overflow-hidden border border-gray-700">
-                    <LinearGradient
-                      colors={
-                        league.completed
-                          ? ["#065f46", "#064e3b"] as const
-                          : ["#1f2937", "#111827"] as const
-                      }
-                      style={{ padding: 16 }}
-                    >
-                      <View className="flex-row justify-between items-start mb-3">
-                        <View className="flex-1">
-                          <Text className="text-white text-xl font-bold mb-1">
-                            {league.name}
-                          </Text>
-                          <Text className="text-gray-400 text-sm">
-                            {league.teamIds.length} Teams · {league.numberOfWeeks} Weeks
-                          </Text>
-                        </View>
-                        {league.completed && (
-                          <View className="bg-green-600/20 px-3 py-1 rounded">
-                            <Text className="text-green-400 text-xs font-bold">
-                              Complete
+                <View key={league.id} className="mb-3">
+                  <Pressable
+                    onPress={() =>
+                      navigation.navigate("LeagueSchedule", { leagueId: league.id })
+                    }
+                  >
+                    <View className="rounded-xl overflow-hidden border border-gray-700">
+                      <LinearGradient
+                        colors={
+                          league.completed
+                            ? ["#065f46", "#064e3b"] as const
+                            : ["#1f2937", "#111827"] as const
+                        }
+                        style={{ padding: 16 }}
+                      >
+                        <View className="flex-row justify-between items-start mb-3">
+                          <View className="flex-1">
+                            <Text className="text-white text-xl font-bold mb-1">
+                              {league.name}
+                            </Text>
+                            <Text className="text-gray-400 text-sm">
+                              {league.teamIds.length} Teams · {league.numberOfWeeks} Weeks
                             </Text>
                           </View>
-                        )}
-                      </View>
+                          <View className="flex-row">
+                            <Pressable
+                              onPress={() => handleEditLeague(league.id)}
+                              className="bg-blue-600/20 p-2 rounded-lg mr-2"
+                            >
+                              <Ionicons name="pencil" size={18} color="#60a5fa" />
+                            </Pressable>
+                            <Pressable
+                              onPress={() => handleDeleteLeague(league.id, league.name)}
+                              className="bg-red-600/20 p-2 rounded-lg"
+                            >
+                              <Ionicons name="trash" size={18} color="#f87171" />
+                            </Pressable>
+                          </View>
+                        </View>
 
                       {/* Progress Bar */}
                       <View className="mb-3">
@@ -142,11 +209,62 @@ export default function LeagueListScreen() {
                     </LinearGradient>
                   </View>
                 </Pressable>
+              </View>
               );
             })}
           </ScrollView>
         )}
       </View>
+
+      {/* Edit League Modal */}
+      <Modal
+        visible={editModalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setEditModalVisible(false)}
+      >
+        <View className="flex-1 bg-black/70 items-center justify-center px-4">
+          <View className="bg-gray-800 rounded-xl w-full max-w-md border border-gray-700">
+            <View className="p-6">
+              <Text className="text-white text-xl font-bold mb-4">Edit League</Text>
+
+              <Text className="text-gray-400 text-sm mb-2">League Name</Text>
+              <TextInput
+                className="bg-gray-700 text-white px-4 py-3 rounded-lg mb-4"
+                value={editName}
+                onChangeText={setEditName}
+                placeholder="Enter league name"
+                placeholderTextColor="#9ca3af"
+              />
+
+              <Text className="text-gray-400 text-sm mb-2">Number of Weeks</Text>
+              <TextInput
+                className="bg-gray-700 text-white px-4 py-3 rounded-lg mb-6"
+                value={editWeeks}
+                onChangeText={setEditWeeks}
+                placeholder="Enter number of weeks"
+                placeholderTextColor="#9ca3af"
+                keyboardType="number-pad"
+              />
+
+              <View className="flex-row">
+                <Pressable
+                  onPress={() => setEditModalVisible(false)}
+                  className="flex-1 bg-gray-700 py-3 rounded-lg mr-2"
+                >
+                  <Text className="text-white font-bold text-center">Cancel</Text>
+                </Pressable>
+                <Pressable
+                  onPress={handleSaveEdit}
+                  className="flex-1 bg-purple-600 py-3 rounded-lg ml-2"
+                >
+                  <Text className="text-white font-bold text-center">Save</Text>
+                </Pressable>
+              </View>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }

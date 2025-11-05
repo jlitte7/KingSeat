@@ -73,6 +73,8 @@ interface TossSeriesState {
 
   // League actions
   createLeague: (name: string, teamIds: string[], numberOfWeeks: number) => League;
+  deleteLeague: (leagueId: string) => void;
+  updateLeague: (leagueId: string, updates: Partial<Pick<League, "name" | "numberOfWeeks">>) => void;
   getLeagueById: (leagueId: string) => League | undefined;
   getMatchById: (matchId: string, leagueId: string) => LeagueMatch | undefined;
   updateLeagueMatch: (leagueId: string, matchId: string, updates: Partial<LeagueMatch>) => void;
@@ -838,6 +840,21 @@ export const useTossSeriesStore = create<TossSeriesState>()(
 
       getLeagueById: (leagueId: string) => {
         return get().leagues.find((l) => l.id === leagueId);
+      },
+
+      deleteLeague: (leagueId: string) => {
+        set((state) => ({
+          leagues: state.leagues.filter((l) => l.id !== leagueId),
+          currentLeague: state.currentLeague?.id === leagueId ? null : state.currentLeague,
+        }));
+      },
+
+      updateLeague: (leagueId: string, updates: Partial<Pick<League, "name" | "numberOfWeeks">>) => {
+        set((state) => ({
+          leagues: state.leagues.map((league) =>
+            league.id === leagueId ? { ...league, ...updates } : league
+          ),
+        }));
       },
 
       getMatchById: (matchId: string, leagueId: string) => {
