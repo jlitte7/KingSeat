@@ -35,6 +35,7 @@ export default function ClubhouseScreen() {
   };
 
   const handleGenerateSampleData = () => {
+    console.log("Generate Sample Data button pressed");
     Alert.alert(
       "Generate Sample Data",
       "This will create 6 teams with 10 players each for testing. Continue?",
@@ -43,6 +44,7 @@ export default function ClubhouseScreen() {
         {
           text: "Generate",
           onPress: () => {
+            console.log("User confirmed, calling generateSampleData()");
             generateSampleData();
             Alert.alert("Success", "Sample data has been generated! 6 teams with 10 players each have been created.");
           },

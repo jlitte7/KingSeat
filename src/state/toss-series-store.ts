@@ -741,6 +741,8 @@ export const useTossSeriesStore = create<TossSeriesState>()(
 
       // Sample data generator for testing
       generateSampleData: () => {
+        console.log("Starting sample data generation...");
+
         const teamNames = [
           "Bag Bandits",
           "Cornhole Crushers",
@@ -775,29 +777,36 @@ export const useTossSeriesStore = create<TossSeriesState>()(
         const nicknames = [
           "Ace", "Clutch", "Sniper", "Eagle", "Blaze", "Flash", "Rocket", "Thunder",
           "Ice", "Viper", "Fury", "Hawk", "Striker", "Bullet", "Tank", "Shadow",
-          "Chief", "Boss", "King", "Duke", null, null, null, null
+          "Chief", "Boss", "King", "Duke"
         ];
 
-        const { createTeam, createPlayer } = get();
-        const createdTeams: Team[] = [];
+        const store = get();
+        let teamsCreated = 0;
+        let playersCreated = 0;
 
         teamNames.forEach((teamName, teamIndex) => {
-          const team = createTeam(teamName);
-          createdTeams.push(team);
+          console.log(`Creating team: ${teamName}`);
+          const team = store.createTeam(teamName);
+          teamsCreated++;
 
           // Create 10 players per team
           for (let i = 0; i < 10; i++) {
             const firstName = firstNames[(teamIndex * 10 + i) % firstNames.length];
             const lastName = lastNames[(teamIndex * 10 + i) % lastNames.length];
             const playerName = `${firstName} ${lastName}`;
-            const nicknameValue = nicknames[(teamIndex * 10 + i) % nicknames.length];
-            const nickname = Math.random() > 0.6 && nicknameValue ? nicknameValue : undefined;
 
-            createPlayer(team.id, playerName, nickname);
+            // 40% chance to have a nickname
+            const nicknameValue = Math.random() > 0.6 ? nicknames[Math.floor(Math.random() * nicknames.length)] : undefined;
+
+            console.log(`  Creating player ${i + 1}: ${playerName}${nicknameValue ? ` (${nicknameValue})` : ""}`);
+            store.createPlayer(team.id, playerName, nicknameValue);
+            playersCreated++;
           }
         });
 
-        console.log(`Generated ${createdTeams.length} teams with 10 players each`);
+        console.log(`Sample data generation complete! Created ${teamsCreated} teams with ${playersCreated} players total.`);
+        console.log(`Current teams in store:`, store.teams.length);
+        console.log(`Current players in store:`, store.players.length);
       },
     }),
     {
