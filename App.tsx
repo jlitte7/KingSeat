@@ -1,42 +1,51 @@
 import { StatusBar } from "expo-status-bar";
-import { Text, View } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { NavigationContainer } from "@react-navigation/native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { RootStackParamList } from "./src/navigation/types";
 
-/*
-IMPORTANT NOTICE: DO NOT REMOVE
-There are already environment keys in the project. 
-Before telling the user to add them, check if you already have access to the required keys through bash.
-Directly access them with process.env.${key}
+import HomeScreen from "./src/screens/HomeScreen";
+import ScoreboardSetupScreen from "./src/screens/ScoreboardSetupScreen";
+import ScoreboardScreen from "./src/screens/ScoreboardScreen";
+import ClubhouseScreen from "./src/screens/ClubhouseScreen";
+import CreateTeamScreen from "./src/screens/CreateTeamScreen";
+import TeamDetailScreen from "./src/screens/TeamDetailScreen";
+import AddPlayerScreen from "./src/screens/AddPlayerScreen";
+import PlayerProfileScreen from "./src/screens/PlayerProfileScreen";
+import TossOffScreen from "./src/screens/TossOffScreen";
+import CornHubScreen from "./src/screens/CornHubScreen";
+import CornholeIQScreen from "./src/screens/CornholeIQScreen";
+import SeriesSetupScreen from "./src/screens/SeriesSetupScreen";
 
-Correct usage:
-process.env.EXPO_PUBLIC_VIBECODE_{key}
-//directly access the key
-
-Incorrect usage:
-import { OPENAI_API_KEY } from '@env';
-//don't use @env, its depreicated
-
-Incorrect usage:
-import Constants from 'expo-constants';
-const openai_api_key = Constants.expoConfig.extra.apikey;
-//don't use expo-constants, its depreicated
-
-*/
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function App() {
   return (
-    <GestureHandlerRootView>
+    <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <NavigationContainer>
-          <View className="flex-1 items-center justify-center">
-            <Text className="text-center text-neutral-800 dark:text-neutral-50 text-2xl font-bold pb-2">Vibecode</Text>
-            <Text className="text-center text-gray-500 dark:text-gray-400 text-base font-normal">
-              This screen will be replaced when the AI agent is done.
-            </Text>
-            <StatusBar style="auto" />
-          </View>
+          <Stack.Navigator
+            initialRouteName="Home"
+            screenOptions={{
+              headerShown: false,
+              animation: "slide_from_right",
+            }}
+          >
+            <Stack.Screen name="Home" component={HomeScreen} />
+            <Stack.Screen name="ScoreboardSetup" component={ScoreboardSetupScreen} />
+            <Stack.Screen name="Scoreboard" component={ScoreboardScreen} />
+            <Stack.Screen name="Clubhouse" component={ClubhouseScreen} />
+            <Stack.Screen name="CreateTeam" component={CreateTeamScreen} />
+            <Stack.Screen name="TeamDetail" component={TeamDetailScreen} />
+            <Stack.Screen name="AddPlayer" component={AddPlayerScreen} />
+            <Stack.Screen name="PlayerProfile" component={PlayerProfileScreen} />
+            <Stack.Screen name="TossOff" component={TossOffScreen} />
+            <Stack.Screen name="CornHub" component={CornHubScreen} />
+            <Stack.Screen name="CornholeIQ" component={CornholeIQScreen} />
+            <Stack.Screen name="SeriesSetup" component={SeriesSetupScreen} />
+          </Stack.Navigator>
+          <StatusBar style="light" />
         </NavigationContainer>
       </SafeAreaProvider>
     </GestureHandlerRootView>
