@@ -35,7 +35,6 @@ export type RootStackParamList = {
   BestGameChallenge: undefined;
   PressurePractice: undefined;
   PersonalStats: undefined;
-  PersonalQuickLog: undefined;
   PersonalMatchLog: undefined;
   PersonalSettings: undefined;
 };

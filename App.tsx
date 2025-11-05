@@ -24,7 +24,6 @@ import SituationalGamesScreen from "./src/screens/SituationalGamesScreen";
 import BestGameChallengeScreen from "./src/screens/BestGameChallengeScreen";
 import PressurePracticeScreen from "./src/screens/PressurePracticeScreen";
 import PersonalStatsScreen from "./src/screens/PersonalStatsScreen";
-import PersonalQuickLogScreen from "./src/screens/PersonalQuickLogScreen";
 import PersonalMatchLogScreen from "./src/screens/PersonalMatchLogScreen";
 import PersonalSettingsScreen from "./src/screens/PersonalSettingsScreen";
 
@@ -61,7 +60,6 @@ export default function App() {
             <Stack.Screen name="BestGameChallenge" component={BestGameChallengeScreen} />
             <Stack.Screen name="PressurePractice" component={PressurePracticeScreen} />
             <Stack.Screen name="PersonalStats" component={PersonalStatsScreen} />
-            <Stack.Screen name="PersonalQuickLog" component={PersonalQuickLogScreen} />
             <Stack.Screen name="PersonalMatchLog" component={PersonalMatchLogScreen} />
             <Stack.Screen name="PersonalSettings" component={PersonalSettingsScreen} />
           </Stack.Navigator>

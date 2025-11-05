@@ -18,7 +18,7 @@ export default function PersonalStatsScreen() {
   const settings = usePersonalStatsStore((s) => s.settings);
   const matches = usePersonalStatsStore((s) => s.matches);
 
-  const hasStats = stats.totalThrows > 0;
+  const hasStats = stats.totalGames > 0;
 
   return (
     <View className="flex-1 bg-gray-900">
@@ -42,10 +42,10 @@ export default function PersonalStatsScreen() {
               <Ionicons name="settings-outline" size={24} color="#9ca3af" />
             </Pressable>
             <Pressable
-              onPress={() => navigation.navigate("PersonalQuickLog")}
+              onPress={() => navigation.navigate("PersonalMatchLog")}
               className="bg-purple-600 px-4 py-2 rounded-lg"
             >
-              <Text className="text-white font-bold">Quick Log</Text>
+              <Text className="text-white font-bold">Log Match</Text>
             </Pressable>
           </View>
         </View>
@@ -57,14 +57,14 @@ export default function PersonalStatsScreen() {
               No Personal Stats Yet
             </Text>
             <Text className="text-gray-500 text-center mb-6">
-              Start logging your bag throws to track your personal performance
+              Start logging matches to track your personal cornhole performance
             </Text>
             <Pressable
-              onPress={() => navigation.navigate("PersonalQuickLog")}
+              onPress={() => navigation.navigate("PersonalMatchLog")}
               className="bg-purple-600 px-6 py-3 rounded-lg"
             >
               <Text className="text-white font-bold text-base">
-                Start Logging Throws
+                Log Your First Match
               </Text>
             </Pressable>
           </View>
@@ -78,36 +78,36 @@ export default function PersonalStatsScreen() {
               <View className="flex-row justify-between mb-3">
                 <View>
                   <Text className="text-purple-200 text-xs mb-1">
-                    Total Throws
+                    Games Played
                   </Text>
                   <Text className="text-white text-2xl font-bold">
-                    {stats.totalThrows}
+                    {stats.totalGames}
                   </Text>
                 </View>
                 <View className="items-end">
                   <Text className="text-purple-200 text-xs mb-1">
-                    Board Accuracy
+                    Win Rate
                   </Text>
                   <Text className="text-white text-2xl font-bold">
-                    {stats.boardPercentage.toFixed(1)}%
+                    {stats.winPercentage.toFixed(1)}%
                   </Text>
                 </View>
               </View>
               <View className="flex-row justify-between">
                 <View>
                   <Text className="text-purple-200 text-xs mb-1">
-                    In the Hole
+                    Record
                   </Text>
                   <Text className="text-white text-xl font-bold">
-                    {stats.totalIn} ({stats.inPercentage.toFixed(1)}%)
+                    {stats.totalWins}-{stats.totalLosses}
                   </Text>
                 </View>
                 <View className="items-end">
                   <Text className="text-purple-200 text-xs mb-1">
-                    On the Board
+                    Dominance Rating
                   </Text>
                   <Text className="text-white text-xl font-bold">
-                    {stats.totalOn} ({stats.onPercentage.toFixed(1)}%)
+                    {stats.dominanceRating.toFixed(1)}
                   </Text>
                 </View>
               </View>
@@ -116,19 +116,19 @@ export default function PersonalStatsScreen() {
             {/* Accuracy Breakdown */}
             <View className="bg-gray-800 rounded-lg p-4 mb-4 border border-gray-700">
               <Text className="text-white text-lg font-bold mb-4">
-                Accuracy Breakdown
+                Accuracy & Efficiency
               </Text>
               <View className="flex-row flex-wrap">
                 <View className="w-1/2 mb-4">
-                  <Text className="text-gray-400 text-xs mb-1">In %</Text>
+                  <Text className="text-gray-400 text-xs mb-1">Bags In %</Text>
                   <Text className="text-white font-bold text-xl">
-                    {stats.inPercentage.toFixed(1)}%
+                    {stats.bagsInPercentage.toFixed(1)}%
                   </Text>
                 </View>
                 <View className="w-1/2 mb-4">
-                  <Text className="text-gray-400 text-xs mb-1">On %</Text>
+                  <Text className="text-gray-400 text-xs mb-1">Bags On %</Text>
                   <Text className="text-white font-bold text-xl">
-                    {stats.onPercentage.toFixed(1)}%
+                    {stats.bagsOnPercentage.toFixed(1)}%
                   </Text>
                 </View>
                 <View className="w-1/2 mb-4">
@@ -146,92 +146,117 @@ export default function PersonalStatsScreen() {
               </View>
             </View>
 
-            {/* Streaks */}
-            <View className="bg-gray-800 rounded-lg p-4 mb-4 border border-gray-700">
-              <Text className="text-white text-lg font-bold mb-4">Streaks</Text>
-              <View className="flex-row flex-wrap">
-                <View className="w-1/2 mb-4">
-                  <Text className="text-gray-400 text-xs mb-1">
-                    Current In Streak
-                  </Text>
-                  <Text className="text-yellow-400 font-bold text-2xl">
-                    {stats.currentInStreak}
-                  </Text>
-                </View>
-                <View className="w-1/2 mb-4">
-                  <Text className="text-gray-400 text-xs mb-1">
-                    Best In Streak
-                  </Text>
-                  <Text className="text-white font-bold text-2xl">
-                    {stats.bestInStreak}
-                  </Text>
-                </View>
-                <View className="w-1/2 mb-4">
-                  <Text className="text-gray-400 text-xs mb-1">
-                    Current Board Streak
-                  </Text>
-                  <Text className="text-yellow-400 font-bold text-2xl">
-                    {stats.currentBoardStreak}
-                  </Text>
-                </View>
-                <View className="w-1/2 mb-4">
-                  <Text className="text-gray-400 text-xs mb-1">
-                    Best Board Streak
-                  </Text>
-                  <Text className="text-white font-bold text-2xl">
-                    {stats.bestBoardStreak}
-                  </Text>
-                </View>
-              </View>
-            </View>
-
-            {/* Round Performance */}
+            {/* Scoring Performance */}
             <View className="bg-gray-800 rounded-lg p-4 mb-4 border border-gray-700">
               <Text className="text-white text-lg font-bold mb-4">
-                Round Performance
+                Scoring Performance
               </Text>
-              <View className="flex-row justify-between">
-                <View className="flex-1 items-center bg-gray-700 rounded-lg py-3 mr-2">
-                  <Text className="text-gray-400 text-xs mb-1">
-                    Four Baggers
+              <View className="flex-row flex-wrap">
+                <View className="w-1/2 mb-4">
+                  <Text className="text-gray-400 text-xs mb-1">PPR</Text>
+                  <Text className="text-white font-bold text-xl">
+                    {stats.averagePointsPerRound.toFixed(1)}
                   </Text>
-                  <Text className="text-yellow-400 font-bold text-2xl">
+                </View>
+                <View className="w-1/2 mb-4">
+                  <Text className="text-gray-400 text-xs mb-1">PPG</Text>
+                  <Text className="text-white font-bold text-xl">
+                    {stats.averagePointsPerGame.toFixed(1)}
+                  </Text>
+                </View>
+                <View className="w-1/2 mb-4">
+                  <Text className="text-gray-400 text-xs mb-1">High Score</Text>
+                  <Text className="text-white font-bold text-xl">
+                    {stats.highestGameScore}
+                  </Text>
+                </View>
+                <View className="w-1/2 mb-4">
+                  <Text className="text-gray-400 text-xs mb-1">Four Baggers</Text>
+                  <Text className="text-yellow-400 font-bold text-xl">
                     {stats.fourBaggers}
                   </Text>
                 </View>
-                <View className="flex-1 items-center bg-gray-700 rounded-lg py-3 ml-2">
-                  <Text className="text-gray-400 text-xs mb-1">
-                    Three Baggers
+              </View>
+            </View>
+
+            {/* Win Quality */}
+            <View className="bg-gray-800 rounded-lg p-4 mb-4 border border-gray-700">
+              <Text className="text-white text-lg font-bold mb-4">
+                Win Quality
+              </Text>
+              <View className="flex-row flex-wrap">
+                <View className="w-1/2 mb-4">
+                  <Text className="text-gray-400 text-xs mb-1">Shutouts</Text>
+                  <Text className="text-white font-bold text-xl">
+                    {stats.shutoutWins}
                   </Text>
-                  <Text className="text-white font-bold text-2xl">
-                    {stats.threeBaggers}
+                </View>
+                <View className="w-1/2 mb-4">
+                  <Text className="text-gray-400 text-xs mb-1">Dominant (10+)</Text>
+                  <Text className="text-white font-bold text-xl">
+                    {stats.dominantWins}
+                  </Text>
+                </View>
+                <View className="w-1/2 mb-4">
+                  <Text className="text-gray-400 text-xs mb-1">Close (3 or less)</Text>
+                  <Text className="text-white font-bold text-xl">
+                    {stats.closeWins}
+                  </Text>
+                </View>
+                <View className="w-1/2 mb-4">
+                  <Text className="text-gray-400 text-xs mb-1">Comebacks</Text>
+                  <Text className="text-white font-bold text-xl">
+                    {stats.comebackWins}
                   </Text>
                 </View>
               </View>
             </View>
 
-            {/* Match Record (if applicable) */}
-            {stats.matchesPlayed > 0 && (
-              <View className="bg-gray-800 rounded-lg p-4 mb-4 border border-gray-700">
-                <Text className="text-white text-lg font-bold mb-4">
-                  Match Record
-                </Text>
-                <View className="flex-row justify-between items-center">
-                  <View>
-                    <Text className="text-gray-400 text-xs mb-1">Record</Text>
-                    <Text className="text-white font-bold text-2xl">
-                      {stats.matchesWon}-{stats.matchesPlayed - stats.matchesWon}
-                    </Text>
-                  </View>
-                  <View className="items-end">
-                    <Text className="text-gray-400 text-xs mb-1">Win Rate</Text>
-                    <Text className="text-green-400 font-bold text-2xl">
-                      {stats.winPercentage.toFixed(1)}%
-                    </Text>
-                  </View>
+            {/* Win Streaks */}
+            <View className="bg-gray-800 rounded-lg p-4 mb-4 border border-gray-700">
+              <Text className="text-white text-lg font-bold mb-4">
+                Streaks
+              </Text>
+              <View className="flex-row flex-wrap">
+                <View className="w-1/2 mb-4">
+                  <Text className="text-gray-400 text-xs mb-1">
+                    Current Streak
+                  </Text>
+                  <Text className="text-yellow-400 font-bold text-2xl">
+                    {stats.currentWinStreak > 0 ? `W${stats.currentWinStreak}` : stats.currentLosingStreak > 0 ? `L${stats.currentLosingStreak}` : "-"}
+                  </Text>
+                </View>
+                <View className="w-1/2 mb-4">
+                  <Text className="text-gray-400 text-xs mb-1">
+                    Best Win Streak
+                  </Text>
+                  <Text className="text-white font-bold text-2xl">
+                    {stats.longestWinStreak}
+                  </Text>
                 </View>
               </View>
-            )}
+            </View>
+
+            {/* Advanced Metrics */}
+            <View className="bg-gray-800 rounded-lg p-4 mb-4 border border-gray-700">
+              <Text className="text-white text-lg font-bold mb-4">
+                Advanced Metrics
+              </Text>
+              <View className="flex-row flex-wrap">
+                <View className="w-1/2 mb-4">
+                  <Text className="text-gray-400 text-xs mb-1">Clutch Factor</Text>
+                  <Text className="text-white font-bold text-xl">
+                    {stats.clutchFactor.toFixed(1)}%
+                  </Text>
+                </View>
+                <View className="w-1/2 mb-4">
+                  <Text className="text-gray-400 text-xs mb-1">Opponents Faced</Text>
+                  <Text className="text-white font-bold text-xl">
+                    {stats.totalOpponents}
+                  </Text>
+                </View>
+              </View>
+            </View>
 
             {/* Recent Matches */}
             {matches.length > 0 && (
@@ -259,32 +284,24 @@ export default function PersonalStatsScreen() {
                         </Text>
                       </View>
                       <View className="items-end">
-                        {match.opponentScore !== undefined ? (
-                          <>
-                            <Text
-                              className={`font-bold text-base ${
-                                match.won === true
-                                  ? "text-green-400"
-                                  : match.won === false
-                                  ? "text-red-400"
-                                  : "text-white"
-                              }`}
-                            >
-                              {match.myScore} - {match.opponentScore}
-                            </Text>
-                            {match.won !== undefined && (
-                              <Text
-                                className={`text-xs ${
-                                  match.won ? "text-green-400" : "text-red-400"
-                                }`}
-                              >
-                                {match.won ? "Won" : "Lost"}
-                              </Text>
-                            )}
-                          </>
-                        ) : (
-                          <Text className="text-white font-bold text-base">
-                            {match.myScore} pts
+                        <Text
+                          className={`font-bold text-base ${
+                            match.won === true
+                              ? "text-green-400"
+                              : match.won === false
+                              ? "text-red-400"
+                              : "text-white"
+                          }`}
+                        >
+                          {match.myScore} - {match.opponentScore}
+                        </Text>
+                        {match.won !== undefined && (
+                          <Text
+                            className={`text-xs ${
+                              match.won ? "text-green-400" : "text-red-400"
+                            }`}
+                          >
+                            {match.won ? "Won" : "Lost"}
                           </Text>
                         )}
                       </View>
@@ -293,19 +310,13 @@ export default function PersonalStatsScreen() {
               </View>
             )}
 
-            {/* Action Buttons */}
-            <View className="flex-row gap-3 mb-6">
-              <Pressable
-                onPress={() => navigation.navigate("PersonalQuickLog")}
-                className="flex-1 bg-purple-600 py-4 rounded-lg items-center"
-              >
-                <Text className="text-white font-bold">Quick Log</Text>
-              </Pressable>
+            {/* Action Button */}
+            <View className="mb-6">
               <Pressable
                 onPress={() => navigation.navigate("PersonalMatchLog")}
-                className="flex-1 bg-gray-700 py-4 rounded-lg items-center"
+                className="bg-purple-600 py-4 rounded-lg items-center"
               >
-                <Text className="text-white font-bold">Log Match</Text>
+                <Text className="text-white font-bold text-base">Log New Match</Text>
               </Pressable>
             </View>
           </ScrollView>

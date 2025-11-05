@@ -23,37 +23,63 @@ export interface PersonalMatch {
 export interface PersonalRound {
   roundNumber: number;
   throws: PersonalBagThrow[];
+  myBagsIn: number;
+  myBagsOn: number;
+  opponentBagsIn: number;
+  opponentBagsOn: number;
   myScore: number;
-  opponentScore?: number;
+  opponentScore: number;
 }
 
 export interface PersonalStats {
-  // Your personal totals
-  totalThrows: number;
-  totalIn: number;
-  totalOn: number;
-  totalMisses: number;
+  // Core Stats
+  totalGames: number;
+  totalWins: number;
+  totalLosses: number;
+  totalPoints: number;
+  totalBagsIn: number;
+  totalBagsOn: number;
+  totalBagsThrown: number;
 
-  // Percentages
-  inPercentage: number;
-  onPercentage: number;
+  // Accuracy & Efficiency
+  bagsInPercentage: number;
+  bagsOnPercentage: number;
   boardPercentage: number;
   missPercentage: number;
-
-  // Streaks
-  currentInStreak: number;
-  bestInStreak: number;
-  currentBoardStreak: number; // In or On
-  bestBoardStreak: number;
-
-  // Round performance
+  threeBaggerRate: number;
   fourBaggers: number;
-  threeBaggers: number;
+  fourBaggerRate: number;
 
-  // Match stats (optional)
-  matchesPlayed: number;
-  matchesWon: number;
+  // Scoring Performance
+  averagePointsPerRound: number;
+  averagePointsPerGame: number;
+  highestGameScore: number;
+  shutoutWins: number;
+  dominantWins: number;
+  closeWins: number;
+
+  // Momentum & Consistency
+  comebackWins: number;
+  comebacksFrom10Plus: number;
+  blowoutLosses: number;
+  closeLosses: number;
+  perfectRounds: number;
+  zeroPointRounds: number;
+
+  // Win Streaks & Patterns
+  longestWinStreak: number;
+  currentWinStreak: number;
+  longestLosingStreak: number;
+  currentLosingStreak: number;
+
+  // Head-to-Head Performance
+  totalOpponents: number;
+
+  // Advanced Metrics
+  clutchFactor: number;
+  consistency: number;
   winPercentage: number;
+  dominanceRating: number;
 
   // Last updated
   lastThrow?: string;
