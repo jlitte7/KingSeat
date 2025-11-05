@@ -4,10 +4,8 @@ import {
   Text,
   Pressable,
   ScrollView,
-  TextInput,
   Keyboard,
   TouchableWithoutFeedback,
-  Modal,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
@@ -92,10 +90,10 @@ export default function SituationalGamesScreen() {
   const [ghostScore, setGhostScore] = useState(0);
   const [currentRound, setCurrentRound] = useState(0);
   const [gameStarted, setGameStarted] = useState(false);
-  const [showScoreModal, setShowScoreModal] = useState(false);
+  const [showScoring, setShowScoring] = useState(false);
 
-  const [playerIn, setPlayerIn] = useState("");
-  const [playerOn, setPlayerOn] = useState("");
+  const [playerIn, setPlayerIn] = useState(0);
+  const [playerOn, setPlayerOn] = useState(0);
 
   const startGame = (selectedScenario: GameScenario) => {
     const game = createGame(selectedScenario);
@@ -129,27 +127,28 @@ export default function SituationalGamesScreen() {
     return { bagsIn, bagsOn };
   };
 
+  const setBagCount = (type: 'in' | 'on', value: number) => {
+    if (type === 'in') {
+      setPlayerIn(Math.min(value, 4 - playerOn));
+    } else {
+      setPlayerOn(Math.min(value, 4 - playerIn));
+    }
+  };
+
   const submitRound = () => {
     if (!gameId) return;
 
-    const pIn = parseInt(playerIn) || 0;
-    const pOn = parseInt(playerOn) || 0;
-
-    if (pIn < 0 || pIn > 4 || pOn < 0 || pOn > 4 || pIn + pOn > 4) {
-      return;
-    }
-
     const ghost = generateGhostThrow();
 
-    const playerPoints = pIn * 3 + pOn * 1;
+    const playerPoints = playerIn * 3 + playerOn * 1;
     const ghostPoints = ghost.bagsIn * 3 + ghost.bagsOn * 1;
     const pScore = Math.max(0, playerPoints - ghostPoints);
     const gScore = Math.max(0, ghostPoints - playerPoints);
 
     const round: GhostRound = {
       roundNumber: currentRound,
-      playerIn: pIn,
-      playerOn: pOn,
+      playerIn: playerIn,
+      playerOn: playerOn,
       playerScore: pScore,
       ghostIn: ghost.bagsIn,
       ghostOn: ghost.bagsOn,
@@ -172,10 +171,9 @@ export default function SituationalGamesScreen() {
       setCurrentRound(currentRound + 1);
     }
 
-    setPlayerIn("");
-    setPlayerOn("");
-    setShowScoreModal(false);
-    Keyboard.dismiss();
+    setPlayerIn(0);
+    setPlayerOn(0);
+    setShowScoring(false);
   };
 
   const quitGame = () => {
@@ -323,64 +321,45 @@ export default function SituationalGamesScreen() {
                 </View>
 
                 {/* Enter Score Button */}
-                <Pressable
-                  onPress={() => setShowScoreModal(true)}
-                  className="bg-green-600 py-6 rounded-2xl items-center mb-4"
-                >
-                  <Ionicons name="add-circle" size={48} color="#fff" />
-                  <Text className="text-white text-xl font-bold mt-2">
-                    Enter Your Score
-                  </Text>
-                </Pressable>
-              </View>
-            )}
-          </ScrollView>
-
-          {/* Score Input Modal */}
-          <Modal
-            visible={showScoreModal}
-            transparent
-            animationType="slide"
-            onRequestClose={() => setShowScoreModal(false)}
-          >
-            <TouchableWithoutFeedback onPress={() => setShowScoreModal(false)}>
-              <View className="flex-1 bg-black/70 justify-end">
-                <TouchableWithoutFeedback>
-                  <View className="bg-gray-900 rounded-t-3xl p-6">
-                    <Text className="text-white text-2xl font-bold mb-6 text-center">
-                      Round {currentRound}
+                {!showScoring ? (
+                  <Pressable
+                    onPress={() => setShowScoring(true)}
+                    className="bg-green-600 py-6 rounded-2xl items-center mb-4"
+                  >
+                    <Ionicons name="add-circle" size={48} color="#fff" />
+                    <Text className="text-white text-xl font-bold mt-2">
+                      Enter Your Score
                     </Text>
-
-                    <View className="mb-6">
-                      <Text className="text-gray-400 mb-2">Bags In (3 pts)</Text>
-                      <TextInput
-                        value={playerIn}
-                        onChangeText={setPlayerIn}
-                        keyboardType="number-pad"
-                        placeholder="0-4"
-                        placeholderTextColor="#6b7280"
-                        className="bg-gray-800 text-white text-2xl font-bold p-4 rounded-xl text-center"
-                        maxLength={1}
+                  </Pressable>
+                ) : (
+                  <View className="bg-gray-800 rounded-2xl p-6 mb-4">
+                    <Text className="text-white text-lg font-bold mb-4 text-center">
+                      Your Bags - Round {currentRound}
+                    </Text>
+                    <View className="flex-row justify-center gap-6 mb-6">
+                      <BagCounter
+                        label="BAGS IN"
+                        count={playerIn}
+                        onSelect={(value) => setBagCount('in', value)}
+                        disabled={(value) => value > 4 - playerOn}
+                        color="text-blue-400"
+                      />
+                      <BagCounter
+                        label="BAGS ON"
+                        count={playerOn}
+                        onSelect={(value) => setBagCount('on', value)}
+                        disabled={(value) => value > 4 - playerIn}
+                        color="text-blue-400"
                       />
                     </View>
-
-                    <View className="mb-6">
-                      <Text className="text-gray-400 mb-2">Bags On (1 pt)</Text>
-                      <TextInput
-                        value={playerOn}
-                        onChangeText={setPlayerOn}
-                        keyboardType="number-pad"
-                        placeholder="0-4"
-                        placeholderTextColor="#6b7280"
-                        className="bg-gray-800 text-white text-2xl font-bold p-4 rounded-xl text-center"
-                        maxLength={1}
-                      />
-                    </View>
-
                     <View className="flex-row gap-3">
                       <Pressable
-                        onPress={() => setShowScoreModal(false)}
-                        className="flex-1 bg-gray-700 py-4 rounded-xl"
+                        onPress={() => {
+                          setPlayerIn(0);
+                          setPlayerOn(0);
+                          setShowScoring(false);
+                        }}
+                        className="flex-1 bg-red-600 py-3 rounded-xl"
                       >
                         <Text className="text-white text-center font-bold">
                           Cancel
@@ -388,7 +367,7 @@ export default function SituationalGamesScreen() {
                       </Pressable>
                       <Pressable
                         onPress={submitRound}
-                        className="flex-1 bg-green-600 py-4 rounded-xl"
+                        className="flex-1 bg-green-600 py-3 rounded-xl"
                       >
                         <Text className="text-white text-center font-bold">
                           Submit
@@ -396,12 +375,58 @@ export default function SituationalGamesScreen() {
                       </Pressable>
                     </View>
                   </View>
-                </TouchableWithoutFeedback>
+                )}
               </View>
-            </TouchableWithoutFeedback>
-          </Modal>
+            )}
+          </ScrollView>
         </SafeAreaView>
       </View>
     </TouchableWithoutFeedback>
   );
 }
+
+const BagCounter = ({
+  label,
+  count,
+  onSelect,
+  color,
+  disabled,
+}: {
+  label: string;
+  count: number;
+  onSelect: (num: number) => void;
+  color: string;
+  disabled?: (num: number) => boolean;
+}) => (
+  <View className="items-center gap-1">
+    <Text className={`text-xs font-bold ${color}`}>{label}</Text>
+    <View className="gap-0.5">
+      {[0, 1, 2, 3, 4].map((num) => (
+        <Pressable
+          key={num}
+          onPress={() => onSelect(num)}
+          disabled={disabled && disabled(num)}
+          className={`rounded-lg font-bold w-14 h-12 items-center justify-center ${
+            num === count
+              ? 'bg-gray-900 border-2 border-gray-700'
+              : disabled && disabled(num)
+              ? 'bg-gray-800 border-2 border-gray-700'
+              : 'bg-gray-700 border-2 border-gray-600'
+          }`}
+        >
+          <Text
+            className={`font-bold text-2xl ${
+              num === count
+                ? 'text-white'
+                : disabled && disabled(num)
+                ? 'text-gray-600'
+                : 'text-gray-400'
+            }`}
+          >
+            {num}
+          </Text>
+        </Pressable>
+      ))}
+    </View>
+  </View>
+);

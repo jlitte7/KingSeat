@@ -78,13 +78,14 @@ A comprehensive cornhole league management and scoring app built with Expo and R
 - Achievements automatically unlock during gameplay
 
 ### 🌽 CornHub (Practice Area)
-Transform your game with comprehensive practice modes designed to elevate your skills:
+Transform your game with comprehensive practice modes designed to elevate your skills. All practice modes now feature the intuitive bag counter interface from the main scoreboard for consistent scoring experience:
 
 - **Ghost Player Mode**: Practice against AI opponents at 4 difficulty levels
   - Beginner (~1 PPR) - Learn the basics
   - Intermediate (~2.5 PPR) - Average competition
   - Advanced (~4 PPR) - Strong opponents
   - Pro (~6 PPR) - Expert level challenge
+  - Uses bag counter interface for easy score entry
 
 - **Bag Run**: Track consecutive bags made in a row
   - 4 bags per round tracking
@@ -104,6 +105,7 @@ Transform your game with comprehensive practice modes designed to elevate your s
   - "Clutch Moment" - Down 19-16, need a big round
   - "Late Game Pressure" - Up 20-17, close it out
   - "Blowout Recovery" - Down 18-6, miracle time
+  - Uses bag counter interface for easy score entry
 
 - **Best Game Challenge**: Play against your personal best performance
   - Automatically calculates your best game stats
