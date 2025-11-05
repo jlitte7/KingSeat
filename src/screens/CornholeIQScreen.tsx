@@ -14,7 +14,7 @@ export default function CornholeIQScreen() {
   const players = useTossSeriesStore((s) => s.players);
 
   const sortedPlayers = [...players].sort(
-    (a, b) => b.stats.dominanceRating - a.stats.dominanceRating
+    (a, b) => (b.stats?.dominanceRating ?? 0) - (a.stats?.dominanceRating ?? 0)
   );
 
   return (
@@ -58,7 +58,7 @@ export default function CornholeIQScreen() {
                   </View>
                   <View className="items-end">
                     <Text className="text-yellow-400 font-bold text-lg">
-                      {player.stats.dominanceRating.toFixed(1)}
+                      {(player.stats?.dominanceRating ?? 0).toFixed(1)}
                     </Text>
                     <Text className="text-gray-500 text-xs">Dominance</Text>
                   </View>
@@ -68,37 +68,37 @@ export default function CornholeIQScreen() {
                   <View className="w-1/3 mb-2">
                     <Text className="text-gray-400 text-xs">Record</Text>
                     <Text className="text-white font-bold">
-                      {player.stats.totalWins}-{player.stats.totalLosses}
+                      {player.stats?.totalWins ?? 0}-{player.stats?.totalLosses ?? 0}
                     </Text>
                   </View>
                   <View className="w-1/3 mb-2">
                     <Text className="text-gray-400 text-xs">Win %</Text>
                     <Text className="text-white font-bold">
-                      {player.stats.winPercentage.toFixed(1)}%
+                      {(player.stats?.winPercentage ?? 0).toFixed(1)}%
                     </Text>
                   </View>
                   <View className="w-1/3 mb-2">
                     <Text className="text-gray-400 text-xs">PPR</Text>
                     <Text className="text-white font-bold">
-                      {player.stats.averagePointsPerRound.toFixed(1)}
+                      {(player.stats?.averagePointsPerRound ?? 0).toFixed(1)}
                     </Text>
                   </View>
                   <View className="w-1/3 mb-2">
                     <Text className="text-gray-400 text-xs">Bags In</Text>
                     <Text className="text-white font-bold">
-                      {player.stats.bagsInPercentage.toFixed(1)}%
+                      {(player.stats?.bagsInPercentage ?? 0).toFixed(1)}%
                     </Text>
                   </View>
                   <View className="w-1/3 mb-2">
                     <Text className="text-gray-400 text-xs">Board %</Text>
                     <Text className="text-white font-bold">
-                      {player.stats.boardPercentage.toFixed(1)}%
+                      {(player.stats?.boardPercentage ?? 0).toFixed(1)}%
                     </Text>
                   </View>
                   <View className="w-1/3 mb-2">
                     <Text className="text-gray-400 text-xs">Clutch</Text>
                     <Text className="text-white font-bold">
-                      {player.stats.clutchFactor.toFixed(1)}%
+                      {(player.stats?.clutchFactor ?? 0).toFixed(1)}%
                     </Text>
                   </View>
                 </View>
