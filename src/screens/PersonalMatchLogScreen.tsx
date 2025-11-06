@@ -42,16 +42,6 @@ export default function PersonalMatchLogScreen() {
   };
 
   const handleCompleteRound = () => {
-    // Validation - each player throws max 4 bags total
-    if (myBagsIn + myBagsOn > 4) {
-      Alert.alert("Invalid Input", "You can only throw 4 bags total per round (In + On cannot exceed 4)");
-      return;
-    }
-    if (oppBagsIn + oppBagsOn > 4) {
-      Alert.alert("Invalid Input", "Opponent can only throw 4 bags total per round (In + On cannot exceed 4)");
-      return;
-    }
-
     // Calculate what the new scores will be (cancellation scoring)
     const myRawScore = myBagsIn * 3 + myBagsOn;
     const oppRawScore = oppBagsIn * 3 + oppBagsOn;
@@ -237,21 +227,29 @@ export default function PersonalMatchLogScreen() {
                     BAGS IN
                   </Text>
                   <View className="items-center mb-4">
-                    {[0, 1, 2, 3, 4].map((num) => (
-                      <Pressable
-                        key={`my-in-${num}`}
-                        onPress={() => setMyBagsIn(num)}
-                        className={`w-full py-3 rounded-lg mb-2 ${
-                          myBagsIn === num
-                            ? "bg-gray-700 border-2 border-white"
-                            : "bg-gray-800"
-                        }`}
-                      >
-                        <Text className="text-white text-2xl font-bold text-center">
-                          {num}
-                        </Text>
-                      </Pressable>
-                    ))}
+                    {[0, 1, 2, 3, 4].map((num) => {
+                      const wouldExceed = num + myBagsOn > 4;
+                      return (
+                        <Pressable
+                          key={`my-in-${num}`}
+                          onPress={() => !wouldExceed && setMyBagsIn(num)}
+                          disabled={wouldExceed}
+                          className={`w-full py-3 rounded-lg mb-2 ${
+                            myBagsIn === num
+                              ? "bg-gray-700 border-2 border-white"
+                              : wouldExceed
+                              ? "bg-gray-900 opacity-30"
+                              : "bg-gray-800"
+                          }`}
+                        >
+                          <Text className={`text-2xl font-bold text-center ${
+                            wouldExceed ? "text-gray-600" : "text-white"
+                          }`}>
+                            {num}
+                          </Text>
+                        </Pressable>
+                      );
+                    })}
                   </View>
 
                   {/* Bags On */}
@@ -259,21 +257,29 @@ export default function PersonalMatchLogScreen() {
                     BAGS ON
                   </Text>
                   <View className="items-center">
-                    {[0, 1, 2, 3, 4].map((num) => (
-                      <Pressable
-                        key={`my-on-${num}`}
-                        onPress={() => setMyBagsOn(num)}
-                        className={`w-full py-3 rounded-lg mb-2 ${
-                          myBagsOn === num
-                            ? "bg-gray-700 border-2 border-white"
-                            : "bg-gray-800"
-                        }`}
-                      >
-                        <Text className="text-white text-2xl font-bold text-center">
-                          {num}
-                        </Text>
-                      </Pressable>
-                    ))}
+                    {[0, 1, 2, 3, 4].map((num) => {
+                      const wouldExceed = myBagsIn + num > 4;
+                      return (
+                        <Pressable
+                          key={`my-on-${num}`}
+                          onPress={() => !wouldExceed && setMyBagsOn(num)}
+                          disabled={wouldExceed}
+                          className={`w-full py-3 rounded-lg mb-2 ${
+                            myBagsOn === num
+                              ? "bg-gray-700 border-2 border-white"
+                              : wouldExceed
+                              ? "bg-gray-900 opacity-30"
+                              : "bg-gray-800"
+                          }`}
+                        >
+                          <Text className={`text-2xl font-bold text-center ${
+                            wouldExceed ? "text-gray-600" : "text-white"
+                          }`}>
+                            {num}
+                          </Text>
+                        </Pressable>
+                      );
+                    })}
                   </View>
                 </View>
 
@@ -288,21 +294,29 @@ export default function PersonalMatchLogScreen() {
                     BAGS IN
                   </Text>
                   <View className="items-center mb-4">
-                    {[0, 1, 2, 3, 4].map((num) => (
-                      <Pressable
-                        key={`opp-in-${num}`}
-                        onPress={() => setOppBagsIn(num)}
-                        className={`w-full py-3 rounded-lg mb-2 ${
-                          oppBagsIn === num
-                            ? "bg-gray-700 border-2 border-white"
-                            : "bg-gray-800"
-                        }`}
-                      >
-                        <Text className="text-white text-2xl font-bold text-center">
-                          {num}
-                        </Text>
-                      </Pressable>
-                    ))}
+                    {[0, 1, 2, 3, 4].map((num) => {
+                      const wouldExceed = num + oppBagsOn > 4;
+                      return (
+                        <Pressable
+                          key={`opp-in-${num}`}
+                          onPress={() => !wouldExceed && setOppBagsIn(num)}
+                          disabled={wouldExceed}
+                          className={`w-full py-3 rounded-lg mb-2 ${
+                            oppBagsIn === num
+                              ? "bg-gray-700 border-2 border-white"
+                              : wouldExceed
+                              ? "bg-gray-900 opacity-30"
+                              : "bg-gray-800"
+                          }`}
+                        >
+                          <Text className={`text-2xl font-bold text-center ${
+                            wouldExceed ? "text-gray-600" : "text-white"
+                          }`}>
+                            {num}
+                          </Text>
+                        </Pressable>
+                      );
+                    })}
                   </View>
 
                   {/* Bags On */}
@@ -310,21 +324,29 @@ export default function PersonalMatchLogScreen() {
                     BAGS ON
                   </Text>
                   <View className="items-center">
-                    {[0, 1, 2, 3, 4].map((num) => (
-                      <Pressable
-                        key={`opp-on-${num}`}
-                        onPress={() => setOppBagsOn(num)}
-                        className={`w-full py-3 rounded-lg mb-2 ${
-                          oppBagsOn === num
-                            ? "bg-gray-700 border-2 border-white"
-                            : "bg-gray-800"
-                        }`}
-                      >
-                        <Text className="text-white text-2xl font-bold text-center">
-                          {num}
-                        </Text>
-                      </Pressable>
-                    ))}
+                    {[0, 1, 2, 3, 4].map((num) => {
+                      const wouldExceed = oppBagsIn + num > 4;
+                      return (
+                        <Pressable
+                          key={`opp-on-${num}`}
+                          onPress={() => !wouldExceed && setOppBagsOn(num)}
+                          disabled={wouldExceed}
+                          className={`w-full py-3 rounded-lg mb-2 ${
+                            oppBagsOn === num
+                              ? "bg-gray-700 border-2 border-white"
+                              : wouldExceed
+                              ? "bg-gray-900 opacity-30"
+                              : "bg-gray-800"
+                          }`}
+                        >
+                          <Text className={`text-2xl font-bold text-center ${
+                            wouldExceed ? "text-gray-600" : "text-white"
+                          }`}>
+                            {num}
+                          </Text>
+                        </Pressable>
+                      );
+                    })}
                   </View>
                 </View>
               </View>
