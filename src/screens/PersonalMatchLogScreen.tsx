@@ -421,111 +421,114 @@ export default function PersonalMatchLogScreen() {
           {currentRound && !gameOver && (
             <View className="px-4 pt-4">
               <Text className="text-white text-xl font-bold mb-4 text-center">
-                Round {currentRound.roundNumber} - Tap to Select
+                Round {currentRound.roundNumber}
               </Text>
 
-              <View className="flex-row justify-between mb-8">
-                {/* Your Bags Column */}
-                <View className="flex-1 mr-2">
-                  <Text className="text-red-500 text-xl font-bold text-center mb-2">
-                    {settings.myName}
-                  </Text>
+              {/* My Bags - Side by Side Grid Layout */}
+              <View className="mb-6">
+                <Text className="text-white text-lg font-bold text-center mb-3">
+                  {settings.myName}
+                </Text>
 
-                  {/* Bags In */}
-                  <Text className="text-red-500 text-sm font-bold text-center mb-2">
-                    BAGS IN
-                  </Text>
-                  <View className="items-center mb-4">
-                    {[0, 1, 2, 3, 4].map((num) => {
-                      const wouldExceed = num + myBagsOn > 4;
-                      return (
-                        <Pressable
-                          key={`my-in-${num}`}
-                          onPress={() => !wouldExceed && setMyBagsIn(num)}
-                          disabled={wouldExceed}
-                          className={`w-full py-3 rounded-lg mb-2 ${
-                            myBagsIn === num
-                              ? "bg-gray-700 border-2 border-white"
-                              : wouldExceed
-                              ? "bg-gray-900 opacity-30"
-                              : "bg-gray-800"
-                          }`}
-                        >
-                          <Text className={`text-2xl font-bold text-center ${
-                            wouldExceed ? "text-gray-600" : "text-white"
-                          }`}>
-                            {num}
-                          </Text>
-                        </Pressable>
-                      );
-                    })}
+                <View className="flex-row justify-between mb-6">
+                  {/* Bags In - Left Side */}
+                  <View className="flex-1 mr-2">
+                    <Text className="text-green-400 text-sm font-bold text-center mb-2">
+                      BAGS IN
+                    </Text>
+                    <View className="flex-row flex-wrap justify-center">
+                      {[0, 1, 2, 3, 4].map((num) => {
+                        const wouldExceed = num + myBagsOn > 4;
+                        return (
+                          <Pressable
+                            key={`my-in-${num}`}
+                            onPress={() => !wouldExceed && setMyBagsIn(num)}
+                            disabled={wouldExceed}
+                            className={`w-[48%] py-4 rounded-lg m-1 ${
+                              myBagsIn === num
+                                ? "bg-green-600 border-2 border-white"
+                                : wouldExceed
+                                ? "bg-gray-900 opacity-30"
+                                : "bg-gray-800"
+                            }`}
+                          >
+                            <Text className={`text-2xl font-bold text-center ${
+                              wouldExceed ? "text-gray-600" : "text-white"
+                            }`}>
+                              {num}
+                            </Text>
+                          </Pressable>
+                        );
+                      })}
+                    </View>
                   </View>
 
-                  {/* Bags On */}
-                  <Text className="text-red-500 text-sm font-bold text-center mb-2">
-                    BAGS ON
-                  </Text>
-                  <View className="items-center">
-                    {[0, 1, 2, 3, 4].map((num) => {
-                      const wouldExceed = myBagsIn + num > 4;
-                      return (
-                        <Pressable
-                          key={`my-on-${num}`}
-                          onPress={() => !wouldExceed && setMyBagsOn(num)}
-                          disabled={wouldExceed}
-                          className={`w-full py-3 rounded-lg mb-2 ${
-                            myBagsOn === num
-                              ? "bg-gray-700 border-2 border-white"
-                              : wouldExceed
-                              ? "bg-gray-900 opacity-30"
-                              : "bg-gray-800"
-                          }`}
-                        >
-                          <Text className={`text-2xl font-bold text-center ${
-                            wouldExceed ? "text-gray-600" : "text-white"
-                          }`}>
-                            {num}
-                          </Text>
-                        </Pressable>
-                      );
-                    })}
-                  </View>
-                </View>
-
-                {/* Opponent Score Column - Simplified */}
-                <View className="flex-1 ml-2">
-                  <Text className="text-blue-500 text-xl font-bold text-center mb-2">
-                    {currentMatch.opponent}
-                  </Text>
-
-                  {/* Score Picker (0-12) */}
-                  <Text className="text-blue-500 text-sm font-bold text-center mb-2">
-                    SCORE
-                  </Text>
-                  <View className="items-center">
-                    {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((num) => {
-                      return (
-                        <Pressable
-                          key={`opp-score-${num}`}
-                          onPress={() => setOppScore(num)}
-                          className={`w-full py-2 rounded-lg mb-1 ${
-                            oppScore === num
-                              ? "bg-gray-700 border-2 border-white"
-                              : "bg-gray-800"
-                          }`}
-                        >
-                          <Text className="text-xl font-bold text-center text-white">
-                            {num}
-                          </Text>
-                        </Pressable>
-                      );
-                    })}
+                  {/* Bags On - Right Side */}
+                  <View className="flex-1 ml-2">
+                    <Text className="text-blue-400 text-sm font-bold text-center mb-2">
+                      BAGS ON
+                    </Text>
+                    <View className="flex-row flex-wrap justify-center">
+                      {[0, 1, 2, 3, 4].map((num) => {
+                        const wouldExceed = myBagsIn + num > 4;
+                        return (
+                          <Pressable
+                            key={`my-on-${num}`}
+                            onPress={() => !wouldExceed && setMyBagsOn(num)}
+                            disabled={wouldExceed}
+                            className={`w-[48%] py-4 rounded-lg m-1 ${
+                              myBagsOn === num
+                                ? "bg-blue-600 border-2 border-white"
+                                : wouldExceed
+                                ? "bg-gray-900 opacity-30"
+                                : "bg-gray-800"
+                            }`}
+                          >
+                            <Text className={`text-2xl font-bold text-center ${
+                              wouldExceed ? "text-gray-600" : "text-white"
+                            }`}>
+                              {num}
+                            </Text>
+                          </Pressable>
+                        );
+                      })}
+                    </View>
                   </View>
                 </View>
               </View>
 
+              {/* Opponent Score - Horizontal Scroll */}
+              <View className="mb-6">
+                <Text className="text-orange-400 text-lg font-bold text-center mb-3">
+                  {currentMatch.opponent}
+                </Text>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={{ paddingHorizontal: 4 }}
+                >
+                  {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((num) => {
+                    return (
+                      <Pressable
+                        key={`opp-score-${num}`}
+                        onPress={() => setOppScore(num)}
+                        className={`py-4 px-6 rounded-lg mx-1 ${
+                          oppScore === num
+                            ? "bg-orange-600 border-2 border-white"
+                            : "bg-gray-800"
+                        }`}
+                      >
+                        <Text className="text-2xl font-bold text-center text-white">
+                          {num}
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
+                </ScrollView>
+              </View>
+
               {/* Complete Round Buttons */}
-              <View className="flex-row gap-3 px-4 pb-6">
+              <View className="flex-row gap-3 pb-6">
                 <Pressable
                   onPress={handleCancelMatch}
                   className="flex-1 bg-red-600 py-4 rounded-xl items-center"
