@@ -261,82 +261,94 @@ export default function LeagueMatchDetailScreen() {
                 {/* Expanded content */}
                 {isExpanded && !game.completed && (
                   <View className="bg-gray-800 rounded-b-xl border-x border-b border-gray-700 p-4 mt-[-8px]">
-                    {/* Away Team Players */}
-                    <Text className="text-blue-400 font-bold mb-2">
-                      {match.awayTeamName} (Away)
-                    </Text>
-                    <View className="mb-3">
-                      <Text className="text-gray-400 text-sm mb-2">Player 1</Text>
+                    {game.inProgress ? (
+                      /* Resume Game Button */
                       <Pressable
-                        onPress={() => handleSelectPlayer(game.gameNumber, "away", 1)}
-                        className="bg-gray-900 px-4 py-3 rounded-lg border border-gray-700 flex-row justify-between items-center mb-2"
+                        onPress={() => handleStartGame(game.gameNumber)}
+                        className="bg-orange-600 py-4 rounded-lg items-center"
                       >
-                        <Text className="text-white">
-                          {game.awayPlayer1Name || "Select player..."}
+                        <Text className="text-white font-bold text-lg">
+                          Resume Game {game.gameNumber}
                         </Text>
-                        <Ionicons name="chevron-down" size={20} color="#9ca3af" />
                       </Pressable>
-
-                      <Text className="text-gray-400 text-sm mb-2">Player 2</Text>
-                      <Pressable
-                        onPress={() => handleSelectPlayer(game.gameNumber, "away", 2)}
-                        className="bg-gray-900 px-4 py-3 rounded-lg border border-gray-700 flex-row justify-between items-center"
-                      >
-                        <Text className="text-white">
-                          {game.awayPlayer2Name || "Select player..."}
+                    ) : (
+                      <>
+                        {/* Away Team Players */}
+                        <Text className="text-blue-400 font-bold mb-2">
+                          {match.awayTeamName} (Away)
                         </Text>
-                        <Ionicons name="chevron-down" size={20} color="#9ca3af" />
-                      </Pressable>
-                    </View>
+                        <View className="mb-3">
+                          <Text className="text-gray-400 text-sm mb-2">Player 1</Text>
+                          <Pressable
+                            onPress={() => handleSelectPlayer(game.gameNumber, "away", 1)}
+                            className="bg-gray-900 px-4 py-3 rounded-lg border border-gray-700 flex-row justify-between items-center mb-2"
+                          >
+                            <Text className="text-white">
+                              {game.awayPlayer1Name || "Select player..."}
+                            </Text>
+                            <Ionicons name="chevron-down" size={20} color="#9ca3af" />
+                          </Pressable>
 
-                    {/* Home Team Players */}
-                    <Text className="text-red-400 font-bold mb-2">
-                      {match.homeTeamName} (Home)
-                    </Text>
-                    <View className="mb-4">
-                      <Text className="text-gray-400 text-sm mb-2">Player 1</Text>
-                      <Pressable
-                        onPress={() => handleSelectPlayer(game.gameNumber, "home", 1)}
-                        className="bg-gray-900 px-4 py-3 rounded-lg border border-gray-700 flex-row justify-between items-center mb-2"
-                      >
-                        <Text className="text-white">
-                          {game.homePlayer1Name || "Select player..."}
+                          <Text className="text-gray-400 text-sm mb-2">Player 2</Text>
+                          <Pressable
+                            onPress={() => handleSelectPlayer(game.gameNumber, "away", 2)}
+                            className="bg-gray-900 px-4 py-3 rounded-lg border border-gray-700 flex-row justify-between items-center"
+                          >
+                            <Text className="text-white">
+                              {game.awayPlayer2Name || "Select player..."}
+                            </Text>
+                            <Ionicons name="chevron-down" size={20} color="#9ca3af" />
+                          </Pressable>
+                        </View>
+
+                        {/* Home Team Players */}
+                        <Text className="text-red-400 font-bold mb-2">
+                          {match.homeTeamName} (Home)
                         </Text>
-                        <Ionicons name="chevron-down" size={20} color="#9ca3af" />
-                      </Pressable>
+                        <View className="mb-4">
+                          <Text className="text-gray-400 text-sm mb-2">Player 1</Text>
+                          <Pressable
+                            onPress={() => handleSelectPlayer(game.gameNumber, "home", 1)}
+                            className="bg-gray-900 px-4 py-3 rounded-lg border border-gray-700 flex-row justify-between items-center mb-2"
+                          >
+                            <Text className="text-white">
+                              {game.homePlayer1Name || "Select player..."}
+                            </Text>
+                            <Ionicons name="chevron-down" size={20} color="#9ca3af" />
+                          </Pressable>
 
-                      <Text className="text-gray-400 text-sm mb-2">Player 2</Text>
-                      <Pressable
-                        onPress={() => handleSelectPlayer(game.gameNumber, "home", 2)}
-                        className="bg-gray-900 px-4 py-3 rounded-lg border border-gray-700 flex-row justify-between items-center"
-                      >
-                        <Text className="text-white">
-                          {game.homePlayer2Name || "Select player..."}
-                        </Text>
-                        <Ionicons name="chevron-down" size={20} color="#9ca3af" />
-                      </Pressable>
-                    </View>
+                          <Text className="text-gray-400 text-sm mb-2">Player 2</Text>
+                          <Pressable
+                            onPress={() => handleSelectPlayer(game.gameNumber, "home", 2)}
+                            className="bg-gray-900 px-4 py-3 rounded-lg border border-gray-700 flex-row justify-between items-center"
+                          >
+                            <Text className="text-white">
+                              {game.homePlayer2Name || "Select player..."}
+                            </Text>
+                            <Ionicons name="chevron-down" size={20} color="#9ca3af" />
+                          </Pressable>
+                        </View>
 
-                    {/* Start Game Button */}
-                    <Pressable
-                      onPress={() => handleStartGame(game.gameNumber)}
-                      disabled={
-                        !game.awayPlayer1Id || !game.awayPlayer2Id ||
-                        !game.homePlayer1Id || !game.homePlayer2Id ||
-                        game.inProgress
-                      }
-                      className={`py-3 rounded-lg items-center ${
-                        game.awayPlayer1Id && game.awayPlayer2Id &&
-                        game.homePlayer1Id && game.homePlayer2Id &&
-                        !game.inProgress
-                          ? "bg-green-600"
-                          : "bg-gray-700"
-                      }`}
-                    >
-                      <Text className="text-white font-bold">
-                        {game.inProgress ? "Game in Progress" : "Start Game (2v2)"}
-                      </Text>
-                    </Pressable>
+                        {/* Start Game Button */}
+                        <Pressable
+                          onPress={() => handleStartGame(game.gameNumber)}
+                          disabled={
+                            !game.awayPlayer1Id || !game.awayPlayer2Id ||
+                            !game.homePlayer1Id || !game.homePlayer2Id
+                          }
+                          className={`py-3 rounded-lg items-center ${
+                            game.awayPlayer1Id && game.awayPlayer2Id &&
+                            game.homePlayer1Id && game.homePlayer2Id
+                              ? "bg-green-600"
+                              : "bg-gray-700"
+                          }`}
+                        >
+                          <Text className="text-white font-bold">
+                            Start Game (2v2)
+                          </Text>
+                        </Pressable>
+                      </>
+                    )}
                   </View>
                 )}
               </View>

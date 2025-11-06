@@ -1,4 +1,4 @@
-# TossSeries - Ultimate Cornhole Tracker
+# KingSeat - Ultimate Cornhole Tracker
 
 A comprehensive cornhole league management and scoring app built with Expo and React Native. Track games, manage teams, monitor player stats, and organize league matches - all optimized for mobile.
 

@@ -194,7 +194,7 @@ export default function ScoreboardScreen() {
               <Ionicons name="refresh" size={20} color="#fff" />
             </Pressable>
             <View className="items-center">
-              <Text className="text-white text-lg font-bold">TOSS SERIES</Text>
+              <Text className="text-white text-lg font-bold">KINGSEAT</Text>
               <Text className="text-white text-xs">
                 {totalRounds ? `Round ${currentRound} of ${totalRounds}` : `Round ${currentRound}`}
               </Text>
