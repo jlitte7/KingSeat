@@ -134,9 +134,9 @@ export default function LeagueGameScoreboardScreen() {
     color: string;
     maxValue?: number;
   }) => (
-    <View className="items-center">
+    <View className="items-center flex-1">
       <Text className={`text-sm font-bold mb-2 ${color}`}>{label}</Text>
-      <View className="flex-row gap-1">
+      <View className="flex-row gap-1 flex-wrap justify-center">
         {[0, 1, 2, 3, 4].map((num) => {
           const isDisabled = num > maxValue;
           const isSelected = value === num;
@@ -145,7 +145,7 @@ export default function LeagueGameScoreboardScreen() {
               key={num}
               onPress={() => !isDisabled && onChange(num)}
               disabled={isDisabled}
-              className={`w-11 h-11 rounded-lg items-center justify-center ${
+              className={`w-10 h-10 rounded-lg items-center justify-center ${
                 isSelected
                   ? "bg-white"
                   : isDisabled
@@ -154,7 +154,7 @@ export default function LeagueGameScoreboardScreen() {
               }`}
             >
               <Text
-                className={`text-xl font-bold ${
+                className={`text-lg font-bold ${
                   isSelected
                     ? color.replace("text-", "text-")
                     : isDisabled
@@ -260,7 +260,7 @@ export default function LeagueGameScoreboardScreen() {
                 </Text>
               </View>
             </View>
-            <View className="flex-row justify-around">
+            <View className="flex-row gap-3 px-2">
               <NumberSelector
                 label="BAGS IN"
                 value={awayIn}
@@ -295,7 +295,7 @@ export default function LeagueGameScoreboardScreen() {
                 </Text>
               </View>
             </View>
-            <View className="flex-row justify-around">
+            <View className="flex-row gap-3 px-2">
               <NumberSelector
                 label="BAGS IN"
                 value={homeIn}

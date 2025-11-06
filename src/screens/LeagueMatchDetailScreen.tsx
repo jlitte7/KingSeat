@@ -49,11 +49,46 @@ export default function LeagueMatchDetailScreen() {
       return;
     }
 
+    // Get players already selected in this game
+    const selectedInThisGame = [
+      game.awayPlayer1Id,
+      game.awayPlayer2Id,
+      game.homePlayer1Id,
+      game.homePlayer2Id,
+    ].filter(Boolean);
+
+    // Get players currently in other active games
+    const playersInActiveGames = match.games
+      .filter((g) => g.gameNumber !== gameNumber && g.inProgress && !g.completed)
+      .flatMap((g) => [g.awayPlayer1Id, g.awayPlayer2Id, g.homePlayer1Id, g.homePlayer2Id])
+      .filter(Boolean);
+
+    // Filter available players
+    const availablePlayers = playerList.filter((player) => {
+      // Exclude if already selected in THIS game (can't play twice in same game)
+      if (selectedInThisGame.includes(player.id)) {
+        // Allow reselecting same position
+        if (team === "away" && position === 1 && player.id === game.awayPlayer1Id) return true;
+        if (team === "away" && position === 2 && player.id === game.awayPlayer2Id) return true;
+        if (team === "home" && position === 1 && player.id === game.homePlayer1Id) return true;
+        if (team === "home" && position === 2 && player.id === game.homePlayer2Id) return true;
+        return false;
+      }
+      // Exclude if playing in another active game
+      if (playersInActiveGames.includes(player.id)) return false;
+      return true;
+    });
+
+    if (availablePlayers.length === 0) {
+      Alert.alert("No Available Players", "All players are either already in this game or playing in another active game");
+      return;
+    }
+
     Alert.alert(
       `Select ${team === "away" ? "Away" : "Home"} Player ${position}`,
       `Choose a player for Game ${gameNumber}`,
       [
-        ...playerList.map((player) => ({
+        ...availablePlayers.map((player) => ({
           text: player.nickname ? `${player.name} (${player.nickname})` : player.name,
           onPress: () => {
             if (team === "away" && position === 1) {
