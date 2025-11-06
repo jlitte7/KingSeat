@@ -9,6 +9,7 @@ import HomeScreen from "./src/screens/HomeScreen";
 import ScoreboardSetupScreen from "./src/screens/ScoreboardSetupScreen";
 import ScoreboardScreen from "./src/screens/ScoreboardScreen";
 import ClubhouseScreen from "./src/screens/ClubhouseScreen";
+import TeamsListScreen from "./src/screens/TeamsListScreen";
 import CreateTeamScreen from "./src/screens/CreateTeamScreen";
 import TeamDetailScreen from "./src/screens/TeamDetailScreen";
 import AddPlayerScreen from "./src/screens/AddPlayerScreen";
@@ -53,6 +54,7 @@ export default function App() {
             <Stack.Screen name="ScoreboardSetup" component={ScoreboardSetupScreen} />
             <Stack.Screen name="Scoreboard" component={ScoreboardScreen} />
             <Stack.Screen name="Clubhouse" component={ClubhouseScreen} />
+            <Stack.Screen name="TeamsList" component={TeamsListScreen} />
             <Stack.Screen name="CreateTeam" component={CreateTeamScreen} />
             <Stack.Screen name="TeamDetail" component={TeamDetailScreen} />
             <Stack.Screen name="AddPlayer" component={AddPlayerScreen} />

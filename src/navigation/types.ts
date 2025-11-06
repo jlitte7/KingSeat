@@ -7,6 +7,7 @@ export type RootStackParamList = {
     totalRounds?: number;
   };
   Clubhouse: undefined;
+  TeamsList: undefined;
   TeamDetail: { teamId: string };
   CreateTeam: undefined;
   AddPlayer: { teamId: string };

@@ -56,16 +56,24 @@ A dedicated personal tracking system that works independently from team stats:
 - Build a complete history of your bag throwing accuracy over time
 
 ### 🏆 Clubhouse (League & Match Management)
-- **Team Management**: Create and organize teams
-- **Team Visibility**: Hide/show teams to organize your roster
+Clubhouse is your central hub for managing teams, leagues, and matches. The homepage provides easy access to all team management features.
+
+#### Clubhouse Home
+- **Teams Button**: Access your full teams roster with hide/show capabilities
+- **View Leagues**: Browse and manage all your leagues
+- **Start Single Match**: Set up quick matches between teams
+
+#### Team Management
+- **Create & Organize Teams**: Build your roster of teams
+- **Team Visibility Controls**: Hide/show teams to keep your list organized
   - **Active Teams**: View only teams you're currently using
   - **Hidden Teams**: View archived or inactive teams
   - **All Teams**: See your complete roster
   - Toggle visibility with the eye icon on any team card
-- **Player Rosters**: Add players to teams (minimum 2 for matches)
+- **Player Rosters**: Add players to teams (minimum 2 visible teams required for matches)
 - **Team Stats**: Track wins, losses, and total games
 - **Player Profiles**: View detailed stats for each player
-- **Sample Data Generator**: Instantly create 6 teams with 10 players each via the "Sample Data" button in Clubhouse header
+- **Sample Data Generator**: Instantly create 6 teams with 10 players each via the "Sample Data" button in Teams screen
 
 #### League System
 - **Create Leagues**: Set up multi-week leagues with any number of teams
@@ -208,10 +216,17 @@ Transform your game with comprehensive practice modes designed to elevate your s
 
 ### League Management (Clubhouse)
 
-#### Creating Teams & Players
+#### Accessing Clubhouse
 1. Tap **🏆 Clubhouse** from home
+2. Choose from the following options:
+   - **👥 Teams** - Manage your teams roster
+   - **🏆 View Leagues** - Browse and manage leagues (requires 2+ visible teams)
+   - **🎯 Start Single Match** - Set up quick matches (requires 2+ visible teams)
+
+#### Creating Teams & Players
+1. From Clubhouse home, tap **👥 Teams**
 2. Create teams with **+ Team** button
-3. Add players to each team (need at least 2 teams for leagues)
+3. Add players to each team (need at least 2 visible teams for leagues)
 4. **Quick Testing**: Tap gray **Sample Data** button in header to instantly create 6 teams with 10 players each
 5. **Organize Teams**: Use the filter tabs to view Active, Hidden, or All teams
 6. **Hide/Show Teams**: Tap the eye icon on any team card to toggle visibility (hide inactive teams to keep your list organized)
