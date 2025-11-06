@@ -57,8 +57,8 @@ A dedicated personal tracking system that works independently from team stats:
     - YOUR stats: Bags In and Bags On side-by-side in 2x3 grids
     - Green for Bags In, Blue for Bags On
     - Smart validation prevents exceeding 4 total bags
-    - Opponent score: Horizontal scroll picker (0-12)
-    - Efficient use of screen space, minimal scrolling needed
+    - Opponent score: All valid scores visible at once (0-10, 12) - no scrolling needed
+    - Fast, efficient score entry with everything in view
   - **Compact Real-Time Stats Display**: Complete performance dashboard updating live, no scrolling needed
     - **IN%**: Percentage of throws that go in the hole
     - **BOARD%**: Total percentage on board (in + on combined)

@@ -497,34 +497,31 @@ export default function PersonalMatchLogScreen() {
                 </View>
               </View>
 
-              {/* Opponent Score - Horizontal Scroll */}
+              {/* Opponent Score - Grid Layout (No Scroll) */}
               <View className="mb-6">
                 <Text className="text-orange-400 text-lg font-bold text-center mb-3">
                   {currentMatch.opponent}
                 </Text>
-                <ScrollView
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={{ paddingHorizontal: 4 }}
-                >
+                <View className="flex-row flex-wrap justify-center">
                   {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12].map((num) => {
                     return (
                       <Pressable
                         key={`opp-score-${num}`}
                         onPress={() => setOppScore(num)}
-                        className={`py-4 px-6 rounded-lg mx-1 ${
+                        className={`py-3 px-4 rounded-lg m-1 ${
                           oppScore === num
                             ? "bg-orange-600 border-2 border-white"
                             : "bg-gray-800"
                         }`}
+                        style={{ minWidth: 60 }}
                       >
-                        <Text className="text-2xl font-bold text-center text-white">
+                        <Text className="text-xl font-bold text-center text-white">
                           {num}
                         </Text>
                       </Pressable>
                     );
                   })}
-                </ScrollView>
+                </View>
               </View>
 
               {/* Complete Round Buttons */}
