@@ -100,6 +100,58 @@ export default function PersonalMatchLogScreen() {
     );
   };
 
+  // Calculate real-time stats from current match (must be before early return)
+  // Updated to fix hook ordering
+  const matchStats = React.useMemo(() => {
+    if (!currentMatch) {
+      return {
+        totalBagsIn: 0,
+        totalBagsOn: 0,
+        totalBagsThrown: 0,
+        totalPoints: 0,
+        fourBaggers: 0,
+        threeBaggers: 0,
+        inPercent: "0.0",
+        onPercent: "0.0",
+        boardPercent: "0.0",
+        ppr: "0.00",
+      };
+    }
+
+    let totalBagsIn = 0;
+    let totalBagsOn = 0;
+    let totalBagsThrown = currentMatch.rounds.length * 4;
+    let totalPoints = 0;
+    let fourBaggers = 0;
+    let threeBaggers = 0;
+
+    currentMatch.rounds.forEach((round) => {
+      totalBagsIn += round.myBagsIn;
+      totalBagsOn += round.myBagsOn;
+      totalPoints += round.myScore;
+      if (round.myBagsIn === 4) fourBaggers++;
+      if (round.myBagsIn === 3) threeBaggers++;
+    });
+
+    const inPercent = totalBagsThrown > 0 ? ((totalBagsIn / totalBagsThrown) * 100).toFixed(1) : "0.0";
+    const onPercent = totalBagsThrown > 0 ? ((totalBagsOn / totalBagsThrown) * 100).toFixed(1) : "0.0";
+    const boardPercent = totalBagsThrown > 0 ? (((totalBagsIn + totalBagsOn) / totalBagsThrown) * 100).toFixed(1) : "0.0";
+    const ppr = currentMatch.rounds.length > 0 ? (totalPoints / currentMatch.rounds.length).toFixed(2) : "0.00";
+
+    return {
+      totalBagsIn,
+      totalBagsOn,
+      totalBagsThrown,
+      totalPoints,
+      fourBaggers,
+      threeBaggers,
+      inPercent,
+      onPercent,
+      boardPercent,
+      ppr,
+    };
+  }, [currentMatch]);
+
   // Setup screen
   if (!currentMatch) {
     return (
@@ -202,6 +254,57 @@ export default function PersonalMatchLogScreen() {
             </Text>
           </View>
         </View>
+
+        {/* Real-Time Stats */}
+        {currentMatch.rounds.length > 0 && (
+          <View className="px-4 pb-4">
+            <View className="bg-gray-900/50 rounded-lg p-4 border border-gray-800">
+              <Text className="text-gray-400 text-xs font-bold mb-3 text-center">
+                YOUR MATCH STATS
+              </Text>
+              <View className="flex-row justify-between">
+                <View className="flex-1 items-center">
+                  <Text className="text-green-400 text-2xl font-bold">
+                    {matchStats.inPercent}%
+                  </Text>
+                  <Text className="text-gray-400 text-xs mt-1">IN%</Text>
+                </View>
+                <View className="flex-1 items-center border-l border-r border-gray-800">
+                  <Text className="text-blue-400 text-2xl font-bold">
+                    {matchStats.boardPercent}%
+                  </Text>
+                  <Text className="text-gray-400 text-xs mt-1">BOARD%</Text>
+                </View>
+                <View className="flex-1 items-center">
+                  <Text className="text-purple-400 text-2xl font-bold">
+                    {matchStats.ppr}
+                  </Text>
+                  <Text className="text-gray-400 text-xs mt-1">PPR</Text>
+                </View>
+              </View>
+              {(matchStats.fourBaggers > 0 || matchStats.threeBaggers > 0) && (
+                <View className="flex-row justify-center mt-3 pt-3 border-t border-gray-800">
+                  {matchStats.fourBaggers > 0 && (
+                    <View className="flex-row items-center mr-4">
+                      <Ionicons name="trophy" size={16} color="#fbbf24" />
+                      <Text className="text-yellow-400 font-bold ml-1">
+                        {matchStats.fourBaggers} 4-Bagger{matchStats.fourBaggers > 1 ? "s" : ""}
+                      </Text>
+                    </View>
+                  )}
+                  {matchStats.threeBaggers > 0 && (
+                    <View className="flex-row items-center">
+                      <Ionicons name="star" size={16} color="#a78bfa" />
+                      <Text className="text-purple-400 font-bold ml-1">
+                        {matchStats.threeBaggers} 3-Bagger{matchStats.threeBaggers > 1 ? "s" : ""}
+                      </Text>
+                    </View>
+                  )}
+                </View>
+              )}
+            </View>
+          </View>
+        )}
 
         <ScrollView className="flex-1">
           {/* Current Round - Button Interface */}

@@ -53,6 +53,8 @@ A dedicated personal tracking system that works independently from team stats:
 
 - **Match Logging**: Full game tracking with detailed stats
   - Log complete matches with opponent names
+  - **Real-Time Stats Display**: See your IN%, BOARD%, and PPR live during the match
+  - **4-Bagger & 3-Bagger Tracking**: Celebration badges for perfect rounds
   - **Singles & Doubles Support**: Track YOUR 4 bags only (not your partner's)
   - **Smart Validation**: Prevents logging more than 4 bags per round (In + On combined)
   - Enter opponent/team scores for win/loss tracking
