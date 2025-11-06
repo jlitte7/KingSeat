@@ -57,6 +57,11 @@ A dedicated personal tracking system that works independently from team stats:
 
 ### 🏆 Clubhouse (League & Match Management)
 - **Team Management**: Create and organize teams
+- **Team Visibility**: Hide/show teams to organize your roster
+  - **Active Teams**: View only teams you're currently using
+  - **Hidden Teams**: View archived or inactive teams
+  - **All Teams**: See your complete roster
+  - Toggle visibility with the eye icon on any team card
 - **Player Rosters**: Add players to teams (minimum 2 for matches)
 - **Team Stats**: Track wins, losses, and total games
 - **Player Profiles**: View detailed stats for each player
@@ -208,6 +213,8 @@ Transform your game with comprehensive practice modes designed to elevate your s
 2. Create teams with **+ Team** button
 3. Add players to each team (need at least 2 teams for leagues)
 4. **Quick Testing**: Tap gray **Sample Data** button in header to instantly create 6 teams with 10 players each
+5. **Organize Teams**: Use the filter tabs to view Active, Hidden, or All teams
+6. **Hide/Show Teams**: Tap the eye icon on any team card to toggle visibility (hide inactive teams to keep your list organized)
 
 #### Creating a League
 1. From Clubhouse, tap **🏆 View Leagues**

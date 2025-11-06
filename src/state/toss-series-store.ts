@@ -35,6 +35,7 @@ interface TossSeriesState {
   deleteTeam: (teamId: string) => void;
   updateTeam: (teamId: string, updates: Partial<Team>) => void;
   getTeamById: (teamId: string) => Team | undefined;
+  toggleTeamVisibility: (teamId: string) => void;
 
   // Player actions
   createPlayer: (
@@ -190,6 +191,14 @@ export const useTossSeriesStore = create<TossSeriesState>()(
 
       getTeamById: (teamId: string) => {
         return get().teams.find((t) => t.id === teamId);
+      },
+
+      toggleTeamVisibility: (teamId: string) => {
+        set((state) => ({
+          teams: state.teams.map((t) =>
+            t.id === teamId ? { ...t, isHidden: !t.isHidden } : t
+          ),
+        }));
       },
 
       // Player actions

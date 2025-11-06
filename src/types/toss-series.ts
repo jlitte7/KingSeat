@@ -67,6 +67,7 @@ export interface Team {
   players: Player[];
   stats: TeamStats;
   createdAt: string;
+  isHidden?: boolean;
 }
 
 export interface TeamStats {
