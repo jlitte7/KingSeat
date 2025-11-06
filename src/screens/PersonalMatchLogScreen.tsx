@@ -100,8 +100,7 @@ export default function PersonalMatchLogScreen() {
     );
   };
 
-  // Calculate real-time stats from current match (must be before early return)
-  // Updated to fix hook ordering
+  // Calculate comprehensive real-time stats from current match (must be before early return)
   const matchStats = React.useMemo(() => {
     if (!currentMatch) {
       return {
@@ -109,12 +108,19 @@ export default function PersonalMatchLogScreen() {
         totalBagsOn: 0,
         totalBagsThrown: 0,
         totalPoints: 0,
+        totalOppPoints: 0,
         fourBaggers: 0,
         threeBaggers: 0,
+        roundsPlayed: 0,
         inPercent: "0.0",
         onPercent: "0.0",
+        offPercent: "0.0",
         boardPercent: "0.0",
         ppr: "0.00",
+        oppr: "0.00",
+        ptDiff: "0.00",
+        fourBaggerPercent: "0.0",
+        scorePercent: "0.0",
       };
     }
 
@@ -122,6 +128,7 @@ export default function PersonalMatchLogScreen() {
     let totalBagsOn = 0;
     let totalBagsThrown = currentMatch.rounds.length * 4;
     let totalPoints = 0;
+    let totalOppPoints = 0;
     let fourBaggers = 0;
     let threeBaggers = 0;
 
@@ -129,26 +136,49 @@ export default function PersonalMatchLogScreen() {
       totalBagsIn += round.myBagsIn;
       totalBagsOn += round.myBagsOn;
       totalPoints += round.myScore;
+      totalOppPoints += round.opponentScore;
       if (round.myBagsIn === 4) fourBaggers++;
       if (round.myBagsIn === 3) threeBaggers++;
     });
 
+    const roundsPlayed = currentMatch.rounds.length;
+    const totalBagsOff = totalBagsThrown - totalBagsIn - totalBagsOn;
+    const maxPossibleScore = totalBagsThrown * 3; // If every bag went in
+
+    // Percentages
     const inPercent = totalBagsThrown > 0 ? ((totalBagsIn / totalBagsThrown) * 100).toFixed(1) : "0.0";
     const onPercent = totalBagsThrown > 0 ? ((totalBagsOn / totalBagsThrown) * 100).toFixed(1) : "0.0";
+    const offPercent = totalBagsThrown > 0 ? ((totalBagsOff / totalBagsThrown) * 100).toFixed(1) : "0.0";
     const boardPercent = totalBagsThrown > 0 ? (((totalBagsIn + totalBagsOn) / totalBagsThrown) * 100).toFixed(1) : "0.0";
-    const ppr = currentMatch.rounds.length > 0 ? (totalPoints / currentMatch.rounds.length).toFixed(2) : "0.00";
+    const fourBaggerPercent = roundsPlayed > 0 ? ((fourBaggers / roundsPlayed) * 100).toFixed(1) : "0.0";
+
+    // Score percentage - bags that scored (in + on) / total bags OR points scored vs max possible
+    const bagsScored = totalBagsIn + totalBagsOn;
+    const scorePercent = totalBagsThrown > 0 ? ((bagsScored / totalBagsThrown) * 100).toFixed(1) : "0.0";
+
+    // Averages
+    const ppr = roundsPlayed > 0 ? (totalPoints / roundsPlayed).toFixed(2) : "0.00";
+    const oppr = roundsPlayed > 0 ? (totalOppPoints / roundsPlayed).toFixed(2) : "0.00";
+    const ptDiff = roundsPlayed > 0 ? ((totalPoints - totalOppPoints) / roundsPlayed).toFixed(2) : "0.00";
 
     return {
       totalBagsIn,
       totalBagsOn,
       totalBagsThrown,
       totalPoints,
+      totalOppPoints,
       fourBaggers,
       threeBaggers,
+      roundsPlayed,
       inPercent,
       onPercent,
+      offPercent,
       boardPercent,
       ppr,
+      oppr,
+      ptDiff,
+      fourBaggerPercent,
+      scorePercent,
     };
   }, [currentMatch]);
 
@@ -255,33 +285,106 @@ export default function PersonalMatchLogScreen() {
           </View>
         </View>
 
-        {/* Real-Time Stats */}
+        {/* Comprehensive Real-Time Stats */}
         {currentMatch.rounds.length > 0 && (
           <View className="px-4 pb-4">
             <View className="bg-gray-900/50 rounded-lg p-4 border border-gray-800">
-              <Text className="text-gray-400 text-xs font-bold mb-3 text-center">
+              <Text className="text-gray-400 text-xs font-bold mb-4 text-center">
                 YOUR MATCH STATS
               </Text>
-              <View className="flex-row justify-between">
+
+              {/* Primary Stats Row */}
+              <View className="flex-row justify-between mb-4 pb-4 border-b border-gray-800">
                 <View className="flex-1 items-center">
                   <Text className="text-green-400 text-2xl font-bold">
                     {matchStats.inPercent}%
                   </Text>
-                  <Text className="text-gray-400 text-xs mt-1">IN%</Text>
+                  <Text className="text-gray-400 text-xs mt-1">BAGS IN</Text>
                 </View>
                 <View className="flex-1 items-center border-l border-r border-gray-800">
                   <Text className="text-blue-400 text-2xl font-bold">
                     {matchStats.boardPercent}%
                   </Text>
-                  <Text className="text-gray-400 text-xs mt-1">BOARD%</Text>
+                  <Text className="text-gray-400 text-xs mt-1">ON BOARD</Text>
                 </View>
+                <View className="flex-1 items-center">
+                  <Text className="text-red-400 text-2xl font-bold">
+                    {matchStats.offPercent}%
+                  </Text>
+                  <Text className="text-gray-400 text-xs mt-1">OFF BOARD</Text>
+                </View>
+              </View>
+
+              {/* Scoring Stats Row */}
+              <View className="flex-row justify-between mb-4 pb-4 border-b border-gray-800">
                 <View className="flex-1 items-center">
                   <Text className="text-purple-400 text-2xl font-bold">
                     {matchStats.ppr}
                   </Text>
                   <Text className="text-gray-400 text-xs mt-1">PPR</Text>
                 </View>
+                <View className="flex-1 items-center border-l border-r border-gray-800">
+                  <Text className="text-orange-400 text-2xl font-bold">
+                    {matchStats.oppr}
+                  </Text>
+                  <Text className="text-gray-400 text-xs mt-1">OPPR</Text>
+                </View>
+                <View className="flex-1 items-center">
+                  <Text className={`text-2xl font-bold ${
+                    parseFloat(matchStats.ptDiff) > 0 ? "text-green-400" :
+                    parseFloat(matchStats.ptDiff) < 0 ? "text-red-400" : "text-gray-400"
+                  }`}>
+                    {parseFloat(matchStats.ptDiff) > 0 ? "+" : ""}{matchStats.ptDiff}
+                  </Text>
+                  <Text className="text-gray-400 text-xs mt-1">PT. DIFF</Text>
+                </View>
               </View>
+
+              {/* Cumulative Stats Row */}
+              <View className="flex-row justify-between mb-4 pb-4 border-b border-gray-800">
+                <View className="flex-1 items-center">
+                  <Text className="text-green-400 text-xl font-bold">
+                    {matchStats.totalPoints}
+                  </Text>
+                  <Text className="text-gray-400 text-xs mt-1">TOTAL PTS</Text>
+                </View>
+                <View className="flex-1 items-center border-l border-r border-gray-800">
+                  <Text className="text-orange-400 text-xl font-bold">
+                    {matchStats.totalOppPoints}
+                  </Text>
+                  <Text className="text-gray-400 text-xs mt-1">OPP PTS</Text>
+                </View>
+                <View className="flex-1 items-center">
+                  <Text className="text-blue-400 text-xl font-bold">
+                    {matchStats.roundsPlayed}
+                  </Text>
+                  <Text className="text-gray-400 text-xs mt-1">ROUNDS</Text>
+                </View>
+              </View>
+
+              {/* Additional Percentages Row */}
+              <View className="flex-row justify-between mb-3">
+                <View className="flex-1 items-center">
+                  <Text className="text-yellow-400 text-xl font-bold">
+                    {matchStats.fourBaggerPercent}%
+                  </Text>
+                  <Text className="text-gray-400 text-xs mt-1">4-BAGGER%</Text>
+                </View>
+                <View className="flex-1 items-center border-l border-r border-gray-800">
+                  <Text className="text-cyan-400 text-xl font-bold">
+                    {matchStats.onPercent}%
+                  </Text>
+                  <Text className="text-gray-400 text-xs mt-1">ON BOARD</Text>
+                </View>
+                <View className="flex-1 items-center">
+                  <Text className="text-pink-400 text-xl font-bold">
+                    {matchStats.scorePercent}%
+                  </Text>
+                  <Text className="text-gray-400 text-xs mt-1">SCORE%</Text>
+                </View>
+              </View>
+
+              {/* Achievement Badges */}
               {(matchStats.fourBaggers > 0 || matchStats.threeBaggers > 0) && (
                 <View className="flex-row justify-center mt-3 pt-3 border-t border-gray-800">
                   {matchStats.fourBaggers > 0 && (

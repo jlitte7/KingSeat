@@ -51,10 +51,22 @@ A dedicated personal tracking system that works independently from team stats:
   - Live streak tracking
   - Perfect for solo practice or casual play
 
-- **Match Logging**: Full game tracking with detailed stats
+- **Match Logging**: Full game tracking with comprehensive real-time stats
   - Log complete matches with opponent names
-  - **Real-Time Stats Display**: See your IN%, BOARD%, and PPR live during the match
-  - **4-Bagger & 3-Bagger Tracking**: Celebration badges for perfect rounds
+  - **Real-Time Stats Display**: Complete performance dashboard updating live during the match
+    - **% Bags In (Hole)**: Percentage of throws that go in the hole
+    - **% On Board**: Percentage of throws that land on the board (in + on combined)
+    - **% Off Board**: Percentage of throws that miss the board entirely
+    - **PPR**: Average points you score per round
+    - **OPPR**: Average points opponent scores per round
+    - **Pt. Diff**: PPR minus OPPR (shows green if winning, red if losing)
+    - **Total Points**: Cumulative points you have scored
+    - **Total Opponent Points**: Cumulative points opponent has scored
+    - **Rounds Played**: Number of rounds completed
+    - **% Four-Bagger**: Percentage of rounds where you got all 4 bags in the hole
+    - **% Bags On Board** (detail): Just the bags that landed on board (not in hole)
+    - **Score %**: Percentage of bags that scored (in + on)
+  - **4-Bagger & 3-Bagger Tracking**: Celebration badges showing total perfect rounds
   - **Singles & Doubles Support**: Track YOUR 4 bags only (not your partner's)
   - **Smart Validation**: Prevents logging more than 4 bags per round (In + On combined)
   - Enter opponent/team scores for win/loss tracking
