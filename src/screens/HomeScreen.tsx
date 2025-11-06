@@ -83,7 +83,7 @@ export default function HomeScreen() {
             {/* Header */}
             <View className="px-6 pt-8 pb-6">
               <Text className="text-white text-4xl font-black mb-2">
-                TOSS SERIES
+                KINGSEAT
               </Text>
               <Text className="text-gray-400 text-base">
                 Ultimate Cornhole Tracker
