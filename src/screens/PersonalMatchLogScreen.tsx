@@ -42,15 +42,24 @@ export default function PersonalMatchLogScreen() {
   };
 
   const handleCompleteRound = () => {
-    // Validation
+    // Validation - each player throws max 4 bags total
     if (myBagsIn + myBagsOn > 4) {
-      Alert.alert("Invalid Input", "Your total bags cannot exceed 4");
+      Alert.alert("Invalid Input", "You can only throw 4 bags total per round (In + On cannot exceed 4)");
       return;
     }
     if (oppBagsIn + oppBagsOn > 4) {
-      Alert.alert("Invalid Input", "Opponent total bags cannot exceed 4");
+      Alert.alert("Invalid Input", "Opponent can only throw 4 bags total per round (In + On cannot exceed 4)");
       return;
     }
+
+    // Calculate what the new scores will be (cancellation scoring)
+    const myRawScore = myBagsIn * 3 + myBagsOn;
+    const oppRawScore = oppBagsIn * 3 + oppBagsOn;
+    const myRoundScore = Math.max(0, myRawScore - oppRawScore);
+    const oppRoundScore = Math.max(0, oppRawScore - myRawScore);
+
+    const newMyScore = (currentMatch?.myScore ?? 0) + myRoundScore;
+    const newOppScore = (currentMatch?.opponentScore ?? 0) + oppRoundScore;
 
     completeRound(myBagsIn, myBagsOn, oppBagsIn, oppBagsOn);
 
@@ -60,12 +69,12 @@ export default function PersonalMatchLogScreen() {
     setOppBagsIn(0);
     setOppBagsOn(0);
 
-    // Auto-start next round if game not over
-    setTimeout(() => {
-      if (currentMatch && currentMatch.myScore < 21 && (currentMatch.opponentScore ?? 0) < 21) {
+    // Only auto-start next round if game is NOT over (nobody reached 21)
+    if (newMyScore < 21 && newOppScore < 21) {
+      setTimeout(() => {
         startRound();
-      }
-    }, 300);
+      }, 300);
+    }
   };
 
   const handleEndMatch = () => {

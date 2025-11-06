@@ -53,10 +53,17 @@ A dedicated personal tracking system that works independently from team stats:
 
 - **Match Logging**: Full game tracking with detailed stats
   - Log complete matches with opponent names
-  - Track all 4 throws per round with visual indicators
-  - Enter opponent scores for win/loss tracking
+  - **Singles & Doubles Support**: Track YOUR 4 bags only (not your partner's)
+  - **Smart Validation**: Prevents logging more than 4 bags per round (In + On combined)
+  - Enter opponent/team scores for win/loss tracking
   - View round history during active matches
   - Automatic score calculation from your throws
+  - **Game Over Detection**: Properly shows end screen when someone reaches 21
+
+- **Clear Tracking Info**: Blue info box explains exactly what's being tracked
+  - In doubles: Only log your personal 4 bags
+  - Opponent score is their team total
+  - No confusion about singles vs doubles
 
 - **Player Linking**: Connect your personal stats to team profiles
   - Link to an existing player in the Clubhouse
