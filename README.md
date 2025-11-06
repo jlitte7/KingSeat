@@ -53,6 +53,10 @@ A dedicated personal tracking system that works independently from team stats:
 
 - **Match Logging**: Full game tracking with comprehensive real-time stats
   - Log complete matches with opponent names
+  - **Simplified Input Interface**:
+    - Track YOUR bags in/on with detailed buttons
+    - Select opponent score directly (0-12) - no need to track their bags
+    - More space for stats, less scrolling
   - **Compact Real-Time Stats Display**: Complete performance dashboard updating live, no scrolling needed
     - **IN%**: Percentage of throws that go in the hole
     - **BOARD%**: Total percentage on board (in + on combined)

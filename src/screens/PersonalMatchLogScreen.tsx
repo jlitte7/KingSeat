@@ -29,8 +29,7 @@ export default function PersonalMatchLogScreen() {
   // Round bag counts
   const [myBagsIn, setMyBagsIn] = useState(0);
   const [myBagsOn, setMyBagsOn] = useState(0);
-  const [oppBagsIn, setOppBagsIn] = useState(0);
-  const [oppBagsOn, setOppBagsOn] = useState(0);
+  const [oppScore, setOppScore] = useState(0); // Simplified: just opponent's raw score (0-12)
 
   const handleStartMatch = () => {
     if (!opponent.trim()) {
@@ -42,22 +41,30 @@ export default function PersonalMatchLogScreen() {
   };
 
   const handleCompleteRound = () => {
-    // Calculate what the new scores will be (cancellation scoring)
+    // Calculate my raw score from bags
     const myRawScore = myBagsIn * 3 + myBagsOn;
-    const oppRawScore = oppBagsIn * 3 + oppBagsOn;
+
+    // Opponent score is directly selected (0-12)
+    const oppRawScore = oppScore;
+
+    // Apply cancellation scoring
     const myRoundScore = Math.max(0, myRawScore - oppRawScore);
     const oppRoundScore = Math.max(0, oppRawScore - myRawScore);
 
     const newMyScore = (currentMatch?.myScore ?? 0) + myRoundScore;
     const newOppScore = (currentMatch?.opponentScore ?? 0) + oppRoundScore;
 
+    // For store, we need to estimate opponent bags (for stats tracking)
+    // Assume best case for opponent: maximize bags in, then bags on
+    const oppBagsIn = Math.min(4, Math.floor(oppRawScore / 3));
+    const oppBagsOn = oppRawScore - (oppBagsIn * 3);
+
     completeRound(myBagsIn, myBagsOn, oppBagsIn, oppBagsOn);
 
     // Reset counts
     setMyBagsIn(0);
     setMyBagsOn(0);
-    setOppBagsIn(0);
-    setOppBagsOn(0);
+    setOppScore(0);
 
     // DON'T auto-start next round - let user manually click "Start Next Round" or "End Match"
     // This prevents the loop issue where game over screen appears then disappears
@@ -485,65 +492,29 @@ export default function PersonalMatchLogScreen() {
                   </View>
                 </View>
 
-                {/* Opponent Bags Column */}
+                {/* Opponent Score Column - Simplified */}
                 <View className="flex-1 ml-2">
                   <Text className="text-blue-500 text-xl font-bold text-center mb-2">
                     {currentMatch.opponent}
                   </Text>
 
-                  {/* Bags In */}
+                  {/* Score Picker (0-12) */}
                   <Text className="text-blue-500 text-sm font-bold text-center mb-2">
-                    BAGS IN
-                  </Text>
-                  <View className="items-center mb-4">
-                    {[0, 1, 2, 3, 4].map((num) => {
-                      const wouldExceed = num + oppBagsOn > 4;
-                      return (
-                        <Pressable
-                          key={`opp-in-${num}`}
-                          onPress={() => !wouldExceed && setOppBagsIn(num)}
-                          disabled={wouldExceed}
-                          className={`w-full py-3 rounded-lg mb-2 ${
-                            oppBagsIn === num
-                              ? "bg-gray-700 border-2 border-white"
-                              : wouldExceed
-                              ? "bg-gray-900 opacity-30"
-                              : "bg-gray-800"
-                          }`}
-                        >
-                          <Text className={`text-2xl font-bold text-center ${
-                            wouldExceed ? "text-gray-600" : "text-white"
-                          }`}>
-                            {num}
-                          </Text>
-                        </Pressable>
-                      );
-                    })}
-                  </View>
-
-                  {/* Bags On */}
-                  <Text className="text-blue-500 text-sm font-bold text-center mb-2">
-                    BAGS ON
+                    SCORE
                   </Text>
                   <View className="items-center">
-                    {[0, 1, 2, 3, 4].map((num) => {
-                      const wouldExceed = oppBagsIn + num > 4;
+                    {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((num) => {
                       return (
                         <Pressable
-                          key={`opp-on-${num}`}
-                          onPress={() => !wouldExceed && setOppBagsOn(num)}
-                          disabled={wouldExceed}
-                          className={`w-full py-3 rounded-lg mb-2 ${
-                            oppBagsOn === num
+                          key={`opp-score-${num}`}
+                          onPress={() => setOppScore(num)}
+                          className={`w-full py-2 rounded-lg mb-1 ${
+                            oppScore === num
                               ? "bg-gray-700 border-2 border-white"
-                              : wouldExceed
-                              ? "bg-gray-900 opacity-30"
                               : "bg-gray-800"
                           }`}
                         >
-                          <Text className={`text-2xl font-bold text-center ${
-                            wouldExceed ? "text-gray-600" : "text-white"
-                          }`}>
+                          <Text className="text-xl font-bold text-center text-white">
                             {num}
                           </Text>
                         </Pressable>
