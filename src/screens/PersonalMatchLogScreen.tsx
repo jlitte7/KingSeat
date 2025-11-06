@@ -285,121 +285,121 @@ export default function PersonalMatchLogScreen() {
           </View>
         </View>
 
-        {/* Comprehensive Real-Time Stats */}
+        {/* Compact Real-Time Stats */}
         {currentMatch.rounds.length > 0 && (
-          <View className="px-4 pb-4">
-            <View className="bg-gray-900/50 rounded-lg p-4 border border-gray-800">
-              <Text className="text-gray-400 text-xs font-bold mb-4 text-center">
-                YOUR MATCH STATS
+          <View className="px-4 pb-2">
+            <View className="bg-gray-900/50 rounded-lg p-2 border border-gray-800">
+              <Text className="text-gray-400 text-xs font-bold mb-2 text-center">
+                MATCH STATS
               </Text>
 
               {/* Primary Stats Row */}
-              <View className="flex-row justify-between mb-4 pb-4 border-b border-gray-800">
+              <View className="flex-row justify-between mb-2 pb-2 border-b border-gray-800">
                 <View className="flex-1 items-center">
-                  <Text className="text-green-400 text-2xl font-bold">
+                  <Text className="text-green-400 text-lg font-bold">
                     {matchStats.inPercent}%
                   </Text>
-                  <Text className="text-gray-400 text-xs mt-1">BAGS IN</Text>
+                  <Text className="text-gray-400 text-xs">IN</Text>
                 </View>
                 <View className="flex-1 items-center border-l border-r border-gray-800">
-                  <Text className="text-blue-400 text-2xl font-bold">
+                  <Text className="text-blue-400 text-lg font-bold">
                     {matchStats.boardPercent}%
                   </Text>
-                  <Text className="text-gray-400 text-xs mt-1">ON BOARD</Text>
+                  <Text className="text-gray-400 text-xs">BOARD</Text>
                 </View>
                 <View className="flex-1 items-center">
-                  <Text className="text-red-400 text-2xl font-bold">
+                  <Text className="text-red-400 text-lg font-bold">
                     {matchStats.offPercent}%
                   </Text>
-                  <Text className="text-gray-400 text-xs mt-1">OFF BOARD</Text>
+                  <Text className="text-gray-400 text-xs">OFF</Text>
                 </View>
               </View>
 
               {/* Scoring Stats Row */}
-              <View className="flex-row justify-between mb-4 pb-4 border-b border-gray-800">
+              <View className="flex-row justify-between mb-2 pb-2 border-b border-gray-800">
                 <View className="flex-1 items-center">
-                  <Text className="text-purple-400 text-2xl font-bold">
+                  <Text className="text-purple-400 text-lg font-bold">
                     {matchStats.ppr}
                   </Text>
-                  <Text className="text-gray-400 text-xs mt-1">PPR</Text>
+                  <Text className="text-gray-400 text-xs">PPR</Text>
                 </View>
                 <View className="flex-1 items-center border-l border-r border-gray-800">
-                  <Text className="text-orange-400 text-2xl font-bold">
+                  <Text className="text-orange-400 text-lg font-bold">
                     {matchStats.oppr}
                   </Text>
-                  <Text className="text-gray-400 text-xs mt-1">OPPR</Text>
+                  <Text className="text-gray-400 text-xs">OPPR</Text>
                 </View>
                 <View className="flex-1 items-center">
-                  <Text className={`text-2xl font-bold ${
+                  <Text className={`text-lg font-bold ${
                     parseFloat(matchStats.ptDiff) > 0 ? "text-green-400" :
                     parseFloat(matchStats.ptDiff) < 0 ? "text-red-400" : "text-gray-400"
                   }`}>
                     {parseFloat(matchStats.ptDiff) > 0 ? "+" : ""}{matchStats.ptDiff}
                   </Text>
-                  <Text className="text-gray-400 text-xs mt-1">PT. DIFF</Text>
+                  <Text className="text-gray-400 text-xs">DIFF</Text>
                 </View>
               </View>
 
               {/* Cumulative Stats Row */}
-              <View className="flex-row justify-between mb-4 pb-4 border-b border-gray-800">
+              <View className="flex-row justify-between mb-2 pb-2 border-b border-gray-800">
                 <View className="flex-1 items-center">
-                  <Text className="text-green-400 text-xl font-bold">
+                  <Text className="text-green-400 text-base font-bold">
                     {matchStats.totalPoints}
                   </Text>
-                  <Text className="text-gray-400 text-xs mt-1">TOTAL PTS</Text>
+                  <Text className="text-gray-400 text-xs">TOT PTS</Text>
                 </View>
                 <View className="flex-1 items-center border-l border-r border-gray-800">
-                  <Text className="text-orange-400 text-xl font-bold">
+                  <Text className="text-orange-400 text-base font-bold">
                     {matchStats.totalOppPoints}
                   </Text>
-                  <Text className="text-gray-400 text-xs mt-1">OPP PTS</Text>
+                  <Text className="text-gray-400 text-xs">OPP</Text>
                 </View>
                 <View className="flex-1 items-center">
-                  <Text className="text-blue-400 text-xl font-bold">
+                  <Text className="text-blue-400 text-base font-bold">
                     {matchStats.roundsPlayed}
                   </Text>
-                  <Text className="text-gray-400 text-xs mt-1">ROUNDS</Text>
+                  <Text className="text-gray-400 text-xs">RNDS</Text>
                 </View>
               </View>
 
               {/* Additional Percentages Row */}
-              <View className="flex-row justify-between mb-3">
+              <View className="flex-row justify-between">
                 <View className="flex-1 items-center">
-                  <Text className="text-yellow-400 text-xl font-bold">
+                  <Text className="text-yellow-400 text-base font-bold">
                     {matchStats.fourBaggerPercent}%
                   </Text>
-                  <Text className="text-gray-400 text-xs mt-1">4-BAGGER%</Text>
+                  <Text className="text-gray-400 text-xs">4-BAG</Text>
                 </View>
                 <View className="flex-1 items-center border-l border-r border-gray-800">
-                  <Text className="text-cyan-400 text-xl font-bold">
+                  <Text className="text-cyan-400 text-base font-bold">
                     {matchStats.onPercent}%
                   </Text>
-                  <Text className="text-gray-400 text-xs mt-1">ON BOARD</Text>
+                  <Text className="text-gray-400 text-xs">ON</Text>
                 </View>
                 <View className="flex-1 items-center">
-                  <Text className="text-pink-400 text-xl font-bold">
+                  <Text className="text-pink-400 text-base font-bold">
                     {matchStats.scorePercent}%
                   </Text>
-                  <Text className="text-gray-400 text-xs mt-1">SCORE%</Text>
+                  <Text className="text-gray-400 text-xs">SCR</Text>
                 </View>
               </View>
 
-              {/* Achievement Badges */}
+              {/* Achievement Badges - Compact */}
               {(matchStats.fourBaggers > 0 || matchStats.threeBaggers > 0) && (
-                <View className="flex-row justify-center mt-3 pt-3 border-t border-gray-800">
+                <View className="flex-row justify-center mt-2 pt-2 border-t border-gray-800">
                   {matchStats.fourBaggers > 0 && (
-                    <View className="flex-row items-center mr-4">
-                      <Ionicons name="trophy" size={16} color="#fbbf24" />
-                      <Text className="text-yellow-400 font-bold ml-1">
-                        {matchStats.fourBaggers} 4-Bagger{matchStats.fourBaggers > 1 ? "s" : ""}
+                    <View className="flex-row items-center mr-3">
+                      <Ionicons name="trophy" size={14} color="#fbbf24" />
+                      <Text className="text-yellow-400 font-bold text-xs ml-1">
+                        {matchStats.fourBaggers} 4-Bag{matchStats.fourBaggers > 1 ? "s" : ""}
                       </Text>
                     </View>
                   )}
                   {matchStats.threeBaggers > 0 && (
                     <View className="flex-row items-center">
-                      <Ionicons name="star" size={16} color="#a78bfa" />
-                      <Text className="text-purple-400 font-bold ml-1">
-                        {matchStats.threeBaggers} 3-Bagger{matchStats.threeBaggers > 1 ? "s" : ""}
+                      <Ionicons name="star" size={14} color="#a78bfa" />
+                      <Text className="text-purple-400 font-bold text-xs ml-1">
+                        {matchStats.threeBaggers} 3-Bag{matchStats.threeBaggers > 1 ? "s" : ""}
                       </Text>
                     </View>
                   )}

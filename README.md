@@ -53,20 +53,20 @@ A dedicated personal tracking system that works independently from team stats:
 
 - **Match Logging**: Full game tracking with comprehensive real-time stats
   - Log complete matches with opponent names
-  - **Real-Time Stats Display**: Complete performance dashboard updating live during the match
-    - **% Bags In (Hole)**: Percentage of throws that go in the hole
-    - **% On Board**: Percentage of throws that land on the board (in + on combined)
-    - **% Off Board**: Percentage of throws that miss the board entirely
-    - **PPR**: Average points you score per round
-    - **OPPR**: Average points opponent scores per round
-    - **Pt. Diff**: PPR minus OPPR (shows green if winning, red if losing)
-    - **Total Points**: Cumulative points you have scored
-    - **Total Opponent Points**: Cumulative points opponent has scored
-    - **Rounds Played**: Number of rounds completed
-    - **% Four-Bagger**: Percentage of rounds where you got all 4 bags in the hole
-    - **% Bags On Board** (detail): Just the bags that landed on board (not in hole)
-    - **Score %**: Percentage of bags that scored (in + on)
-  - **4-Bagger & 3-Bagger Tracking**: Celebration badges showing total perfect rounds
+  - **Compact Real-Time Stats Display**: Complete performance dashboard updating live, no scrolling needed
+    - **IN%**: Percentage of throws that go in the hole
+    - **BOARD%**: Total percentage on board (in + on combined)
+    - **OFF%**: Percentage that miss the board entirely
+    - **PPR**: Your average points per round
+    - **OPPR**: Opponent's average points per round
+    - **DIFF**: PPR minus OPPR (green when winning, red when losing)
+    - **TOT PTS**: Your cumulative points scored
+    - **OPP**: Opponent's cumulative points
+    - **RNDS**: Number of rounds completed
+    - **4-BAG%**: Percentage of rounds with all 4 in the hole
+    - **ON%**: Just bags on board (not in hole)
+    - **SCR%**: Percentage of bags that scored
+  - **4-Bagger & 3-Bagger Badges**: Compact achievement tracking
   - **Singles & Doubles Support**: Track YOUR 4 bags only (not your partner's)
   - **Smart Validation**: Prevents logging more than 4 bags per round (In + On combined)
   - Enter opponent/team scores for win/loss tracking
