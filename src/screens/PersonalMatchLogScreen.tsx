@@ -419,21 +419,21 @@ export default function PersonalMatchLogScreen() {
         <ScrollView className="flex-1">
           {/* Current Round - Button Interface */}
           {currentRound && !gameOver && (
-            <View className="px-4 pt-4">
-              <Text className="text-white text-xl font-bold mb-4 text-center">
+            <View className="px-4 pt-2">
+              <Text className="text-white text-base font-bold mb-2 text-center">
                 Round {currentRound.roundNumber}
               </Text>
 
               {/* My Bags - Side by Side Grid Layout */}
-              <View className="mb-6">
-                <Text className="text-white text-lg font-bold text-center mb-3">
+              <View className="mb-3">
+                <Text className="text-white text-sm font-bold text-center mb-2">
                   {settings.myName}
                 </Text>
 
-                <View className="flex-row justify-between mb-6">
+                <View className="flex-row justify-between mb-3">
                   {/* Bags In - Left Side */}
-                  <View className="flex-1 mr-2">
-                    <Text className="text-green-400 text-sm font-bold text-center mb-2">
+                  <View className="flex-1 mr-1">
+                    <Text className="text-green-400 text-xs font-bold text-center mb-1">
                       BAGS IN
                     </Text>
                     <View className="flex-row flex-wrap justify-center">
@@ -444,7 +444,7 @@ export default function PersonalMatchLogScreen() {
                             key={`my-in-${num}`}
                             onPress={() => !wouldExceed && setMyBagsIn(num)}
                             disabled={wouldExceed}
-                            className={`w-[48%] py-4 rounded-lg m-1 ${
+                            className={`w-[48%] py-3 rounded-lg m-1 ${
                               myBagsIn === num
                                 ? "bg-green-600 border-2 border-white"
                                 : wouldExceed
@@ -452,7 +452,7 @@ export default function PersonalMatchLogScreen() {
                                 : "bg-gray-800"
                             }`}
                           >
-                            <Text className={`text-2xl font-bold text-center ${
+                            <Text className={`text-xl font-bold text-center ${
                               wouldExceed ? "text-gray-600" : "text-white"
                             }`}>
                               {num}
@@ -464,8 +464,8 @@ export default function PersonalMatchLogScreen() {
                   </View>
 
                   {/* Bags On - Right Side */}
-                  <View className="flex-1 ml-2">
-                    <Text className="text-blue-400 text-sm font-bold text-center mb-2">
+                  <View className="flex-1 ml-1">
+                    <Text className="text-blue-400 text-xs font-bold text-center mb-1">
                       BAGS ON
                     </Text>
                     <View className="flex-row flex-wrap justify-center">
@@ -476,7 +476,7 @@ export default function PersonalMatchLogScreen() {
                             key={`my-on-${num}`}
                             onPress={() => !wouldExceed && setMyBagsOn(num)}
                             disabled={wouldExceed}
-                            className={`w-[48%] py-4 rounded-lg m-1 ${
+                            className={`w-[48%] py-3 rounded-lg m-1 ${
                               myBagsOn === num
                                 ? "bg-blue-600 border-2 border-white"
                                 : wouldExceed
@@ -484,7 +484,7 @@ export default function PersonalMatchLogScreen() {
                                 : "bg-gray-800"
                             }`}
                           >
-                            <Text className={`text-2xl font-bold text-center ${
+                            <Text className={`text-xl font-bold text-center ${
                               wouldExceed ? "text-gray-600" : "text-white"
                             }`}>
                               {num}
@@ -497,9 +497,9 @@ export default function PersonalMatchLogScreen() {
                 </View>
               </View>
 
-              {/* Opponent Score - Grid Layout (No Scroll) */}
-              <View className="mb-6">
-                <Text className="text-orange-400 text-lg font-bold text-center mb-3">
+              {/* Opponent Score - Compact Grid */}
+              <View className="mb-3">
+                <Text className="text-orange-400 text-sm font-bold text-center mb-2">
                   {currentMatch.opponent}
                 </Text>
                 <View className="flex-row flex-wrap justify-center">
@@ -508,14 +508,14 @@ export default function PersonalMatchLogScreen() {
                       <Pressable
                         key={`opp-score-${num}`}
                         onPress={() => setOppScore(num)}
-                        className={`py-3 px-4 rounded-lg m-1 ${
+                        className={`py-2 px-3 rounded-lg m-1 ${
                           oppScore === num
                             ? "bg-orange-600 border-2 border-white"
                             : "bg-gray-800"
                         }`}
-                        style={{ minWidth: 60 }}
+                        style={{ minWidth: 50 }}
                       >
-                        <Text className="text-xl font-bold text-center text-white">
+                        <Text className="text-base font-bold text-center text-white">
                           {num}
                         </Text>
                       </Pressable>
@@ -525,18 +525,18 @@ export default function PersonalMatchLogScreen() {
               </View>
 
               {/* Complete Round Buttons */}
-              <View className="flex-row gap-3 pb-6">
+              <View className="flex-row gap-2 pb-4">
                 <Pressable
                   onPress={handleCancelMatch}
-                  className="flex-1 bg-red-600 py-4 rounded-xl items-center"
+                  className="flex-1 bg-red-600 py-3 rounded-xl items-center"
                 >
-                  <Text className="text-white font-bold text-lg">Cancel</Text>
+                  <Text className="text-white font-bold text-base">Cancel</Text>
                 </Pressable>
                 <Pressable
                   onPress={handleCompleteRound}
-                  className="flex-1 bg-green-600 py-4 rounded-xl items-center"
+                  className="flex-1 bg-green-600 py-3 rounded-xl items-center"
                 >
-                  <Text className="text-white font-bold text-lg">Enter</Text>
+                  <Text className="text-white font-bold text-base">Enter</Text>
                 </Pressable>
               </View>
             </View>

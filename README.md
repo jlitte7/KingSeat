@@ -53,12 +53,13 @@ A dedicated personal tracking system that works independently from team stats:
 
 - **Match Logging**: Full game tracking with comprehensive real-time stats
   - Log complete matches with opponent names
-  - **Optimized Grid Layout**:
-    - YOUR stats: Bags In and Bags On side-by-side in 2x3 grids
+  - **Ultra-Compact Grid Layout - Zero Scrolling for Round Entry**:
+    - YOUR stats: Bags In and Bags On side-by-side in compact 2x3 grids
     - Green for Bags In, Blue for Bags On
     - Smart validation prevents exceeding 4 total bags
-    - Opponent score: All valid scores visible at once (0-10, 12) - no scrolling needed
-    - Fast, efficient score entry with everything in view
+    - Opponent score: All valid scores (0-10, 12) visible in compact grid
+    - Entire round entry fits on screen - no scrolling needed to enter scores
+    - Reduced padding and font sizes for maximum efficiency
   - **Compact Real-Time Stats Display**: Complete performance dashboard updating live, no scrolling needed
     - **IN%**: Percentage of throws that go in the hole
     - **BOARD%**: Total percentage on board (in + on combined)
