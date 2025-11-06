@@ -1,6 +1,21 @@
 # KingSeat - Ultimate Cornhole Tracker
 
-A comprehensive cornhole league management and scoring app built with Expo and React Native. Track games, manage teams, monitor player stats, and organize league matches - all optimized for mobile.
+A world-class cornhole league management and scoring app built with Expo and React Native. Experience premium design, intelligent insights, and comprehensive tracking - all optimized for mobile.
+
+## 🌟 World-Class Features
+
+### 🏠 Intelligent Homepage
+- **Dynamic Greeting**: Personalized welcome based on time of day
+- **Live Stats Dashboard**: Real-time overview of games, weekly activity, and current streaks
+- **Smart Recommendations**: AI-powered suggestions based on your usage patterns
+  - Guides new users through onboarding
+  - Suggests features you haven't tried yet
+  - Celebrates your activity when you're on fire
+- **Premium Cards**: Beautiful gradient hero cards with live stats
+  - Quick Game shows today's game count
+  - My Stats displays your accuracy percentage
+- **Activity Badges**: Visual indicators for hot streaks and milestones
+- **Crown Badge**: Premium branding that screams "top of the charts"
 
 ## ✨ Features
 
