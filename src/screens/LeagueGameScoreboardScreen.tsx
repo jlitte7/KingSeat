@@ -71,6 +71,25 @@ export default function LeagueGameScoreboardScreen() {
   const projectedAwayTotal = game.awayTeamScore + awayRoundPoints;
   const projectedHomeTotal = game.homeTeamScore + homeRoundPoints;
 
+  // Calculate live stats for current thrower
+  const awayThrowerRounds = game.rounds.filter(r => r.p1ThrowerId === currentAwayThrower.id);
+  const homeThrowerRounds = game.rounds.filter(r => r.p2ThrowerId === currentHomeThrower.id);
+
+  const calcStats = (rounds: typeof game.rounds) => {
+    const totalIn = rounds.reduce((sum, r) => sum + r.p1In, 0);
+    const totalOn = rounds.reduce((sum, r) => sum + r.p1On, 0);
+    const totalThrows = rounds.length * 4;
+    const ppr = rounds.length > 0 ? (rounds.reduce((sum, r) => sum + r.p1Score, 0) / rounds.length).toFixed(1) : "0.0";
+    const inPct = totalThrows > 0 ? ((totalIn / totalThrows) * 100).toFixed(0) : "0";
+    const onPct = totalThrows > 0 ? ((totalOn / totalThrows) * 100).toFixed(0) : "0";
+    const fourBaggers = rounds.filter(r => r.p1In === 4).length;
+
+    return { ppr, inPct, onPct, fourBaggers, totalIn, totalOn };
+  };
+
+  const awayStats = calcStats(awayThrowerRounds);
+  const homeStats = calcStats(homeThrowerRounds.map(r => ({ ...r, p1In: r.p2In, p1On: r.p2On, p1Score: r.p2Score })));
+
   const handleReset = () => {
     setAwayIn(0);
     setAwayOn(0);
@@ -134,9 +153,9 @@ export default function LeagueGameScoreboardScreen() {
     color: string;
     maxValue?: number;
   }) => (
-    <View className="items-center flex-1">
-      <Text className={`text-sm font-bold mb-2 ${color}`}>{label}</Text>
-      <View className="flex-row gap-1 flex-wrap justify-center">
+    <View className="items-center">
+      <Text className={`text-xs font-bold mb-2 ${color}`}>{label}</Text>
+      <View className="flex-row gap-1">
         {[0, 1, 2, 3, 4].map((num) => {
           const isDisabled = num > maxValue;
           const isSelected = value === num;
@@ -243,9 +262,9 @@ export default function LeagueGameScoreboardScreen() {
         </View>
 
         {/* Away Team Input */}
-        <View className="flex-1 px-4 pt-6 pb-3">
-          <View className="bg-gray-900 rounded-2xl p-5 mb-4 border-2 border-blue-500/30">
-            <View className="flex-row items-center justify-between mb-4">
+        <View className="flex-1 px-4 pt-4 pb-3">
+          <View className="bg-gray-900 rounded-2xl p-4 mb-3 border-2 border-blue-500/30">
+            <View className="flex-row items-center justify-between mb-3">
               <View className="flex-1">
                 <Text className="text-blue-400 text-xs font-bold">
                   {match.awayTeamName}
@@ -260,7 +279,29 @@ export default function LeagueGameScoreboardScreen() {
                 </Text>
               </View>
             </View>
-            <View className="flex-row gap-3 px-2">
+
+            {/* Stats Row */}
+            <View className="flex-row justify-around mb-3 bg-gray-800/50 rounded-lg py-2">
+              <View className="items-center">
+                <Text className="text-gray-400 text-xs">PPR</Text>
+                <Text className="text-blue-400 font-bold text-sm">{awayStats.ppr}</Text>
+              </View>
+              <View className="items-center">
+                <Text className="text-gray-400 text-xs">In%</Text>
+                <Text className="text-blue-400 font-bold text-sm">{awayStats.inPct}%</Text>
+              </View>
+              <View className="items-center">
+                <Text className="text-gray-400 text-xs">On%</Text>
+                <Text className="text-blue-400 font-bold text-sm">{awayStats.onPct}%</Text>
+              </View>
+              <View className="items-center">
+                <Text className="text-gray-400 text-xs">4B</Text>
+                <Text className="text-blue-400 font-bold text-sm">{awayStats.fourBaggers}</Text>
+              </View>
+            </View>
+
+            {/* Bag Selectors Stacked */}
+            <View className="gap-2">
               <NumberSelector
                 label="BAGS IN"
                 value={awayIn}
@@ -279,8 +320,8 @@ export default function LeagueGameScoreboardScreen() {
           </View>
 
           {/* Home Team Input */}
-          <View className="bg-gray-900 rounded-2xl p-5 border-2 border-red-500/30">
-            <View className="flex-row items-center justify-between mb-4">
+          <View className="bg-gray-900 rounded-2xl p-4 border-2 border-red-500/30">
+            <View className="flex-row items-center justify-between mb-3">
               <View className="flex-1">
                 <Text className="text-red-400 text-xs font-bold">
                   {match.homeTeamName}
@@ -295,7 +336,29 @@ export default function LeagueGameScoreboardScreen() {
                 </Text>
               </View>
             </View>
-            <View className="flex-row gap-3 px-2">
+
+            {/* Stats Row */}
+            <View className="flex-row justify-around mb-3 bg-gray-800/50 rounded-lg py-2">
+              <View className="items-center">
+                <Text className="text-gray-400 text-xs">PPR</Text>
+                <Text className="text-red-400 font-bold text-sm">{homeStats.ppr}</Text>
+              </View>
+              <View className="items-center">
+                <Text className="text-gray-400 text-xs">In%</Text>
+                <Text className="text-red-400 font-bold text-sm">{homeStats.inPct}%</Text>
+              </View>
+              <View className="items-center">
+                <Text className="text-gray-400 text-xs">On%</Text>
+                <Text className="text-red-400 font-bold text-sm">{homeStats.onPct}%</Text>
+              </View>
+              <View className="items-center">
+                <Text className="text-gray-400 text-xs">4B</Text>
+                <Text className="text-red-400 font-bold text-sm">{homeStats.fourBaggers}</Text>
+              </View>
+            </View>
+
+            {/* Bag Selectors Stacked */}
+            <View className="gap-2">
               <NumberSelector
                 label="BAGS IN"
                 value={homeIn}
