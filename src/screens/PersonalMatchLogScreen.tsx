@@ -507,7 +507,7 @@ export default function PersonalMatchLogScreen() {
                   showsHorizontalScrollIndicator={false}
                   contentContainerStyle={{ paddingHorizontal: 4 }}
                 >
-                  {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((num) => {
+                  {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12].map((num) => {
                     return (
                       <Pressable
                         key={`opp-score-${num}`}
