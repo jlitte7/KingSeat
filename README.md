@@ -58,7 +58,9 @@ A dedicated personal tracking system that works independently from team stats:
   - Enter opponent/team scores for win/loss tracking
   - View round history during active matches
   - Automatic score calculation from your throws
+  - **Manual Round Control**: "Start Next Round" button prevents accidental entries
   - **Game Over Detection**: Properly shows end screen when someone reaches 21
+  - **No Auto-Loops**: Game waits for your input instead of auto-starting rounds
 
 - **Clear Tracking Info**: Blue info box explains exactly what's being tracked
   - In doubles: Only log your personal 4 bags

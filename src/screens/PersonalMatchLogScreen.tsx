@@ -59,12 +59,8 @@ export default function PersonalMatchLogScreen() {
     setOppBagsIn(0);
     setOppBagsOn(0);
 
-    // Only auto-start next round if game is NOT over (nobody reached 21)
-    if (newMyScore < 21 && newOppScore < 21) {
-      setTimeout(() => {
-        startRound();
-      }, 300);
-    }
+    // DON'T auto-start next round - let user manually click "Start Next Round" or "End Match"
+    // This prevents the loop issue where game over screen appears then disappears
   };
 
   const handleEndMatch = () => {
@@ -421,27 +417,47 @@ export default function PersonalMatchLogScreen() {
             </View>
           )}
 
-          {/* End Match Button */}
-          {(gameOver || (currentMatch.rounds.length > 0 && !currentRound)) && (
+          {/* Start Next Round Button (between rounds, game not over) */}
+          {!gameOver && currentMatch.rounds.length > 0 && !currentRound && (
             <View className="px-4 pb-8">
-              {gameOver && (
-                <View className="bg-purple-600/20 border border-purple-600 rounded-lg p-4 mb-4">
-                  <Text className="text-purple-400 font-bold text-center text-lg">
-                    Game Over!
-                  </Text>
-                  <Text className="text-white text-center mt-1">
-                    {currentMatch.myScore > (currentMatch.opponentScore ?? 0)
-                      ? "You Win!"
-                      : "You Lose"}
-                  </Text>
-                </View>
-              )}
+              <Pressable
+                onPress={() => startRound()}
+                className="bg-blue-600 rounded-lg p-4 items-center mb-4"
+              >
+                <Text className="text-white font-bold text-lg">
+                  Start Next Round
+                </Text>
+              </Pressable>
+              <Pressable
+                onPress={handleEndMatch}
+                className="bg-gray-700 rounded-lg p-4 items-center"
+              >
+                <Text className="text-white font-bold text-base">
+                  End Match Early & Save
+                </Text>
+              </Pressable>
+            </View>
+          )}
+
+          {/* End Match Button (game over) */}
+          {gameOver && (
+            <View className="px-4 pb-8">
+              <View className="bg-purple-600/20 border border-purple-600 rounded-lg p-4 mb-4">
+                <Text className="text-purple-400 font-bold text-center text-lg">
+                  Game Over!
+                </Text>
+                <Text className="text-white text-center mt-1">
+                  {currentMatch.myScore > (currentMatch.opponentScore ?? 0)
+                    ? "You Win!"
+                    : "You Lose"}
+                </Text>
+              </View>
               <Pressable
                 onPress={handleEndMatch}
                 className="bg-purple-600 rounded-lg p-4 items-center"
               >
                 <Text className="text-white font-bold text-lg">
-                  {gameOver ? "Save Match & View Stats" : "End Match Early & Save"}
+                  Save Match & View Stats
                 </Text>
               </Pressable>
             </View>
