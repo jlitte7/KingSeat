@@ -147,58 +147,42 @@ Clubhouse is your central hub for managing teams, leagues, and matches. The home
 - **Shutout**: Win without opponent scoring
 - Achievements automatically unlock during gameplay
 
-### 🌽 CornHub (Practice Area)
-Transform your game with comprehensive practice modes designed to elevate your skills. All practice modes now feature the intuitive bag counter interface from the main scoreboard for consistent scoring experience:
+### 🌽 CornHub (Elite Training Facility)
+Transform your game with a comprehensive, elite-level practice environment designed to elevate your skills. CornHub is your personal training facility with data-driven insights and structured development.
 
-- **Ghost Player Mode**: Practice against AI opponents at 4 difficulty levels (Scoreholio-style)
+#### Elite Features
+- **Hero Dashboard**: View your total sessions and weekly activity at a glance
+- **AI Training Insights**: Get personalized recommendations based on your performance data
+- **Performance Metrics**: Track key stats that matter:
+  - Ghost Win Rate - Your competitive performance against AI
+  - Clutch Rate - Success rate in high-pressure situations
+  - Best Bag Run & Airmail streaks
+  - Situational game win rates
+- **Training Programs** (Coming Soon):
+  - Beginner's Foundation - Master the basics
+  - Consistency Builder - Develop reliable patterns
+  - Pro Circuit - Elite-level competitive training
+
+#### Practice Modes by Category
+
+**Skill Development:**
+- **Bag Run Challenge**: Track consecutive bags made - build consistency
+- **Airmail Precision**: Perfect your clean drops without board contact
+
+**Mental Game:**
+- **Situational Games**: Train for critical game moments and scenarios
+- **Clutch Training**: Master high-pressure shots when it matters most
+
+**Competitive Edge:**
+- **Ghost Player**: Play full games against AI at 4 difficulty levels (Easy/Medium/Hard/Pro)
   - Ghost Easy (1-3 PPR) - New to cornhole
   - Ghost Medium (4-6 PPR) - Average competition
   - Ghost Hard (7-9 PPR) - Strong opponents
   - Ghost Expert (10-12 PPR) - Expert level challenge
-  - See ghost throws after each round
-  - Live PPR tracking for both players
-  - Uses bag counter interface for easy score entry
-  - Game continues past 21 (no "exactly 21" rule)
+  - See ghost throws after each round with live PPR tracking
+- **Beat Your Best**: Compete against your peak performance
 
-- **Bag Run**: Track consecutive bags made in a row
-  - 4 bags per round tracking
-  - Real-time streak counter
-  - Longest streak records
-  - Overall accuracy stats
-
-- **Airmail Run**: Track consecutive airmail shots (clean drops)
-  - Focus on precision throwing
-  - No board contact allowed
-  - Build airmail consistency
-
-- **Situational Games**: Drop into mid-game scenarios
-  - "Comeback Time" - Down 15-8, can you recover?
-  - "Close Game" - Tied 18-18, clutch time!
-  - "Hold the Lead" - Up 12-7, don't blow it
-  - "Clutch Moment" - Down 19-16, need a big round
-  - "Late Game Pressure" - Up 20-17, close it out
-  - "Blowout Recovery" - Down 18-6, miracle time
-  - Uses bag counter interface for easy score entry
-
-- **Best Game Challenge**: Play against your personal best performance
-  - Automatically calculates your best game stats
-  - Simulates your peak performance as opponent
-  - Push yourself to new heights
-
-- **Pressure Practice**: Practice clutch shots in critical moments
-  - "Game Winner" - Need 3+ points at 18
-  - "Four-Bagger Clutch" - All 4 must go in
-  - "Comeback Round" - 2 in + 2 on required
-  - "Consistency Test" - Get 3 bags in
-  - "No Misses" - All 4 must hit board
-  - "Perfect Closer" - Hit exactly 21
-
-- **Practice Stats Dashboard**: Track all your practice progress
-  - Ghost game win rates
-  - Best bag run streaks
-  - Best airmail streaks
-  - Situational game records
-  - Pressure practice success rates
+All practice modes feature the intuitive bag counter interface and comprehensive stat tracking to help you identify strengths and target areas for improvement.
 
 ### 🎯 Coming Soon
 - **TossOff**: Tournament brackets and playoff tracking
