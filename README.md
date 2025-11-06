@@ -4,6 +4,13 @@ A world-class cornhole league management and scoring app built with Expo and Rea
 
 ## 🌟 World-Class Features
 
+### 🎬 Premium Onboarding
+- **4-Screen Welcome Flow**: Beautiful, animated introduction for first-time users
+- **Feature Highlights**: Showcases Quick Game, My Stats, CornHub, and more
+- **Skip Option**: Get started immediately if you're ready
+- **Zero Friction**: No signup, no account - just pure gameplay
+- **Privacy First**: All data stays on your device
+
 ### 🏠 Intelligent Homepage
 - **Dynamic Greeting**: Personalized welcome based on time of day
 - **Live Stats Dashboard**: Real-time overview of games, weekly activity, and current streaks

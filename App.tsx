@@ -4,7 +4,10 @@ import { NavigationContainer } from "@react-navigation/native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { RootStackParamList } from "./src/navigation/types";
+import React, { useState, useEffect } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
+import OnboardingScreen from "./src/screens/OnboardingScreen";
 import HomeScreen from "./src/screens/HomeScreen";
 import ScoreboardSetupScreen from "./src/screens/ScoreboardSetupScreen";
 import ScoreboardScreen from "./src/screens/ScoreboardScreen";
@@ -39,6 +42,38 @@ import PersonalSettingsScreen from "./src/screens/PersonalSettingsScreen";
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function App() {
+  const [showOnboarding, setShowOnboarding] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    checkOnboarding();
+  }, []);
+
+  const checkOnboarding = async () => {
+    const hasCompleted = await AsyncStorage.getItem("hasCompletedOnboarding");
+    setShowOnboarding(hasCompleted !== "true");
+  };
+
+  const handleOnboardingComplete = () => {
+    setShowOnboarding(false);
+  };
+
+  // Loading state
+  if (showOnboarding === null) {
+    return null;
+  }
+
+  // Show onboarding if not completed
+  if (showOnboarding) {
+    return (
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <SafeAreaProvider>
+          <OnboardingScreen onComplete={handleOnboardingComplete} />
+          <StatusBar style="light" />
+        </SafeAreaProvider>
+      </GestureHandlerRootView>
+    );
+  }
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>

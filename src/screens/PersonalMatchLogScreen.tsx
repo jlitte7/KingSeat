@@ -157,15 +157,18 @@ export default function PersonalMatchLogScreen() {
               </Text>
             </Pressable>
 
-            <View className="mt-6 bg-gray-800 rounded-lg p-4 border border-gray-700">
-              <Text className="text-gray-400 text-sm mb-2">
-                During each round:
-              </Text>
-              <Text className="text-gray-300 text-sm leading-6">
-                • Tap buttons to select bag counts for you and opponent{"\n"}
-                • Scores calculate automatically{"\n"}
-                • Game tracks all comprehensive stats
-              </Text>
+            <View className="mt-6 bg-blue-900/30 rounded-lg p-4 border border-blue-700/50">
+              <View className="flex-row items-start">
+                <Ionicons name="information-circle" size={20} color="#60a5fa" style={{ marginRight: 8, marginTop: 2 }} />
+                <View className="flex-1">
+                  <Text className="text-blue-400 font-bold text-sm mb-2">
+                    Tracking YOUR Performance
+                  </Text>
+                  <Text className="text-blue-300 text-sm leading-6">
+                    {"This tracks YOUR personal bag throws only. In doubles, just log your 4 bags - not your partner's throws. The opponent score is their team's total (both players combined)."}
+                  </Text>
+                </View>
+              </View>
             </View>
           </ScrollView>
         </SafeAreaView>
