@@ -64,11 +64,11 @@ A dedicated personal tracking system that works independently from team stats:
     - **IN%**: Percentage of throws that go in the hole
     - **BOARD%**: Total percentage on board (in + on combined)
     - **OFF%**: Percentage that miss the board entirely
-    - **PPR**: Your average points per round
-    - **OPPR**: Opponent's average points per round
+    - **PPR**: Points Per Round - your total game score divided by rounds played
+    - **OPPR**: Opponent Points Per Round - their total game score divided by rounds played
     - **DIFF**: PPR minus OPPR (green when winning, red when losing)
-    - **TOT PTS**: Your cumulative points scored
-    - **OPP**: Opponent's cumulative points
+    - **TOT PTS**: Your cumulative game score
+    - **OPP**: Opponent's cumulative game score
     - **RNDS**: Number of rounds completed
     - **4-BAG%**: Percentage of rounds with all 4 in the hole
     - **ON%**: Just bags on board (not in hole)

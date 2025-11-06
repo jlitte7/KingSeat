@@ -134,23 +134,22 @@ export default function PersonalMatchLogScreen() {
     let totalBagsIn = 0;
     let totalBagsOn = 0;
     let totalBagsThrown = currentMatch.rounds.length * 4;
-    let totalPoints = 0;
-    let totalOppPoints = 0;
     let fourBaggers = 0;
     let threeBaggers = 0;
 
     currentMatch.rounds.forEach((round) => {
       totalBagsIn += round.myBagsIn;
       totalBagsOn += round.myBagsOn;
-      totalPoints += round.myScore;
-      totalOppPoints += round.opponentScore;
       if (round.myBagsIn === 4) fourBaggers++;
       if (round.myBagsIn === 3) threeBaggers++;
     });
 
     const roundsPlayed = currentMatch.rounds.length;
     const totalBagsOff = totalBagsThrown - totalBagsIn - totalBagsOn;
-    const maxPossibleScore = totalBagsThrown * 3; // If every bag went in
+
+    // Use the actual match scores (cumulative game score)
+    const totalPoints = currentMatch.myScore;
+    const totalOppPoints = currentMatch.opponentScore ?? 0;
 
     // Percentages
     const inPercent = totalBagsThrown > 0 ? ((totalBagsIn / totalBagsThrown) * 100).toFixed(1) : "0.0";
@@ -159,11 +158,11 @@ export default function PersonalMatchLogScreen() {
     const boardPercent = totalBagsThrown > 0 ? (((totalBagsIn + totalBagsOn) / totalBagsThrown) * 100).toFixed(1) : "0.0";
     const fourBaggerPercent = roundsPlayed > 0 ? ((fourBaggers / roundsPlayed) * 100).toFixed(1) : "0.0";
 
-    // Score percentage - bags that scored (in + on) / total bags OR points scored vs max possible
+    // Score percentage - bags that scored (in + on) / total bags
     const bagsScored = totalBagsIn + totalBagsOn;
     const scorePercent = totalBagsThrown > 0 ? ((bagsScored / totalBagsThrown) * 100).toFixed(1) : "0.0";
 
-    // Averages
+    // Averages - using cumulative game score divided by rounds
     const ppr = roundsPlayed > 0 ? (totalPoints / roundsPlayed).toFixed(2) : "0.00";
     const oppr = roundsPlayed > 0 ? (totalOppPoints / roundsPlayed).toFixed(2) : "0.00";
     const ptDiff = roundsPlayed > 0 ? ((totalPoints - totalOppPoints) / roundsPlayed).toFixed(2) : "0.00";
