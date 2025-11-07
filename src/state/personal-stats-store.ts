@@ -262,7 +262,9 @@ export const usePersonalStatsStore = create<PersonalStatsState>()(
             totalBagsIn += round.myBagsIn;
             totalBagsOn += round.myBagsOn;
             totalBagsThrown += 4; // Always 4 bags per round
-            totalPoints += round.myScore;
+            // PPR uses raw bag values (before cancellation), not game scores
+            const rawRoundPoints = (round.myBagsIn * 3) + (round.myBagsOn * 1);
+            totalPoints += rawRoundPoints;
             totalRounds++;
 
             if (round.myBagsIn === 4) {

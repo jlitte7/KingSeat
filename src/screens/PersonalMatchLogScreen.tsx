@@ -147,9 +147,21 @@ export default function PersonalMatchLogScreen() {
     const roundsPlayed = currentMatch.rounds.length;
     const totalBagsOff = totalBagsThrown - totalBagsIn - totalBagsOn;
 
-    // Use the actual match scores (cumulative game score)
-    const totalPoints = currentMatch.myScore;
-    const totalOppPoints = currentMatch.opponentScore ?? 0;
+    // PPR uses RAW bag values (before cancellation)
+    const totalRawPoints = (totalBagsIn * 3) + (totalBagsOn * 1);
+
+    // For opponent PPR, calculate raw points from their bags
+    let oppTotalBagsIn = 0;
+    let oppTotalBagsOn = 0;
+    currentMatch.rounds.forEach((round) => {
+      oppTotalBagsIn += round.opponentBagsIn;
+      oppTotalBagsOn += round.opponentBagsOn;
+    });
+    const totalOppRawPoints = (oppTotalBagsIn * 3) + (oppTotalBagsOn * 1);
+
+    // Game scores are for display only (cumulative game score after cancellation)
+    const totalGamePoints = currentMatch.myScore;
+    const totalOppGamePoints = currentMatch.opponentScore ?? 0;
 
     // Percentages
     const inPercent = totalBagsThrown > 0 ? ((totalBagsIn / totalBagsThrown) * 100).toFixed(1) : "0.0";
@@ -162,17 +174,17 @@ export default function PersonalMatchLogScreen() {
     const bagsScored = totalBagsIn + totalBagsOn;
     const scorePercent = totalBagsThrown > 0 ? ((bagsScored / totalBagsThrown) * 100).toFixed(1) : "0.0";
 
-    // Averages - using cumulative game score divided by rounds
-    const ppr = roundsPlayed > 0 ? (totalPoints / roundsPlayed).toFixed(2) : "0.00";
-    const oppr = roundsPlayed > 0 ? (totalOppPoints / roundsPlayed).toFixed(2) : "0.00";
-    const ptDiff = roundsPlayed > 0 ? ((totalPoints - totalOppPoints) / roundsPlayed).toFixed(2) : "0.00";
+    // PPR - using RAW bag values (before cancellation) divided by rounds
+    const ppr = roundsPlayed > 0 ? (totalRawPoints / roundsPlayed).toFixed(2) : "0.00";
+    const oppr = roundsPlayed > 0 ? (totalOppRawPoints / roundsPlayed).toFixed(2) : "0.00";
+    const ptDiff = roundsPlayed > 0 ? ((totalRawPoints - totalOppRawPoints) / roundsPlayed).toFixed(2) : "0.00";
 
     return {
       totalBagsIn,
       totalBagsOn,
       totalBagsThrown,
-      totalPoints,
-      totalOppPoints,
+      totalPoints: totalGamePoints,
+      totalOppPoints: totalOppGamePoints,
       fourBaggers,
       threeBaggers,
       roundsPlayed,

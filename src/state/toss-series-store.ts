@@ -445,6 +445,9 @@ export const useTossSeriesStore = create<TossSeriesState>()(
         const totalBagsOnBoard = totalBagsIn + totalBagsOn;
         const totalBagsMissed = totalBagsThrown - totalBagsOnBoard;
 
+        // Calculate raw points from bags (for PPR - before cancellation)
+        const rawPoints = (totalBagsIn * 3) + (totalBagsOn * 1);
+
         // Round-specific calculations
         const fourBaggers = game.rounds.filter((r) =>
           isPlayer1 ? r.p1In === 4 : r.p2In === 4
@@ -482,7 +485,8 @@ export const useTossSeriesStore = create<TossSeriesState>()(
         const newTotalGames = player.stats.totalGames + 1;
         const newTotalWins = isWinner ? player.stats.totalWins + 1 : player.stats.totalWins;
         const newTotalLosses = !isWinner ? player.stats.totalLosses + 1 : player.stats.totalLosses;
-        const newTotalPoints = player.stats.totalPoints + playerScore;
+        // For PPR calculation, use raw bag values (not game score after cancellation)
+        const newTotalPoints = player.stats.totalPoints + rawPoints;
         const newTotalBagsIn = player.stats.totalBagsIn + totalBagsIn;
         const newTotalBagsOn = player.stats.totalBagsOn + totalBagsOn;
         const newTotalBagsThrown = player.stats.totalBagsThrown + totalBagsThrown;
