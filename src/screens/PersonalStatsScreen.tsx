@@ -177,6 +177,23 @@ export default function PersonalStatsScreen() {
                   </Text>
                 </View>
               </View>
+
+              {/* PPR Breakdown */}
+              <View className="mt-2 pt-4 border-t border-gray-700">
+                <Text className="text-gray-400 text-xs mb-2">PPR Calculation Breakdown</Text>
+                <View className="flex-row justify-between mb-1">
+                  <Text className="text-gray-400 text-xs">Total Raw Points (before cancellation):</Text>
+                  <Text className="text-white text-xs font-bold">{stats.totalPoints}</Text>
+                </View>
+                <View className="flex-row justify-between mb-1">
+                  <Text className="text-gray-400 text-xs">Total Rounds Played:</Text>
+                  <Text className="text-white text-xs font-bold">{Math.floor(stats.totalBagsThrown / 4)}</Text>
+                </View>
+                <View className="flex-row justify-between">
+                  <Text className="text-gray-400 text-xs">Formula: {stats.totalPoints} ÷ {Math.floor(stats.totalBagsThrown / 4)} =</Text>
+                  <Text className="text-white text-xs font-bold">{stats.averagePointsPerRound.toFixed(2)}</Text>
+                </View>
+              </View>
             </View>
 
             {/* Win Quality */}
