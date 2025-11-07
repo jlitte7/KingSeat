@@ -275,7 +275,7 @@ export default function PersonalStatsScreen() {
               </View>
             </View>
 
-            {/* Recent Matches */}
+            {/* Recent Matches with Round Details */}
             {matches.length > 0 && (
               <View className="bg-gray-800 rounded-lg p-4 mb-4 border border-gray-700">
                 <Text className="text-white text-lg font-bold mb-4">
@@ -284,46 +284,73 @@ export default function PersonalStatsScreen() {
                 {matches
                   .slice(-5)
                   .reverse()
-                  .map((match) => (
-                    <View
-                      key={match.id}
-                      className="flex-row justify-between items-center py-3 border-b border-gray-700 last:border-b-0"
-                    >
-                      <View className="flex-1">
-                        <Text className="text-white font-bold">
-                          {match.opponent
-                            ? `vs ${match.opponent}`
-                            : "Solo Practice"}
-                        </Text>
-                        <Text className="text-gray-400 text-xs">
-                          {new Date(match.date).toLocaleDateString()} •{" "}
-                          {match.rounds.length} rounds
-                        </Text>
-                      </View>
-                      <View className="items-end">
-                        <Text
-                          className={`font-bold text-base ${
-                            match.won === true
-                              ? "text-green-400"
-                              : match.won === false
-                              ? "text-red-400"
-                              : "text-white"
-                          }`}
-                        >
-                          {match.myScore} - {match.opponentScore}
-                        </Text>
-                        {match.won !== undefined && (
-                          <Text
-                            className={`text-xs ${
-                              match.won ? "text-green-400" : "text-red-400"
-                            }`}
-                          >
-                            {match.won ? "Won" : "Lost"}
+                  .map((match) => {
+                    // Calculate raw points for this match
+                    let matchRawPoints = 0;
+                    match.rounds.forEach((round) => {
+                      matchRawPoints += (round.myBagsIn * 3) + (round.myBagsOn * 1);
+                    });
+                    const matchPPR = match.rounds.length > 0 ? (matchRawPoints / match.rounds.length).toFixed(2) : "0.00";
+
+                    return (
+                      <View
+                        key={match.id}
+                        className="py-3 border-b border-gray-700 last:border-b-0"
+                      >
+                        <View className="flex-row justify-between items-center mb-2">
+                          <View className="flex-1">
+                            <Text className="text-white font-bold">
+                              {match.opponent
+                                ? `vs ${match.opponent}`
+                                : "Solo Practice"}
+                            </Text>
+                            <Text className="text-gray-400 text-xs">
+                              {new Date(match.date).toLocaleDateString()} •{" "}
+                              {match.rounds.length} rounds
+                            </Text>
+                          </View>
+                          <View className="items-end">
+                            <Text
+                              className={`font-bold text-base ${
+                                match.won === true
+                                  ? "text-green-400"
+                                  : match.won === false
+                                  ? "text-red-400"
+                                  : "text-white"
+                              }`}
+                            >
+                              {match.myScore} - {match.opponentScore}
+                            </Text>
+                            {match.won !== undefined && (
+                              <Text
+                                className={`text-xs ${
+                                  match.won ? "text-green-400" : "text-red-400"
+                                }`}
+                              >
+                                {match.won ? "Won" : "Lost"}
+                              </Text>
+                            )}
+                          </View>
+                        </View>
+
+                        {/* Round by round breakdown */}
+                        <View className="mt-2 pl-2 border-l-2 border-purple-600">
+                          <Text className="text-gray-400 text-xs mb-1">Round Details:</Text>
+                          {match.rounds.map((round, idx) => {
+                            const rawPts = (round.myBagsIn * 3) + (round.myBagsOn * 1);
+                            return (
+                              <Text key={idx} className="text-gray-300 text-xs">
+                                R{round.roundNumber}: {round.myBagsIn}in + {round.myBagsOn}on = {rawPts}pts (scored: {round.myScore})
+                              </Text>
+                            );
+                          })}
+                          <Text className="text-purple-400 text-xs mt-1 font-bold">
+                            Match PPR: {matchPPR} ({matchRawPoints} raw pts ÷ {match.rounds.length} rounds)
                           </Text>
-                        )}
+                        </View>
                       </View>
-                    </View>
-                  ))}
+                    );
+                  })}
               </View>
             )}
 
