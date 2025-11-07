@@ -357,6 +357,7 @@ export default function PersonalStatsScreen() {
                         key={match.id}
                         className="py-3 border-b border-gray-700 last:border-b-0"
                       >
+                        {/* Match Header */}
                         <View className="flex-row justify-between items-center mb-2">
                           <View className="flex-1">
                             <Text className="text-white font-bold">
@@ -393,8 +394,8 @@ export default function PersonalStatsScreen() {
                           </View>
                         </View>
 
-                        {/* Round by round breakdown */}
-                        <View className="mt-2 pl-2 border-l-2 border-purple-600">
+                        {/* Round by round breakdown - moved to top */}
+                        <View className="mt-0 pl-2 border-l-2 border-purple-600 mb-2">
                           <Text className="text-gray-400 text-xs mb-1">Round Details:</Text>
                           {match.rounds.map((round, idx) => {
                             const rawPts = (round.myBagsIn * 3) + (round.myBagsOn * 1);
