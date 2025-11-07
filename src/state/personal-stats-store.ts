@@ -48,6 +48,8 @@ const createInitialStats = (): PersonalStats => ({
   totalWins: 0,
   totalLosses: 0,
   totalPoints: 0,
+  totalOpponentPoints: 0,
+  totalRoundsPlayed: 0,
   totalBagsIn: 0,
   totalBagsOn: 0,
   totalBagsThrown: 0,
@@ -55,10 +57,13 @@ const createInitialStats = (): PersonalStats => ({
   bagsOnPercentage: 0,
   boardPercentage: 0,
   missPercentage: 0,
+  scorePercentage: 0,
   threeBaggerRate: 0,
   fourBaggers: 0,
   fourBaggerRate: 0,
   averagePointsPerRound: 0,
+  opponentPointsPerRound: 0,
+  pointDifferential: 0,
   averagePointsPerGame: 0,
   highestGameScore: 0,
   shutoutWins: 0,
@@ -251,6 +256,7 @@ export const usePersonalStatsStore = create<PersonalStatsState>()(
         let totalBagsOn = 0;
         let totalBagsThrown = 0;
         let totalPoints = 0;
+        let totalOpponentPoints = 0;
         let totalRounds = 0;
         let fourBaggers = 0;
         let threeBaggers = 0;
@@ -265,6 +271,11 @@ export const usePersonalStatsStore = create<PersonalStatsState>()(
             // PPR uses raw bag values (before cancellation), not game scores
             const rawRoundPoints = (round.myBagsIn * 3) + (round.myBagsOn * 1);
             totalPoints += rawRoundPoints;
+
+            // Track opponent raw points for OPPR
+            const oppRawRoundPoints = (round.opponentBagsIn * 3) + (round.opponentBagsOn * 1);
+            totalOpponentPoints += oppRawRoundPoints;
+
             totalRounds++;
 
             if (round.myBagsIn === 4) {
@@ -282,6 +293,8 @@ export const usePersonalStatsStore = create<PersonalStatsState>()(
         stats.totalBagsOn = totalBagsOn;
         stats.totalBagsThrown = totalBagsThrown;
         stats.totalPoints = totalPoints;
+        stats.totalOpponentPoints = totalOpponentPoints;
+        stats.totalRoundsPlayed = totalRounds;
         stats.perfectRounds = perfectRounds;
         stats.zeroPointRounds = zeroPointRounds;
 
@@ -293,6 +306,7 @@ export const usePersonalStatsStore = create<PersonalStatsState>()(
             ((totalBagsIn + totalBagsOn) / totalBagsThrown) * 100;
           stats.missPercentage =
             ((totalBagsThrown - totalBagsIn - totalBagsOn) / totalBagsThrown) * 100;
+          stats.scorePercentage = ((totalBagsIn + totalBagsOn) / totalBagsThrown) * 100;
         }
 
         // Round performance
@@ -301,6 +315,8 @@ export const usePersonalStatsStore = create<PersonalStatsState>()(
           stats.fourBaggerRate = (fourBaggers / totalRounds) * 100;
           stats.threeBaggerRate = (threeBaggers / totalRounds) * 100;
           stats.averagePointsPerRound = totalPoints / totalRounds;
+          stats.opponentPointsPerRound = totalOpponentPoints / totalRounds;
+          stats.pointDifferential = stats.averagePointsPerRound - stats.opponentPointsPerRound;
         }
 
         if (stats.totalGames > 0) {

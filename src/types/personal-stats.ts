@@ -37,22 +37,29 @@ export interface PersonalStats {
   totalWins: number;
   totalLosses: number;
   totalPoints: number;
+  totalOpponentPoints: number; // NEW: Total points scored by opponents
+  totalRoundsPlayed: number; // NEW: Total rounds across all games
   totalBagsIn: number;
   totalBagsOn: number;
   totalBagsThrown: number;
 
-  // Accuracy & Efficiency
-  bagsInPercentage: number;
-  bagsOnPercentage: number;
-  boardPercentage: number;
-  missPercentage: number;
+  // Basic Performance Metrics
+  averagePointsPerRound: number; // PPR
+  opponentPointsPerRound: number; // NEW: OPPR - opponent's average points per round
+  pointDifferential: number; // NEW: Pt. Diff - your PPR minus opponent's PPR
+
+  // Accuracy & Efficiency (Bag-Placement / Throwing Statistics)
+  bagsInPercentage: number; // % Bags "In" (Hole)
+  bagsOnPercentage: number; // % Bags "On Board"
+  boardPercentage: number; // % Bags that scored (in + on)
+  missPercentage: number; // % Bags "Off Board"
   threeBaggerRate: number;
   fourBaggers: number;
-  fourBaggerRate: number;
+  fourBaggerRate: number; // % Four-Bagger
+  scorePercentage: number; // NEW: % of bags that scored (in + on)
 
   // Scoring Performance
-  averagePointsPerRound: number;
-  averagePointsPerGame: number;
+  averagePointsPerGame: number; // PPG
   highestGameScore: number;
   shutoutWins: number;
   dominantWins: number;
@@ -72,13 +79,13 @@ export interface PersonalStats {
   longestLosingStreak: number;
   currentLosingStreak: number;
 
-  // Head-to-Head Performance
+  // Head-to-Head Performance (Standings / Win-Loss Metrics)
   totalOpponents: number;
+  winPercentage: number; // Win %
 
   // Advanced Metrics
   clutchFactor: number;
   consistency: number;
-  winPercentage: number;
   dominanceRating: number;
 
   // Last updated

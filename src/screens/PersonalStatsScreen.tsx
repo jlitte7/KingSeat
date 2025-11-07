@@ -70,7 +70,7 @@ export default function PersonalStatsScreen() {
           </View>
         ) : (
           <ScrollView className="flex-1 px-4 pt-4">
-            {/* Overview Card */}
+            {/* Overall Performance */}
             <View className="bg-gradient-to-br from-purple-600 to-purple-800 rounded-xl p-6 mb-4">
               <Text className="text-white text-lg font-bold mb-4">
                 Overall Performance
@@ -104,43 +104,103 @@ export default function PersonalStatsScreen() {
                 </View>
                 <View className="items-end">
                   <Text className="text-purple-200 text-xs mb-1">
-                    Dominance Rating
+                    Total Rounds
                   </Text>
                   <Text className="text-white text-xl font-bold">
-                    {stats.dominanceRating.toFixed(1)}
+                    {stats.totalRoundsPlayed}
                   </Text>
                 </View>
               </View>
             </View>
 
-            {/* Accuracy Breakdown */}
+            {/* Basic Performance Metrics */}
             <View className="bg-gray-800 rounded-lg p-4 mb-4 border border-gray-700">
               <Text className="text-white text-lg font-bold mb-4">
-                Accuracy & Efficiency
+                Basic Performance Metrics
+              </Text>
+              <View className="flex-row flex-wrap">
+                <View className="w-1/3 mb-4">
+                  <Text className="text-gray-400 text-xs mb-1">PPR</Text>
+                  <Text className="text-white font-bold text-xl">
+                    {stats.averagePointsPerRound.toFixed(1)}
+                  </Text>
+                  <Text className="text-gray-500 text-xs">Points/Round</Text>
+                </View>
+                <View className="w-1/3 mb-4">
+                  <Text className="text-gray-400 text-xs mb-1">OPPR</Text>
+                  <Text className="text-white font-bold text-xl">
+                    {stats.opponentPointsPerRound.toFixed(1)}
+                  </Text>
+                  <Text className="text-gray-500 text-xs">Opp Pts/Rd</Text>
+                </View>
+                <View className="w-1/3 mb-4">
+                  <Text className="text-gray-400 text-xs mb-1">Pt. Diff</Text>
+                  <Text className={`font-bold text-xl ${stats.pointDifferential >= 0 ? "text-green-400" : "text-red-400"}`}>
+                    {stats.pointDifferential >= 0 ? "+" : ""}{stats.pointDifferential.toFixed(1)}
+                  </Text>
+                  <Text className="text-gray-500 text-xs">Differential</Text>
+                </View>
+                <View className="w-1/3 mb-4">
+                  <Text className="text-gray-400 text-xs mb-1">Total Points</Text>
+                  <Text className="text-white font-bold text-lg">
+                    {stats.totalPoints}
+                  </Text>
+                </View>
+                <View className="w-1/3 mb-4">
+                  <Text className="text-gray-400 text-xs mb-1">Opp Points</Text>
+                  <Text className="text-white font-bold text-lg">
+                    {stats.totalOpponentPoints}
+                  </Text>
+                </View>
+                <View className="w-1/3 mb-4">
+                  <Text className="text-gray-400 text-xs mb-1">Rounds</Text>
+                  <Text className="text-white font-bold text-lg">
+                    {stats.totalRoundsPlayed}
+                  </Text>
+                </View>
+              </View>
+            </View>
+
+            {/* Bag-Placement / Throwing Statistics */}
+            <View className="bg-gray-800 rounded-lg p-4 mb-4 border border-gray-700">
+              <Text className="text-white text-lg font-bold mb-4">
+                Bag-Placement / Throwing Statistics
               </Text>
               <View className="flex-row flex-wrap">
                 <View className="w-1/2 mb-4">
-                  <Text className="text-gray-400 text-xs mb-1">Bags In %</Text>
-                  <Text className="text-white font-bold text-xl">
+                  <Text className="text-gray-400 text-xs mb-1">% Bags &quot;In&quot; (Hole)</Text>
+                  <Text className="text-green-400 font-bold text-xl">
                     {stats.bagsInPercentage.toFixed(1)}%
                   </Text>
                 </View>
                 <View className="w-1/2 mb-4">
-                  <Text className="text-gray-400 text-xs mb-1">Bags On %</Text>
-                  <Text className="text-white font-bold text-xl">
+                  <Text className="text-gray-400 text-xs mb-1">% Bags &quot;On Board&quot;</Text>
+                  <Text className="text-blue-400 font-bold text-xl">
                     {stats.bagsOnPercentage.toFixed(1)}%
                   </Text>
                 </View>
                 <View className="w-1/2 mb-4">
-                  <Text className="text-gray-400 text-xs mb-1">Board %</Text>
-                  <Text className="text-white font-bold text-xl">
-                    {stats.boardPercentage.toFixed(1)}%
+                  <Text className="text-gray-400 text-xs mb-1">% Bags &quot;Off Board&quot;</Text>
+                  <Text className="text-red-400 font-bold text-xl">
+                    {stats.missPercentage.toFixed(1)}%
                   </Text>
                 </View>
                 <View className="w-1/2 mb-4">
-                  <Text className="text-gray-400 text-xs mb-1">Miss %</Text>
+                  <Text className="text-gray-400 text-xs mb-1">Score %</Text>
                   <Text className="text-white font-bold text-xl">
-                    {stats.missPercentage.toFixed(1)}%
+                    {stats.scorePercentage.toFixed(1)}%
+                  </Text>
+                </View>
+                <View className="w-1/2 mb-4">
+                  <Text className="text-gray-400 text-xs mb-1">% Four-Bagger</Text>
+                  <Text className="text-yellow-400 font-bold text-xl">
+                    {stats.fourBaggerRate.toFixed(1)}%
+                  </Text>
+                </View>
+                <View className="w-1/2 mb-4">
+                  <Text className="text-gray-400 text-xs mb-1">Four Baggers</Text>
+                  <Text className="text-yellow-400 font-bold text-xl">
+                    {stats.fourBaggers}
                   </Text>
                 </View>
               </View>
