@@ -436,6 +436,28 @@ export default function PersonalMatchLogScreen() {
         )}
 
         <ScrollView className="flex-1">
+          {/* Start Next Round Button (between rounds, game not over) - Moved above Previous Rounds */}
+          {!gameOver && currentMatch.rounds.length > 0 && !currentRound && (
+            <View className="px-4 pt-2 pb-4">
+              <Pressable
+                onPress={() => startRound()}
+                className="bg-blue-600 rounded-lg p-4 items-center mb-3"
+              >
+                <Text className="text-white font-bold text-lg">
+                  Start Next Round
+                </Text>
+              </Pressable>
+              <Pressable
+                onPress={handleEndMatch}
+                className="bg-gray-700 rounded-lg p-4 items-center"
+              >
+                <Text className="text-white font-bold text-base">
+                  End Match Early & Save
+                </Text>
+              </Pressable>
+            </View>
+          )}
+
           {/* Current Round - Button Interface */}
           {currentRound && !gameOver && (
             <View className="px-4 pt-2">
@@ -610,28 +632,6 @@ export default function PersonalMatchLogScreen() {
                     </View>
                   );
                 })}
-            </View>
-          )}
-
-          {/* Start Next Round Button (between rounds, game not over) */}
-          {!gameOver && currentMatch.rounds.length > 0 && !currentRound && (
-            <View className="px-4 pb-8">
-              <Pressable
-                onPress={() => startRound()}
-                className="bg-blue-600 rounded-lg p-4 items-center mb-4"
-              >
-                <Text className="text-white font-bold text-lg">
-                  Start Next Round
-                </Text>
-              </Pressable>
-              <Pressable
-                onPress={handleEndMatch}
-                className="bg-gray-700 rounded-lg p-4 items-center"
-              >
-                <Text className="text-white font-bold text-base">
-                  End Match Early & Save
-                </Text>
-              </Pressable>
             </View>
           )}
 
