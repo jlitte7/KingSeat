@@ -89,7 +89,7 @@ export default function PersonalStatsScreen() {
                     Win Rate
                   </Text>
                   <Text className="text-white text-2xl font-bold">
-                    {stats.winPercentage.toFixed(1)}%
+                    {(stats.winPercentage ?? 0).toFixed(1)}%
                   </Text>
                 </View>
               </View>
@@ -122,21 +122,21 @@ export default function PersonalStatsScreen() {
                 <View className="w-1/3 mb-4">
                   <Text className="text-gray-400 text-xs mb-1">PPR</Text>
                   <Text className="text-white font-bold text-xl">
-                    {stats.averagePointsPerRound.toFixed(1)}
+                    {(stats.averagePointsPerRound ?? 0).toFixed(1)}
                   </Text>
                   <Text className="text-gray-500 text-xs">Points/Round</Text>
                 </View>
                 <View className="w-1/3 mb-4">
                   <Text className="text-gray-400 text-xs mb-1">OPPR</Text>
                   <Text className="text-white font-bold text-xl">
-                    {stats.opponentPointsPerRound.toFixed(1)}
+                    {(stats.opponentPointsPerRound ?? 0).toFixed(1)}
                   </Text>
                   <Text className="text-gray-500 text-xs">Opp Pts/Rd</Text>
                 </View>
                 <View className="w-1/3 mb-4">
                   <Text className="text-gray-400 text-xs mb-1">Pt. Diff</Text>
-                  <Text className={`font-bold text-xl ${stats.pointDifferential >= 0 ? "text-green-400" : "text-red-400"}`}>
-                    {stats.pointDifferential >= 0 ? "+" : ""}{stats.pointDifferential.toFixed(1)}
+                  <Text className={`font-bold text-xl ${(stats.pointDifferential ?? 0) >= 0 ? "text-green-400" : "text-red-400"}`}>
+                    {(stats.pointDifferential ?? 0) >= 0 ? "+" : ""}{(stats.pointDifferential ?? 0).toFixed(1)}
                   </Text>
                   <Text className="text-gray-500 text-xs">Differential</Text>
                 </View>
@@ -170,31 +170,31 @@ export default function PersonalStatsScreen() {
                 <View className="w-1/2 mb-4">
                   <Text className="text-gray-400 text-xs mb-1">% Bags &quot;In&quot; (Hole)</Text>
                   <Text className="text-green-400 font-bold text-xl">
-                    {stats.bagsInPercentage.toFixed(1)}%
+                    {(stats.bagsInPercentage ?? 0).toFixed(1)}%
                   </Text>
                 </View>
                 <View className="w-1/2 mb-4">
                   <Text className="text-gray-400 text-xs mb-1">% Bags &quot;On Board&quot;</Text>
                   <Text className="text-blue-400 font-bold text-xl">
-                    {stats.bagsOnPercentage.toFixed(1)}%
+                    {(stats.bagsOnPercentage ?? 0).toFixed(1)}%
                   </Text>
                 </View>
                 <View className="w-1/2 mb-4">
                   <Text className="text-gray-400 text-xs mb-1">% Bags &quot;Off Board&quot;</Text>
                   <Text className="text-red-400 font-bold text-xl">
-                    {stats.missPercentage.toFixed(1)}%
+                    {(stats.missPercentage ?? 0).toFixed(1)}%
                   </Text>
                 </View>
                 <View className="w-1/2 mb-4">
                   <Text className="text-gray-400 text-xs mb-1">Score %</Text>
                   <Text className="text-white font-bold text-xl">
-                    {stats.scorePercentage.toFixed(1)}%
+                    {(stats.scorePercentage ?? 0).toFixed(1)}%
                   </Text>
                 </View>
                 <View className="w-1/2 mb-4">
                   <Text className="text-gray-400 text-xs mb-1">% Four-Bagger</Text>
                   <Text className="text-yellow-400 font-bold text-xl">
-                    {stats.fourBaggerRate.toFixed(1)}%
+                    {(stats.fourBaggerRate ?? 0).toFixed(1)}%
                   </Text>
                 </View>
                 <View className="w-1/2 mb-4">
@@ -215,13 +215,13 @@ export default function PersonalStatsScreen() {
                 <View className="w-1/2 mb-4">
                   <Text className="text-gray-400 text-xs mb-1">PPR</Text>
                   <Text className="text-white font-bold text-xl">
-                    {stats.averagePointsPerRound.toFixed(1)}
+                    {(stats.averagePointsPerRound ?? 0).toFixed(1)}
                   </Text>
                 </View>
                 <View className="w-1/2 mb-4">
                   <Text className="text-gray-400 text-xs mb-1">PPG</Text>
                   <Text className="text-white font-bold text-xl">
-                    {stats.averagePointsPerGame.toFixed(1)}
+                    {(stats.averagePointsPerGame ?? 0).toFixed(1)}
                   </Text>
                 </View>
                 <View className="w-1/2 mb-4">
@@ -247,11 +247,11 @@ export default function PersonalStatsScreen() {
                 </View>
                 <View className="flex-row justify-between mb-1">
                   <Text className="text-gray-400 text-xs">Total Rounds Played:</Text>
-                  <Text className="text-white text-xs font-bold">{Math.floor(stats.totalBagsThrown / 4)}</Text>
+                  <Text className="text-white text-xs font-bold">{Math.floor((stats.totalBagsThrown ?? 0) / 4)}</Text>
                 </View>
                 <View className="flex-row justify-between">
-                  <Text className="text-gray-400 text-xs">Formula: {stats.totalPoints} ÷ {Math.floor(stats.totalBagsThrown / 4)} =</Text>
-                  <Text className="text-white text-xs font-bold">{stats.averagePointsPerRound.toFixed(2)}</Text>
+                  <Text className="text-gray-400 text-xs">Formula: {stats.totalPoints} ÷ {Math.floor((stats.totalBagsThrown ?? 0) / 4)} =</Text>
+                  <Text className="text-white text-xs font-bold">{(stats.averagePointsPerRound ?? 0).toFixed(2)}</Text>
                 </View>
               </View>
             </View>
@@ -323,7 +323,7 @@ export default function PersonalStatsScreen() {
                 <View className="w-1/2 mb-4">
                   <Text className="text-gray-400 text-xs mb-1">Clutch Factor</Text>
                   <Text className="text-white font-bold text-xl">
-                    {stats.clutchFactor.toFixed(1)}%
+                    {(stats.clutchFactor ?? 0).toFixed(1)}%
                   </Text>
                 </View>
                 <View className="w-1/2 mb-4">
