@@ -75,13 +75,21 @@ export default function PersonalMatchLogScreen() {
 
     Alert.alert(
       "End Match",
-      `Final Score: You ${currentMatch.myScore} - ${currentMatch.opponentScore} ${currentMatch.opponent}\n\nSave this match?`,
+      `Final Score: You ${currentMatch.myScore} - ${currentMatch.opponentScore} ${currentMatch.opponent}\n\nDid you win this match?`,
       [
         { text: "Cancel", style: "cancel" },
         {
-          text: "Save Match",
+          text: "I Lost",
+          style: "destructive",
           onPress: () => {
-            endMatch();
+            endMatch(false);
+            navigation.navigate("PersonalStats");
+          },
+        },
+        {
+          text: "I Won",
+          onPress: () => {
+            endMatch(true);
             navigation.navigate("PersonalStats");
           },
         },

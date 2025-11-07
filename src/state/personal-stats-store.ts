@@ -22,7 +22,7 @@ interface PersonalStatsState {
 
   // Match actions
   startMatch: (opponent?: string, teammate?: string, notes?: string) => void;
-  endMatch: () => void;
+  endMatch: (won?: boolean) => void;
   cancelMatch: () => void;
 
   // Round actions
@@ -124,11 +124,15 @@ export const usePersonalStatsStore = create<PersonalStatsState>()(
         set({ currentMatch: match, currentRound: null });
       },
 
-      endMatch: () => {
+      endMatch: (wonParam?: boolean) => {
         const { currentMatch } = get();
         if (!currentMatch) return;
 
-        const won = currentMatch.myScore > (currentMatch.opponentScore ?? 0);
+        // Use provided won parameter, or fall back to score comparison
+        const won = wonParam !== undefined
+          ? wonParam
+          : currentMatch.myScore > (currentMatch.opponentScore ?? 0);
+
         const completedMatch: PersonalMatch = {
           ...currentMatch,
           won,
