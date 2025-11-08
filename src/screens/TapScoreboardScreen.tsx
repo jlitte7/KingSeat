@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, Pressable, Modal, ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, Pressable, Modal, ScrollView, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -29,6 +29,7 @@ export default function TapScoreboardScreen() {
   const [currentRound, setCurrentRound] = useState(1);
   const [showGameOver, setShowGameOver] = useState(false);
   const [showRoundSummary, setShowRoundSummary] = useState(false);
+  const [isLandscape, setIsLandscape] = useState(false);
 
   // Tap mode state
   const [p1Score, setP1Score] = useState(0);
@@ -44,6 +45,18 @@ export default function TapScoreboardScreen() {
 
   const gameWon = p1Score >= 21 || p2Score >= 21;
   const completedRounds = rounds.length;
+
+  useEffect(() => {
+    const updateLayout = () => {
+      const { width, height } = Dimensions.get('window');
+      setIsLandscape(width > height);
+    };
+
+    updateLayout();
+    const subscription = Dimensions.addEventListener('change', updateLayout);
+
+    return () => subscription?.remove();
+  }, []);
 
   const handleTopHalfPress = (player: 1 | 2) => {
     if (gameWon) return;
@@ -133,26 +146,28 @@ export default function TapScoreboardScreen() {
     <View className="flex-1 bg-black">
       <SafeAreaView edges={['top']} className="flex-1">
         {/* Header */}
-        <View className="bg-gray-900 px-4 py-3 border-b border-gray-800">
-          <View className="flex-row justify-between items-center">
-            <Pressable onPress={resetGame} className="p-1.5">
+        <View className="bg-gray-900 px-4 py-2 border-b border-gray-800">
+          <View className="flex-row justify-between items-center mb-1">
+            <Pressable onPress={resetGame} className="p-1.5 w-20">
               <Ionicons name="arrow-back" size={24} color="#fff" />
             </Pressable>
-            <View className="items-center">
-              <Text className="text-white text-lg font-bold">KINGSEAT</Text>
-              <Text className="text-white text-xs">
-                {totalRounds ? `Round ${currentRound} of ${totalRounds}` : `Round ${currentRound}`}
-              </Text>
+            <View className="items-center flex-1">
+              <Text className="text-white text-xl font-bold tracking-wider">KINGSEAT</Text>
             </View>
-            <Pressable
-              onPress={() => setMode(mode === 'tap' ? 'bags' : 'tap')}
-              className="bg-purple-600 px-3 py-1.5 rounded-lg"
-            >
-              <Text className="text-white text-sm font-bold">
-                {mode === 'tap' ? 'Bags' : 'Tap'}
-              </Text>
-            </Pressable>
+            <View className="w-20 items-end">
+              <Pressable
+                onPress={() => setMode(mode === 'tap' ? 'bags' : 'tap')}
+                className="bg-purple-600 px-3 py-1.5 rounded-lg"
+              >
+                <Text className="text-white text-xs font-bold">
+                  {mode === 'tap' ? 'Bags' : 'Tap'}
+                </Text>
+              </Pressable>
+            </View>
           </View>
+          <Text className="text-white text-center text-xs font-semibold">
+            {totalRounds ? `Round ${currentRound} of ${totalRounds}` : `Round ${currentRound}`}
+          </Text>
         </View>
 
         {mode === 'tap' ? (
@@ -166,14 +181,21 @@ export default function TapScoreboardScreen() {
                 className="flex-1 items-center justify-center active:bg-gray-700"
               >
                 <View className="items-center">
-                  <Text className="text-red-500 text-xl font-bold uppercase mb-8">
-                    {player1Name}
-                  </Text>
                   <Text
                     className="font-black text-white"
-                    style={{ fontSize: 180 }}
+                    style={{
+                      fontSize: isLandscape ? 140 : 220,
+                      textShadowColor: 'rgba(239, 68, 68, 0.6)',
+                      textShadowOffset: { width: 0, height: 8 },
+                      textShadowRadius: 30,
+                      lineHeight: isLandscape ? 140 : 220,
+                    }}
                   >
                     {p1Score}
+                  </Text>
+                  <View className={`h-px bg-red-500 ${isLandscape ? 'w-32' : 'w-48'} my-2`} />
+                  <Text className={`text-red-500 font-bold uppercase tracking-wide ${isLandscape ? 'text-base' : 'text-xl'}`}>
+                    {player1Name}
                   </Text>
                 </View>
               </Pressable>
@@ -233,14 +255,21 @@ export default function TapScoreboardScreen() {
                 className="flex-1 items-center justify-center active:bg-gray-700"
               >
                 <View className="items-center">
+                  <Text className={`text-blue-500 font-bold uppercase tracking-wide ${isLandscape ? 'text-base' : 'text-xl'}`}>
+                    {player2Name}
+                  </Text>
+                  <View className={`h-px bg-blue-500 ${isLandscape ? 'w-32' : 'w-48'} my-2`} />
                   <Text
                     className="font-black text-white"
-                    style={{ fontSize: 180 }}
+                    style={{
+                      fontSize: isLandscape ? 140 : 220,
+                      textShadowColor: 'rgba(59, 130, 246, 0.6)',
+                      textShadowOffset: { width: 0, height: 8 },
+                      textShadowRadius: 30,
+                      lineHeight: isLandscape ? 140 : 220,
+                    }}
                   >
                     {p2Score}
-                  </Text>
-                  <Text className="text-blue-500 text-xl font-bold uppercase mt-8">
-                    {player2Name}
                   </Text>
                 </View>
               </Pressable>

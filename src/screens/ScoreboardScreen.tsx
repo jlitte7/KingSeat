@@ -196,50 +196,52 @@ export default function ScoreboardScreen() {
   return (
     <View className="flex-1 bg-black">
       <SafeAreaView edges={['top']} className="flex-1">
-        <View className="bg-red-600 px-4 py-3">
-          <View className="flex-row justify-between items-center">
-            <Pressable onPress={resetGame} className="p-1.5">
+        <View className="bg-red-600 px-4 py-2">
+          <View className="flex-row justify-between items-center mb-1">
+            <Pressable onPress={resetGame} className="p-1.5 w-20">
               <Ionicons name="refresh" size={24} color="#fff" />
             </Pressable>
-            <View className="items-center">
+            <View className="items-center flex-1">
               <Text className="text-white text-xl font-bold tracking-wider">KINGSEAT</Text>
             </View>
-            <Pressable
-              onPress={switchToTapMode}
-              className="bg-red-700 px-3 py-1.5 rounded-lg"
-            >
-              <Text className="text-white text-sm font-bold">Tap Mode</Text>
-            </Pressable>
+            <View className="w-20 items-end">
+              <Pressable
+                onPress={switchToTapMode}
+                className="bg-red-700 px-3 py-1.5 rounded-lg"
+              >
+                <Text className="text-white text-xs font-bold">Tap Mode</Text>
+              </Pressable>
+            </View>
           </View>
-          <Text className="text-white text-center text-sm mt-2 font-semibold">
+          <Text className="text-white text-center text-xs font-semibold">
             {totalRounds ? `Round ${currentRound} of ${totalRounds}` : `Round ${currentRound}`}
           </Text>
         </View>
 
         {!showScoring && (
-          <Pressable onPress={() => setShowScoring(true)} className="flex-1 justify-center">
-            <View className="items-center">
-              <View className="flex-row items-center justify-center w-full px-6 gap-8">
+          <Pressable onPress={() => setShowScoring(true)} className="flex-1 justify-center items-center">
+            <View className="items-center w-full">
+              <View className="flex-row items-center justify-center w-full px-4">
                 <View className="flex-1 items-center">
                   <Text
                     className="font-black text-white"
                     style={{
-                      fontSize: isLandscape ? 120 : 180,
+                      fontSize: isLandscape ? 140 : 220,
                       textShadowColor: 'rgba(239, 68, 68, 0.6)',
                       textShadowOffset: { width: 0, height: 8 },
                       textShadowRadius: 30,
-                      lineHeight: isLandscape ? 130 : 190,
+                      lineHeight: isLandscape ? 140 : 220,
                     }}
                   >
                     {p1TotalScore}
                   </Text>
-                  <View className="h-px bg-red-500 w-3/4 my-2" />
-                  <Text className="text-red-500 text-xl font-bold uppercase tracking-wide">
+                  <View className={`h-px bg-red-500 ${isLandscape ? 'w-2/3' : 'w-3/4'} my-2`} />
+                  <Text className={`text-red-500 font-bold uppercase tracking-wide ${isLandscape ? 'text-base' : 'text-xl'}`}>
                     {player1Name}
                   </Text>
                 </View>
 
-                <Text className="text-gray-700 font-bold" style={{ fontSize: isLandscape ? 50 : 80 }}>
+                <Text className="text-gray-700 font-bold px-4" style={{ fontSize: isLandscape ? 60 : 100 }}>
                   -
                 </Text>
 
@@ -247,23 +249,23 @@ export default function ScoreboardScreen() {
                   <Text
                     className="font-black text-white"
                     style={{
-                      fontSize: isLandscape ? 120 : 180,
+                      fontSize: isLandscape ? 140 : 220,
                       textShadowColor: 'rgba(59, 130, 246, 0.6)',
                       textShadowOffset: { width: 0, height: 8 },
                       textShadowRadius: 30,
-                      lineHeight: isLandscape ? 130 : 190,
+                      lineHeight: isLandscape ? 140 : 220,
                     }}
                   >
                     {p2TotalScore}
                   </Text>
-                  <View className="h-px bg-blue-500 w-3/4 my-2" />
-                  <Text className="text-blue-500 text-xl font-bold uppercase tracking-wide">
+                  <View className={`h-px bg-blue-500 ${isLandscape ? 'w-2/3' : 'w-3/4'} my-2`} />
+                  <Text className={`text-blue-500 font-bold uppercase tracking-wide ${isLandscape ? 'text-base' : 'text-xl'}`}>
                     {player2Name}
                   </Text>
                 </View>
               </View>
 
-              <Text className="text-gray-500 text-sm mt-6">Tap to enter score</Text>
+              <Text className={`text-gray-500 ${isLandscape ? 'text-xs mt-3' : 'text-sm mt-6'}`}>Tap to enter score</Text>
             </View>
 
             {completedRounds > 0 && (
