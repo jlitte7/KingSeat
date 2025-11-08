@@ -35,6 +35,10 @@ A world-class cornhole league management and scoring app built with Expo and Rea
     - Tap bottom half of player area to decrement (-1)
     - No instruction text, just pure scoring interface
   - **Mode Toggle**: Switch from Bags Mode to Tap Mode with "Tap Mode" button in header
+- **Full Landscape Support**: Both scoreboard modes work seamlessly in landscape orientation
+  - Player names displayed above scores in landscape (Player 1 / Player 2)
+  - Player names displayed below scores in portrait
+  - Optimized number sizes and spacing for landscape viewing
 - **Live Scoring**: Real-time score tracking with large, easy-to-read numbers
 - **Cancellation Scoring**: Automatic calculation of points (difference only counts)
 - **Real-Time Stats**: View PPR, bag accuracy, and four-bagger rates during games

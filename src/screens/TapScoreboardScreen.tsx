@@ -190,14 +190,19 @@ export default function TapScoreboardScreen() {
               {/* Divider Line */}
               <View className="absolute left-0 right-0 h-px bg-gray-700" style={{ top: '50%' }} />
 
-              {/* Score centered on divider line */}
+              {/* Score and Player Name centered on divider line */}
               <View
                 className="absolute left-0 right-0 items-center pointer-events-none"
                 style={{
                   top: '50%',
-                  transform: [{ translateY: isLandscape ? -70 : -110 }]
+                  transform: [{ translateY: isLandscape ? -90 : -120 }]
                 }}
               >
+                {isLandscape && (
+                  <Text className="text-red-500 font-bold uppercase tracking-wide text-base mb-2">
+                    Player 1
+                  </Text>
+                )}
                 <Text
                   className="font-black text-white"
                   style={{
@@ -210,6 +215,11 @@ export default function TapScoreboardScreen() {
                 >
                   {p1Score}
                 </Text>
+                {!isLandscape && (
+                  <Text className="text-red-500 font-bold uppercase tracking-wide text-xl mt-2">
+                    Player 1
+                  </Text>
+                )}
               </View>
 
               {/* Bottom Half - Decrement */}
@@ -258,14 +268,19 @@ export default function TapScoreboardScreen() {
               {/* Divider Line */}
               <View className="absolute left-0 right-0 h-px bg-gray-700" style={{ top: '50%' }} />
 
-              {/* Score centered on divider line */}
+              {/* Score and Player Name centered on divider line */}
               <View
                 className="absolute left-0 right-0 items-center pointer-events-none"
                 style={{
                   top: '50%',
-                  transform: [{ translateY: isLandscape ? -70 : -110 }]
+                  transform: [{ translateY: isLandscape ? -90 : -120 }]
                 }}
               >
+                {isLandscape && (
+                  <Text className="text-blue-500 font-bold uppercase tracking-wide text-base mb-2">
+                    Player 2
+                  </Text>
+                )}
                 <Text
                   className="font-black text-white"
                   style={{
@@ -278,6 +293,11 @@ export default function TapScoreboardScreen() {
                 >
                   {p2Score}
                 </Text>
+                {!isLandscape && (
+                  <Text className="text-blue-500 font-bold uppercase tracking-wide text-xl mt-2">
+                    Player 2
+                  </Text>
+                )}
               </View>
 
               {/* Bottom Half - Decrement */}

@@ -228,6 +228,11 @@ export default function ScoreboardScreen() {
             <View className="items-center w-full">
               <View className="flex-row items-center justify-center w-full px-4">
                 <View className="flex-1 items-center">
+                  {isLandscape && (
+                    <Text className="text-red-500 font-bold uppercase tracking-wide text-base mb-2">
+                      Player 1
+                    </Text>
+                  )}
                   <Text
                     className="font-black text-white"
                     style={{
@@ -241,9 +246,11 @@ export default function ScoreboardScreen() {
                     {p1TotalScore}
                   </Text>
                   <View className={`h-px bg-red-500 ${isLandscape ? 'w-2/3' : 'w-3/4'} my-2`} />
-                  <Text className={`text-red-500 font-bold uppercase tracking-wide ${isLandscape ? 'text-base' : 'text-xl'}`}>
-                    {player1Name}
-                  </Text>
+                  {!isLandscape && (
+                    <Text className="text-red-500 font-bold uppercase tracking-wide text-xl">
+                      Player 1
+                    </Text>
+                  )}
                 </View>
 
                 <Text className="text-gray-700 font-bold px-4" style={{ fontSize: isLandscape ? 60 : 100 }}>
@@ -251,6 +258,11 @@ export default function ScoreboardScreen() {
                 </Text>
 
                 <View className="flex-1 items-center">
+                  {isLandscape && (
+                    <Text className="text-blue-500 font-bold uppercase tracking-wide text-base mb-2">
+                      Player 2
+                    </Text>
+                  )}
                   <Text
                     className="font-black text-white"
                     style={{
@@ -264,9 +276,11 @@ export default function ScoreboardScreen() {
                     {p2TotalScore}
                   </Text>
                   <View className={`h-px bg-blue-500 ${isLandscape ? 'w-2/3' : 'w-3/4'} my-2`} />
-                  <Text className={`text-blue-500 font-bold uppercase tracking-wide ${isLandscape ? 'text-base' : 'text-xl'}`}>
-                    {player2Name}
-                  </Text>
+                  {!isLandscape && (
+                    <Text className="text-blue-500 font-bold uppercase tracking-wide text-xl">
+                      Player 2
+                    </Text>
+                  )}
                 </View>
               </View>
 
