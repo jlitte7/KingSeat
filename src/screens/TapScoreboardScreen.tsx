@@ -5,7 +5,6 @@ import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
 import { Ionicons } from '@expo/vector-icons';
-import * as ScreenOrientation from 'expo-screen-orientation';
 
 type TapScoreboardScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'TapScoreboard'>;
 type TapScoreboardScreenRouteProp = RouteProp<RootStackParamList, 'TapScoreboard'>;
@@ -48,12 +47,6 @@ export default function TapScoreboardScreen() {
   const completedRounds = rounds.length;
 
   useEffect(() => {
-    // Unlock all orientations when component mounts
-    const unlockOrientation = async () => {
-      await ScreenOrientation.unlockAsync();
-    };
-    unlockOrientation();
-
     const updateLayout = () => {
       const { width, height } = Dimensions.get('window');
       setIsLandscape(width > height);
@@ -62,11 +55,7 @@ export default function TapScoreboardScreen() {
     updateLayout();
     const subscription = Dimensions.addEventListener('change', updateLayout);
 
-    return () => {
-      subscription?.remove();
-      // Lock back to portrait when leaving
-      ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
-    };
+    return () => subscription?.remove();
   }, []);
 
   const handleTopHalfPress = (player: 1 | 2) => {

@@ -6,7 +6,6 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { FadeIn, FadeOut, SlideInUp } from 'react-native-reanimated';
-import * as ScreenOrientation from 'expo-screen-orientation';
 
 type ScoreboardScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Scoreboard'>;
 type ScoreboardScreenRouteProp = RouteProp<RootStackParamList, 'Scoreboard'>;
@@ -71,12 +70,6 @@ export default function ScoreboardScreen() {
   const isGameOver = (totalRounds && currentRound > totalRounds) || gameWon;
 
   useEffect(() => {
-    // Unlock all orientations when component mounts
-    const unlockOrientation = async () => {
-      await ScreenOrientation.unlockAsync();
-    };
-    unlockOrientation();
-
     const updateLayout = () => {
       const { width, height } = Dimensions.get('window');
       setIsLandscape(width > height);
@@ -85,11 +78,7 @@ export default function ScoreboardScreen() {
     updateLayout();
     const subscription = Dimensions.addEventListener('change', updateLayout);
 
-    return () => {
-      subscription?.remove();
-      // Lock back to portrait when leaving
-      ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
-    };
+    return () => subscription?.remove();
   }, []);
 
   const setBagCount = (player: number, type: 'in' | 'on', value: number) => {
