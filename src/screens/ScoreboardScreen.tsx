@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Pressable, Dimensions, ScrollView, Modal } from 'react-native';
+import { View, Text, Pressable, Dimensions, ScrollView, Modal, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -201,7 +201,12 @@ export default function ScoreboardScreen() {
             <Pressable onPress={resetGame} className="p-1.5 w-20">
               <Ionicons name="refresh" size={24} color="#fff" />
             </Pressable>
-            <View className="items-center flex-1">
+            <View className="items-center flex-1 flex-row justify-center gap-2">
+              <Image
+                source={require('../../assets/image-1762388037.png')}
+                style={{ width: 28, height: 28 }}
+                resizeMode="contain"
+              />
               <Text className="text-white text-xl font-bold tracking-wider">KINGSEAT</Text>
             </View>
             <View className="w-20 items-end">

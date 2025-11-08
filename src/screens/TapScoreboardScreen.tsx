@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Pressable, Modal, ScrollView, Dimensions } from 'react-native';
+import { View, Text, Pressable, Modal, ScrollView, Dimensions, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -151,7 +151,12 @@ export default function TapScoreboardScreen() {
             <Pressable onPress={resetGame} className="p-1.5 w-20">
               <Ionicons name="arrow-back" size={24} color="#fff" />
             </Pressable>
-            <View className="items-center flex-1">
+            <View className="items-center flex-1 flex-row justify-center gap-2">
+              <Image
+                source={require('../../assets/image-1762388037.png')}
+                style={{ width: 28, height: 28 }}
+                resizeMode="contain"
+              />
               <Text className="text-white text-xl font-bold tracking-wider">KINGSEAT</Text>
             </View>
             <View className="w-20 items-end">
@@ -174,12 +179,16 @@ export default function TapScoreboardScreen() {
           /* TAP MODE - Scoreholio Style */
           <View className="flex-1">
             {/* Player 1 Score */}
-            <View className="flex-1 bg-gray-800">
+            <View className="flex-1 bg-gray-800 relative">
               {/* Top Half - Increment */}
               <Pressable
                 onPress={() => handleTopHalfPress(1)}
-                className="flex-1 items-center justify-center active:bg-gray-700"
+                className="flex-1 active:bg-gray-700"
               >
+              </Pressable>
+
+              {/* Divider Line with Score centered on it */}
+              <View className="absolute left-0 right-0" style={{ top: '50%', transform: [{ translateY: 0 }] }}>
                 <View className="items-center">
                   <Text
                     className="font-black text-white"
@@ -198,15 +207,13 @@ export default function TapScoreboardScreen() {
                     {player1Name}
                   </Text>
                 </View>
-              </Pressable>
-
-              {/* Divider Line */}
-              <View className="h-0.5 bg-gray-700" />
+                <View className="h-0.5 bg-gray-700 mt-4" />
+              </View>
 
               {/* Bottom Half - Decrement */}
               <Pressable
                 onPress={() => handleBottomHalfPress(1)}
-                className="flex-1 items-center justify-center active:bg-gray-700"
+                className="flex-1 active:bg-gray-700"
               >
               </Pressable>
             </View>
@@ -238,22 +245,17 @@ export default function TapScoreboardScreen() {
             </View>
 
             {/* Player 2 Score */}
-            <View className="flex-1 bg-gray-800">
+            <View className="flex-1 bg-gray-800 relative">
               {/* Top Half - Increment */}
               <Pressable
                 onPress={() => handleTopHalfPress(2)}
-                className="flex-1 items-center justify-center active:bg-gray-700"
+                className="flex-1 active:bg-gray-700"
               >
               </Pressable>
 
-              {/* Divider Line */}
-              <View className="h-0.5 bg-gray-700" />
-
-              {/* Bottom Half - Decrement */}
-              <Pressable
-                onPress={() => handleBottomHalfPress(2)}
-                className="flex-1 items-center justify-center active:bg-gray-700"
-              >
+              {/* Divider Line with Score centered on it */}
+              <View className="absolute left-0 right-0" style={{ top: '50%', transform: [{ translateY: 0 }] }}>
+                <View className="h-0.5 bg-gray-700 mb-4" />
                 <View className="items-center">
                   <Text className={`text-blue-500 font-bold uppercase tracking-wide ${isLandscape ? 'text-base' : 'text-xl'}`}>
                     {player2Name}
@@ -272,6 +274,13 @@ export default function TapScoreboardScreen() {
                     {p2Score}
                   </Text>
                 </View>
+              </View>
+
+              {/* Bottom Half - Decrement */}
+              <Pressable
+                onPress={() => handleBottomHalfPress(2)}
+                className="flex-1 active:bg-gray-700"
+              >
               </Pressable>
             </View>
           </View>
