@@ -6,6 +6,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { FadeIn, FadeOut, SlideInUp } from 'react-native-reanimated';
+import { Audio } from 'expo-av';
 
 type ScoreboardScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Scoreboard'>;
 type ScoreboardScreenRouteProp = RouteProp<RootStackParamList, 'Scoreboard'>;
@@ -28,7 +29,10 @@ export default function ScoreboardScreen() {
   const [isLandscape, setIsLandscape] = useState(false);
   const [currentRound, setCurrentRound] = useState(1);
   const [showCelebration, setShowCelebration] = useState(false);
+  const [celebrationPlayer, setCelebrationPlayer] = useState<string>('');
   const [showGameOver, setShowGameOver] = useState(false);
+  const [showRoundHistory, setShowRoundHistory] = useState(false);
+  const [showStatsCollapsed, setShowStatsCollapsed] = useState(false);
 
   const [p1BagsIn, setP1BagsIn] = useState(0);
   const [p1BagsOn, setP1BagsOn] = useState(0);
@@ -36,6 +40,7 @@ export default function ScoreboardScreen() {
   const [p2BagsOn, setP2BagsOn] = useState(0);
 
   const [rounds, setRounds] = useState<Round[]>([]);
+  const [sound, setSound] = useState<Audio.Sound | null>(null);
 
   const p1RoundScore = p1BagsIn * 3 + p1BagsOn;
   const p2RoundScore = p2BagsIn * 3 + p2BagsOn;
@@ -78,8 +83,34 @@ export default function ScoreboardScreen() {
     updateLayout();
     const subscription = Dimensions.addEventListener('change', updateLayout);
 
-    return () => subscription?.remove();
-  }, []);
+    return () => {
+      subscription?.remove();
+      if (sound) {
+        sound.unloadAsync();
+      }
+    };
+  }, [sound]);
+
+  const playSound = async (type: 'celebrate' | 'score') => {
+    try {
+      const { sound: newSound } = await Audio.Sound.createAsync(
+        type === 'celebrate'
+          ? require('../../assets/voice-1762370065630.mp3')
+          : require('../../assets/voice-1762370065630.mp3')
+      );
+      setSound(newSound);
+      await newSound.playAsync();
+
+      // Unload after playing
+      newSound.setOnPlaybackStatusUpdate((status) => {
+        if (status.isLoaded && status.didJustFinish) {
+          newSound.unloadAsync();
+        }
+      });
+    } catch (error) {
+      console.log('Error playing sound:', error);
+    }
+  };
 
   const setBagCount = (player: number, type: 'in' | 'on', value: number) => {
     if (player === 1) {
@@ -98,9 +129,20 @@ export default function ScoreboardScreen() {
   };
 
   const nextRound = () => {
-    if (p1BagsIn === 4 || p2BagsIn === 4) {
+    // Check for four-bagger and play celebration sound
+    if (p1BagsIn === 4) {
+      setCelebrationPlayer(player1Name);
       setShowCelebration(true);
+      playSound('celebrate');
       setTimeout(() => setShowCelebration(false), 3000);
+    } else if (p2BagsIn === 4) {
+      setCelebrationPlayer(player2Name);
+      setShowCelebration(true);
+      playSound('celebrate');
+      setTimeout(() => setShowCelebration(false), 3000);
+    } else {
+      // Play regular scoring sound
+      playSound('score');
     }
 
     const newRound: Round = {
@@ -131,6 +173,14 @@ export default function ScoreboardScreen() {
     } else {
       setShowGameOver(true);
     }
+  };
+
+  const undoLastRound = () => {
+    if (rounds.length === 0) return;
+
+    const newRounds = rounds.slice(0, -1);
+    setRounds(newRounds);
+    setCurrentRound(Math.max(1, currentRound - 1));
   };
 
   const resetGame = () => {
@@ -218,9 +268,28 @@ export default function ScoreboardScreen() {
               </Pressable>
             </View>
           </View>
-          <Text className="text-white text-center text-xs font-semibold">
-            {totalRounds ? `Round ${currentRound} of ${totalRounds}` : `Round ${currentRound}`}
-          </Text>
+          <View className="flex-row justify-between items-center">
+            <Pressable
+              onPress={undoLastRound}
+              disabled={rounds.length === 0}
+              className={`flex-row items-center gap-1 px-2 py-1 rounded ${
+                rounds.length === 0 ? 'opacity-30' : ''
+              }`}
+            >
+              <Ionicons name="arrow-undo" size={16} color="#fff" />
+              <Text className="text-white text-xs font-bold">Undo</Text>
+            </Pressable>
+            <Text className="text-white text-center text-xs font-semibold">
+              {totalRounds ? `Round ${currentRound} of ${totalRounds}` : `Round ${currentRound}`}
+            </Text>
+            <Pressable
+              onPress={() => setShowStatsCollapsed(!showStatsCollapsed)}
+              className="flex-row items-center gap-1 px-2 py-1 rounded"
+            >
+              <Ionicons name={showStatsCollapsed ? 'chevron-down' : 'chevron-up'} size={16} color="#fff" />
+              <Text className="text-white text-xs font-bold">Stats</Text>
+            </Pressable>
+          </View>
         </View>
 
         {!showScoring && (
@@ -230,7 +299,7 @@ export default function ScoreboardScreen() {
                 <View className="flex-1 items-center">
                   {isLandscape && (
                     <Text className="text-red-500 font-bold uppercase tracking-wide text-base mb-2">
-                      Player 1
+                      {player1Name}
                     </Text>
                   )}
                   <Text
@@ -248,7 +317,7 @@ export default function ScoreboardScreen() {
                   <View className={`h-px bg-red-500 ${isLandscape ? 'w-2/3' : 'w-3/4'} my-2`} />
                   {!isLandscape && (
                     <Text className="text-red-500 font-bold uppercase tracking-wide text-xl">
-                      Player 1
+                      {player1Name}
                     </Text>
                   )}
                 </View>
@@ -260,7 +329,7 @@ export default function ScoreboardScreen() {
                 <View className="flex-1 items-center">
                   {isLandscape && (
                     <Text className="text-blue-500 font-bold uppercase tracking-wide text-base mb-2">
-                      Player 2
+                      {player2Name}
                     </Text>
                   )}
                   <Text
@@ -278,7 +347,7 @@ export default function ScoreboardScreen() {
                   <View className={`h-px bg-blue-500 ${isLandscape ? 'w-2/3' : 'w-3/4'} my-2`} />
                   {!isLandscape && (
                     <Text className="text-blue-500 font-bold uppercase tracking-wide text-xl">
-                      Player 2
+                      {player2Name}
                     </Text>
                   )}
                 </View>
@@ -287,9 +356,10 @@ export default function ScoreboardScreen() {
               <Text className={`text-gray-500 ${isLandscape ? 'text-xs mt-3' : 'text-sm mt-6'}`}>Tap to enter score</Text>
             </View>
 
-            {completedRounds > 0 && (
-              <View className="px-4 mt-6">
-                <View className="flex-row gap-2 max-w-4xl mx-auto">
+            {/* Collapsible Stats Section */}
+            {showStatsCollapsed && completedRounds > 0 && (
+              <Animated.View entering={FadeIn} exiting={FadeOut} className="px-4 mt-6 w-full">
+                <View className="flex-row gap-2 max-w-4xl mx-auto mb-4">
                   <View className="flex-1 bg-gray-800 rounded-lg p-3 border border-red-600">
                     <Text className="text-red-500 text-sm font-bold mb-2 text-center">
                       {player1Name}
@@ -338,7 +408,16 @@ export default function ScoreboardScreen() {
                     </View>
                   </View>
                 </View>
-              </View>
+
+                {/* Round History Button */}
+                <Pressable
+                  onPress={() => setShowRoundHistory(true)}
+                  className="bg-gray-700 rounded-lg py-2 px-4 flex-row items-center justify-center gap-2"
+                >
+                  <Ionicons name="list" size={18} color="#fff" />
+                  <Text className="text-white font-bold text-sm">View Round History</Text>
+                </Pressable>
+              </Animated.View>
             )}
           </Pressable>
         )}
@@ -426,7 +505,17 @@ export default function ScoreboardScreen() {
         >
           <Animated.View entering={SlideInUp} className="items-center">
             <Text
-              className="text-8xl font-black text-yellow-400"
+              className="text-7xl font-black text-yellow-400 text-center px-4"
+              style={{
+                textShadowColor: 'rgba(255, 215, 0, 0.8)',
+                textShadowOffset: { width: 0, height: 0 },
+                textShadowRadius: 30,
+              }}
+            >
+              {celebrationPlayer}
+            </Text>
+            <Text
+              className="text-6xl font-black text-yellow-400 mt-2"
               style={{
                 textShadowColor: 'rgba(255, 215, 0, 0.8)',
                 textShadowOffset: { width: 0, height: 0 },
@@ -460,6 +549,93 @@ export default function ScoreboardScreen() {
               >
                 <Text className="text-white font-bold text-lg">New Game</Text>
               </Pressable>
+            </View>
+          </SafeAreaView>
+        </View>
+      </Modal>
+
+      {/* Round History Modal */}
+      <Modal visible={showRoundHistory} transparent animationType="slide">
+        <View className="flex-1 bg-black/95">
+          <SafeAreaView className="flex-1">
+            <View className="flex-1 px-6 py-4">
+              <View className="flex-row justify-between items-center mb-4">
+                <Text className="text-white text-2xl font-bold">Round History</Text>
+                <Pressable onPress={() => setShowRoundHistory(false)}>
+                  <Ionicons name="close" size={32} color="#fff" />
+                </Pressable>
+              </View>
+
+              <ScrollView className="flex-1">
+                {rounds.map((round, index) => {
+                  const roundNum = index + 1;
+                  const p1RunningTotal = rounds.slice(0, index + 1).reduce((sum, r) => sum + r.p1Score, 0);
+                  const p2RunningTotal = rounds.slice(0, index + 1).reduce((sum, r) => sum + r.p2Score, 0);
+
+                  return (
+                    <View key={index} className="bg-gray-800 rounded-lg p-4 mb-3">
+                      <Text className="text-white text-lg font-bold mb-3 text-center">Round {roundNum}</Text>
+
+                      <View className="flex-row justify-between gap-3">
+                        {/* Player 1 */}
+                        <View className="flex-1 bg-gray-700 rounded-lg p-3 border border-red-600">
+                          <Text className="text-red-500 font-bold text-center mb-2">{player1Name}</Text>
+                          <View className="space-y-1">
+                            <View className="flex-row justify-between">
+                              <Text className="text-gray-400 text-sm">In:</Text>
+                              <Text className="text-white font-bold text-sm">{round.p1In}</Text>
+                            </View>
+                            <View className="flex-row justify-between">
+                              <Text className="text-gray-400 text-sm">On:</Text>
+                              <Text className="text-white font-bold text-sm">{round.p1On}</Text>
+                            </View>
+                            <View className="flex-row justify-between">
+                              <Text className="text-gray-400 text-sm">Points:</Text>
+                              <Text className="text-green-400 font-bold text-sm">+{round.p1Score}</Text>
+                            </View>
+                            <View className="flex-row justify-between border-t border-gray-600 pt-1 mt-1">
+                              <Text className="text-gray-300 text-sm font-bold">Total:</Text>
+                              <Text className="text-white font-bold text-sm">{p1RunningTotal}</Text>
+                            </View>
+                          </View>
+                        </View>
+
+                        {/* Player 2 */}
+                        <View className="flex-1 bg-gray-700 rounded-lg p-3 border border-blue-600">
+                          <Text className="text-blue-500 font-bold text-center mb-2">{player2Name}</Text>
+                          <View className="space-y-1">
+                            <View className="flex-row justify-between">
+                              <Text className="text-gray-400 text-sm">In:</Text>
+                              <Text className="text-white font-bold text-sm">{round.p2In}</Text>
+                            </View>
+                            <View className="flex-row justify-between">
+                              <Text className="text-gray-400 text-sm">On:</Text>
+                              <Text className="text-white font-bold text-sm">{round.p2On}</Text>
+                            </View>
+                            <View className="flex-row justify-between">
+                              <Text className="text-gray-400 text-sm">Points:</Text>
+                              <Text className="text-green-400 font-bold text-sm">+{round.p2Score}</Text>
+                            </View>
+                            <View className="flex-row justify-between border-t border-gray-600 pt-1 mt-1">
+                              <Text className="text-gray-300 text-sm font-bold">Total:</Text>
+                              <Text className="text-white font-bold text-sm">{p2RunningTotal}</Text>
+                            </View>
+                          </View>
+                        </View>
+                      </View>
+
+                      {/* Four-bagger badge */}
+                      {(round.p1In === 4 || round.p2In === 4) && (
+                        <View className="mt-2 bg-yellow-500/20 border border-yellow-500 rounded-lg py-1 px-3">
+                          <Text className="text-yellow-400 text-xs font-bold text-center">
+                            ⭐ Four Bagger! ⭐
+                          </Text>
+                        </View>
+                      )}
+                    </View>
+                  );
+                })}
+              </ScrollView>
             </View>
           </SafeAreaView>
         </View>

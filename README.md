@@ -28,6 +28,7 @@ A world-class cornhole league management and scoring app built with Expo and Rea
 
 ### 📊 Scoreboard
 - **Quick Game Setup**: Enter player names and start tracking immediately
+- **Player Name Display**: Shows actual player names throughout the game (not generic "Player 1/2")
 - **Dual Scoreboard Modes**:
   - **Bags Mode (Default)**: Traditional bags in/on tracking with automatic cancellation scoring
   - **Tap Mode (Scoreholio-style)**: Clean, minimal interface with massive score numbers (180pt font)
@@ -42,8 +43,24 @@ A world-class cornhole league management and scoring app built with Expo and Rea
   - Note: Landscape requires device rotation to be enabled in system settings
 - **Live Scoring**: Real-time score tracking with large, easy-to-read numbers
 - **Cancellation Scoring**: Automatic calculation of points (difference only counts)
-- **Real-Time Stats**: View PPR, bag accuracy, and four-bagger rates during games
-- **Four-Bagger Celebrations**: Animated celebration when a player gets all 4 bags in
+- **Collapsible Stats Panel**: Toggle stats visibility with chevron button in header
+  - Shows PPR, bag accuracy, and four-bagger rates during games
+  - Stays hidden by default to maximize scoreboard space
+  - Easy access whenever needed
+- **Round History**: Full round-by-round breakdown with "View Round History" button
+  - Shows each player's bags in/on for every round
+  - Displays points scored per round with running totals
+  - Highlights four-baggers with special badges
+  - Clean, card-based layout for easy review
+- **Undo Last Round**: Made a mistake? Use the undo button in the header to remove the last round
+  - Button disabled when no rounds have been played
+  - Automatically decrements round counter
+- **Four-Bagger Celebrations**: Animated celebration with player name when someone gets all 4 bags in
+  - Shows which player achieved the four-bagger
+  - Sound effects for celebrations
+- **Sound Effects**: Audio feedback for scoring and celebrations
+  - Celebration sound for four-baggers
+  - Regular scoring sound for normal rounds
 - **Game Completion**: Winner announcement with final stats
 - **Flexible Rounds**: Play unlimited rounds or set a specific limit
 
