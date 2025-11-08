@@ -187,27 +187,29 @@ export default function TapScoreboardScreen() {
               >
               </Pressable>
 
-              {/* Divider Line with Score centered on it */}
-              <View className="absolute left-0 right-0" style={{ top: '50%', transform: [{ translateY: 0 }] }}>
-                <View className="items-center">
-                  <Text
-                    className="font-black text-white"
-                    style={{
-                      fontSize: isLandscape ? 140 : 220,
-                      textShadowColor: 'rgba(239, 68, 68, 0.6)',
-                      textShadowOffset: { width: 0, height: 8 },
-                      textShadowRadius: 30,
-                      lineHeight: isLandscape ? 140 : 220,
-                    }}
-                  >
-                    {p1Score}
-                  </Text>
-                  <View className={`h-px bg-red-500 ${isLandscape ? 'w-32' : 'w-48'} my-2`} />
-                  <Text className={`text-red-500 font-bold uppercase tracking-wide ${isLandscape ? 'text-base' : 'text-xl'}`}>
-                    {player1Name}
-                  </Text>
-                </View>
-                <View className="h-0.5 bg-gray-700 mt-4" />
+              {/* Divider Line */}
+              <View className="absolute left-0 right-0 h-px bg-gray-700" style={{ top: '50%' }} />
+
+              {/* Score centered on divider line */}
+              <View
+                className="absolute left-0 right-0 items-center pointer-events-none"
+                style={{
+                  top: '50%',
+                  transform: [{ translateY: isLandscape ? -70 : -110 }]
+                }}
+              >
+                <Text
+                  className="font-black text-white"
+                  style={{
+                    fontSize: isLandscape ? 140 : 220,
+                    textShadowColor: 'rgba(239, 68, 68, 0.6)',
+                    textShadowOffset: { width: 0, height: 8 },
+                    textShadowRadius: 30,
+                    lineHeight: isLandscape ? 140 : 220,
+                  }}
+                >
+                  {p1Score}
+                </Text>
               </View>
 
               {/* Bottom Half - Decrement */}
@@ -253,27 +255,29 @@ export default function TapScoreboardScreen() {
               >
               </Pressable>
 
-              {/* Divider Line with Score centered on it */}
-              <View className="absolute left-0 right-0" style={{ top: '50%', transform: [{ translateY: 0 }] }}>
-                <View className="h-0.5 bg-gray-700 mb-4" />
-                <View className="items-center">
-                  <Text className={`text-blue-500 font-bold uppercase tracking-wide ${isLandscape ? 'text-base' : 'text-xl'}`}>
-                    {player2Name}
-                  </Text>
-                  <View className={`h-px bg-blue-500 ${isLandscape ? 'w-32' : 'w-48'} my-2`} />
-                  <Text
-                    className="font-black text-white"
-                    style={{
-                      fontSize: isLandscape ? 140 : 220,
-                      textShadowColor: 'rgba(59, 130, 246, 0.6)',
-                      textShadowOffset: { width: 0, height: 8 },
-                      textShadowRadius: 30,
-                      lineHeight: isLandscape ? 140 : 220,
-                    }}
-                  >
-                    {p2Score}
-                  </Text>
-                </View>
+              {/* Divider Line */}
+              <View className="absolute left-0 right-0 h-px bg-gray-700" style={{ top: '50%' }} />
+
+              {/* Score centered on divider line */}
+              <View
+                className="absolute left-0 right-0 items-center pointer-events-none"
+                style={{
+                  top: '50%',
+                  transform: [{ translateY: isLandscape ? -70 : -110 }]
+                }}
+              >
+                <Text
+                  className="font-black text-white"
+                  style={{
+                    fontSize: isLandscape ? 140 : 220,
+                    textShadowColor: 'rgba(59, 130, 246, 0.6)',
+                    textShadowOffset: { width: 0, height: 8 },
+                    textShadowRadius: 30,
+                    lineHeight: isLandscape ? 140 : 220,
+                  }}
+                >
+                  {p2Score}
+                </Text>
               </View>
 
               {/* Bottom Half - Decrement */}
