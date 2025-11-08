@@ -29,9 +29,12 @@ A world-class cornhole league management and scoring app built with Expo and Rea
 ### 📊 Scoreboard
 - **Quick Game Setup**: Enter player names and start tracking immediately
 - **Dual Scoreboard Modes**:
-  - **Tap Mode (Scoreholio-style)**: Tap top half to increment score (+1), tap bottom half to decrement (-1)
-  - **Bags Mode**: Traditional bags in/on tracking with automatic cancellation scoring
-  - **Mode Toggle**: Switch between modes mid-game with a single tap
+  - **Bags Mode (Default)**: Traditional bags in/on tracking with automatic cancellation scoring
+  - **Tap Mode (Scoreholio-style)**: Clean, minimal interface with massive score numbers (180pt font)
+    - Tap top half of player area to increment score (+1)
+    - Tap bottom half of player area to decrement (-1)
+    - No instruction text, just pure scoring interface
+  - **Mode Toggle**: Switch from Bags Mode to Tap Mode with "Tap Mode" button in header
 - **Live Scoring**: Real-time score tracking with large, easy-to-read numbers
 - **Cancellation Scoring**: Automatic calculation of points (difference only counts)
 - **Real-Time Stats**: View PPR, bag accuracy, and four-bagger rates during games

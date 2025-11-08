@@ -166,17 +166,14 @@ export default function TapScoreboardScreen() {
                 className="flex-1 items-center justify-center active:bg-gray-700"
               >
                 <View className="items-center">
-                  <Text className="text-red-500 text-xl font-bold uppercase mb-4">
+                  <Text className="text-red-500 text-xl font-bold uppercase mb-8">
                     {player1Name}
                   </Text>
                   <Text
                     className="font-black text-white"
-                    style={{ fontSize: 140 }}
+                    style={{ fontSize: 180 }}
                   >
                     {p1Score}
-                  </Text>
-                  <Text className="text-gray-500 text-sm mt-2">
-                    Tap top to +1
                   </Text>
                 </View>
               </Pressable>
@@ -189,9 +186,6 @@ export default function TapScoreboardScreen() {
                 onPress={() => handleBottomHalfPress(1)}
                 className="flex-1 items-center justify-center active:bg-gray-700"
               >
-                <Text className="text-gray-500 text-sm">
-                  Tap bottom to -1
-                </Text>
               </Pressable>
             </View>
 
@@ -228,9 +222,6 @@ export default function TapScoreboardScreen() {
                 onPress={() => handleTopHalfPress(2)}
                 className="flex-1 items-center justify-center active:bg-gray-700"
               >
-                <Text className="text-gray-500 text-sm">
-                  Tap top to +1
-                </Text>
               </Pressable>
 
               {/* Divider Line */}
@@ -242,16 +233,13 @@ export default function TapScoreboardScreen() {
                 className="flex-1 items-center justify-center active:bg-gray-700"
               >
                 <View className="items-center">
-                  <Text className="text-gray-500 text-sm mb-2">
-                    Tap bottom to -1
-                  </Text>
                   <Text
                     className="font-black text-white"
-                    style={{ fontSize: 140 }}
+                    style={{ fontSize: 180 }}
                   >
                     {p2Score}
                   </Text>
-                  <Text className="text-blue-500 text-xl font-bold uppercase mt-4">
+                  <Text className="text-blue-500 text-xl font-bold uppercase mt-8">
                     {player2Name}
                   </Text>
                 </View>

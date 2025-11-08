@@ -137,6 +137,14 @@ export default function ScoreboardScreen() {
     navigation.goBack();
   };
 
+  const switchToTapMode = () => {
+    navigation.replace('TapScoreboard', {
+      player1Name,
+      player2Name,
+      totalRounds,
+    });
+  };
+
   const BagCounter = ({
     label,
     count,
@@ -200,10 +208,10 @@ export default function ScoreboardScreen() {
               </Text>
             </View>
             <Pressable
-              onPress={() => setShowScoring(!showScoring)}
+              onPress={switchToTapMode}
               className="bg-red-700 px-3 py-1.5 rounded-lg"
             >
-              <Text className="text-white text-sm font-bold">{showScoring ? 'X' : 'Edit'}</Text>
+              <Text className="text-white text-sm font-bold">Tap Mode</Text>
             </Pressable>
           </View>
         </View>
