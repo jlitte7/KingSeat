@@ -199,13 +199,10 @@ export default function ScoreboardScreen() {
         <View className="bg-red-600 px-4 py-3">
           <View className="flex-row justify-between items-center">
             <Pressable onPress={resetGame} className="p-1.5">
-              <Ionicons name="refresh" size={20} color="#fff" />
+              <Ionicons name="refresh" size={24} color="#fff" />
             </Pressable>
             <View className="items-center">
-              <Text className="text-white text-lg font-bold">KINGSEAT</Text>
-              <Text className="text-white text-xs">
-                {totalRounds ? `Round ${currentRound} of ${totalRounds}` : `Round ${currentRound}`}
-              </Text>
+              <Text className="text-white text-xl font-bold tracking-wider">KINGSEAT</Text>
             </View>
             <Pressable
               onPress={switchToTapMode}
@@ -214,52 +211,59 @@ export default function ScoreboardScreen() {
               <Text className="text-white text-sm font-bold">Tap Mode</Text>
             </Pressable>
           </View>
+          <Text className="text-white text-center text-sm mt-2 font-semibold">
+            {totalRounds ? `Round ${currentRound} of ${totalRounds}` : `Round ${currentRound}`}
+          </Text>
         </View>
 
         {!showScoring && (
           <Pressable onPress={() => setShowScoring(true)} className="flex-1 justify-center">
             <View className="items-center">
-              <View className="flex-row items-center gap-4 px-4">
+              <View className="flex-row items-center justify-center w-full px-6 gap-8">
                 <View className="flex-1 items-center">
-                  <Text className="text-red-500 text-2xl font-bold mb-2 uppercase">
-                    {player1Name}
-                  </Text>
                   <Text
                     className="font-black text-white"
                     style={{
-                      fontSize: isLandscape ? 80 : 120,
+                      fontSize: isLandscape ? 120 : 180,
                       textShadowColor: 'rgba(239, 68, 68, 0.6)',
                       textShadowOffset: { width: 0, height: 8 },
                       textShadowRadius: 30,
+                      lineHeight: isLandscape ? 130 : 190,
                     }}
                   >
                     {p1TotalScore}
                   </Text>
+                  <View className="h-px bg-red-500 w-3/4 my-2" />
+                  <Text className="text-red-500 text-xl font-bold uppercase tracking-wide">
+                    {player1Name}
+                  </Text>
                 </View>
 
-                <Text className="text-gray-700 font-bold" style={{ fontSize: isLandscape ? 36 : 60 }}>
+                <Text className="text-gray-700 font-bold" style={{ fontSize: isLandscape ? 50 : 80 }}>
                   -
                 </Text>
 
                 <View className="flex-1 items-center">
-                  <Text className="text-blue-500 text-2xl font-bold mb-2 uppercase">
-                    {player2Name}
-                  </Text>
                   <Text
                     className="font-black text-white"
                     style={{
-                      fontSize: isLandscape ? 80 : 120,
+                      fontSize: isLandscape ? 120 : 180,
                       textShadowColor: 'rgba(59, 130, 246, 0.6)',
                       textShadowOffset: { width: 0, height: 8 },
                       textShadowRadius: 30,
+                      lineHeight: isLandscape ? 130 : 190,
                     }}
                   >
                     {p2TotalScore}
                   </Text>
+                  <View className="h-px bg-blue-500 w-3/4 my-2" />
+                  <Text className="text-blue-500 text-xl font-bold uppercase tracking-wide">
+                    {player2Name}
+                  </Text>
                 </View>
               </View>
 
-              <Text className="text-gray-500 text-sm mt-4">Tap to enter score</Text>
+              <Text className="text-gray-500 text-sm mt-6">Tap to enter score</Text>
             </View>
 
             {completedRounds > 0 && (
