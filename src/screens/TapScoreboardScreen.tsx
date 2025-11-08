@@ -144,20 +144,20 @@ export default function TapScoreboardScreen() {
 
   return (
     <View className="flex-1 bg-black">
-      <SafeAreaView edges={['top']} className="flex-1">
+      <SafeAreaView edges={isLandscape ? [] : ['top']} className="flex-1">
         {/* Header */}
-        <View className="bg-gray-900 px-4 py-2 border-b border-gray-800">
+        <View className="bg-gray-900 px-4 border-b border-gray-800" style={{ paddingVertical: isLandscape ? 4 : 8 }}>
           <View className="flex-row justify-between items-center mb-1">
             <Pressable onPress={resetGame} className="p-1.5 w-20">
-              <Ionicons name="arrow-back" size={24} color="#fff" />
+              <Ionicons name="arrow-back" size={isLandscape ? 20 : 24} color="#fff" />
             </Pressable>
             <View className="items-center flex-1 flex-row justify-center gap-2">
               <Image
                 source={require('../../assets/image-1762388037.png')}
-                style={{ width: 28, height: 28 }}
+                style={{ width: isLandscape ? 22 : 28, height: isLandscape ? 22 : 28 }}
                 resizeMode="contain"
               />
-              <Text className="text-white text-xl font-bold tracking-wider">KINGSEAT</Text>
+              <Text className="text-white font-bold tracking-wider" style={{ fontSize: isLandscape ? 16 : 20 }}>KINGSEAT</Text>
             </View>
             <View className="w-20 items-end">
               <Pressable
@@ -170,7 +170,7 @@ export default function TapScoreboardScreen() {
               </Pressable>
             </View>
           </View>
-          <Text className="text-white text-center text-xs font-semibold">
+          <Text className="text-white text-center font-semibold" style={{ fontSize: isLandscape ? 10 : 12 }}>
             {totalRounds ? `Round ${currentRound} of ${totalRounds}` : `Round ${currentRound}`}
           </Text>
         </View>
