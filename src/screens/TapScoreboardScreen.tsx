@@ -309,35 +309,63 @@ export default function TapScoreboardScreen() {
             </View>
           </View>
         ) : (
-          /* BAGS MODE - Original Style */
-          <ScrollView className="flex-1">
-            <View className="items-center py-8">
-              {/* Player 1 */}
-              <View className="items-center mb-8">
-                <Text className="text-red-500 text-2xl font-bold mb-4 uppercase">
-                  {player1Name}
+          /* BAGS MODE - Tap Mode Style */
+          <View className="flex-1">
+            {/* Player 1 Section */}
+            <View className="flex-1 bg-gray-800 relative">
+              {/* Score and Player Name centered */}
+              <View
+                className="absolute left-0 right-0 items-center pointer-events-none"
+                style={{
+                  top: '50%',
+                  transform: [{ translateY: isLandscape ? -90 : -120 }]
+                }}
+              >
+                {isLandscape && (
+                  <Text className="text-red-500 font-bold uppercase tracking-wide text-base mb-2">
+                    Player 1
+                  </Text>
+                )}
+                <Text
+                  className="font-black text-white"
+                  style={{
+                    fontSize: isLandscape ? 140 : 220,
+                    textShadowColor: 'rgba(239, 68, 68, 0.6)',
+                    textShadowOffset: { width: 0, height: 8 },
+                    textShadowRadius: 30,
+                    lineHeight: isLandscape ? 140 : 220,
+                  }}
+                >
+                  {p1Score}
                 </Text>
-                <Text className="text-white text-6xl font-black mb-4">{p1Score}</Text>
+                {!isLandscape && (
+                  <Text className="text-red-500 font-bold uppercase tracking-wide text-xl mt-2">
+                    Player 1
+                  </Text>
+                )}
+              </View>
 
-                <View className="flex-row gap-4">
+              {/* Bag Counters at Bottom */}
+              <View className="absolute bottom-4 left-0 right-0 px-4 pointer-events-auto">
+                <View className="flex-row justify-center gap-8">
                   <View className="items-center">
-                    <Text className="text-red-500 font-bold mb-2">BAGS IN</Text>
-                    <View className="flex-row gap-2">
+                    <Text className="text-red-500 font-bold text-xs mb-2">IN</Text>
+                    <View className="flex-row gap-1.5">
                       {[0, 1, 2, 3, 4].map((num) => (
                         <Pressable
                           key={num}
                           onPress={() => setBagCount(1, 'in', num)}
-                          className={`w-12 h-12 rounded-lg items-center justify-center ${
+                          className={`w-10 h-10 rounded-lg items-center justify-center ${
                             num === p1BagsIn
                               ? 'bg-red-600 border-2 border-red-400'
                               : num > 4 - p1BagsOn
-                              ? 'bg-gray-800 border-2 border-gray-700'
+                              ? 'bg-gray-900 border-2 border-gray-800'
                               : 'bg-gray-700 border-2 border-gray-600'
                           }`}
                           disabled={num > 4 - p1BagsOn}
                         >
-                          <Text className={`font-bold text-xl ${
-                            num === p1BagsIn ? 'text-white' : num > 4 - p1BagsOn ? 'text-gray-600' : 'text-gray-400'
+                          <Text className={`font-bold text-base ${
+                            num === p1BagsIn ? 'text-white' : num > 4 - p1BagsOn ? 'text-gray-700' : 'text-gray-400'
                           }`}>
                             {num}
                           </Text>
@@ -347,23 +375,23 @@ export default function TapScoreboardScreen() {
                   </View>
 
                   <View className="items-center">
-                    <Text className="text-red-500 font-bold mb-2">BAGS ON</Text>
-                    <View className="flex-row gap-2">
+                    <Text className="text-red-500 font-bold text-xs mb-2">ON</Text>
+                    <View className="flex-row gap-1.5">
                       {[0, 1, 2, 3, 4].map((num) => (
                         <Pressable
                           key={num}
                           onPress={() => setBagCount(1, 'on', num)}
-                          className={`w-12 h-12 rounded-lg items-center justify-center ${
+                          className={`w-10 h-10 rounded-lg items-center justify-center ${
                             num === p1BagsOn
                               ? 'bg-red-600 border-2 border-red-400'
                               : num > 4 - p1BagsIn
-                              ? 'bg-gray-800 border-2 border-gray-700'
+                              ? 'bg-gray-900 border-2 border-gray-800'
                               : 'bg-gray-700 border-2 border-gray-600'
                           }`}
                           disabled={num > 4 - p1BagsIn}
                         >
-                          <Text className={`font-bold text-xl ${
-                            num === p1BagsOn ? 'text-white' : num > 4 - p1BagsIn ? 'text-gray-600' : 'text-gray-400'
+                          <Text className={`font-bold text-base ${
+                            num === p1BagsOn ? 'text-white' : num > 4 - p1BagsIn ? 'text-gray-700' : 'text-gray-400'
                           }`}>
                             {num}
                           </Text>
@@ -373,36 +401,96 @@ export default function TapScoreboardScreen() {
                   </View>
                 </View>
               </View>
+            </View>
 
-              {/* Divider */}
-              <View className="h-px w-3/4 bg-gray-700 my-8" />
+            {/* Center Controls */}
+            <View className="bg-gray-900 py-4 px-4">
+              <View className="flex-row justify-around items-center">
+                <Pressable
+                  onPress={resetGame}
+                  className="bg-red-600 px-6 py-3 rounded-full"
+                >
+                  <View className="flex-row items-center gap-2">
+                    <Ionicons name="refresh" size={20} color="#fff" />
+                    <Text className="text-white font-bold">Reset</Text>
+                  </View>
+                </Pressable>
 
-              {/* Player 2 */}
-              <View className="items-center mb-8">
-                <Text className="text-blue-500 text-2xl font-bold mb-4 uppercase">
-                  {player2Name}
+                <Pressable
+                  onPress={nextRound}
+                  className="bg-green-600 px-6 py-3 rounded-full"
+                >
+                  <Text className="text-white font-bold">Enter Round</Text>
+                </Pressable>
+
+                {completedRounds > 0 && (
+                  <View className="bg-gray-800 px-4 py-2 rounded-lg">
+                    <Text className="text-gray-400 text-xs">PPR</Text>
+                    <View className="flex-row gap-3 mt-1">
+                      <Text className="text-red-400 font-bold">{p1PPR}</Text>
+                      <Text className="text-gray-600">-</Text>
+                      <Text className="text-blue-400 font-bold">{p2PPR}</Text>
+                    </View>
+                  </View>
+                )}
+              </View>
+            </View>
+
+            {/* Player 2 Section */}
+            <View className="flex-1 bg-gray-800 relative">
+              {/* Score and Player Name centered */}
+              <View
+                className="absolute left-0 right-0 items-center pointer-events-none"
+                style={{
+                  top: '50%',
+                  transform: [{ translateY: isLandscape ? -90 : -120 }]
+                }}
+              >
+                {isLandscape && (
+                  <Text className="text-blue-500 font-bold uppercase tracking-wide text-base mb-2">
+                    Player 2
+                  </Text>
+                )}
+                <Text
+                  className="font-black text-white"
+                  style={{
+                    fontSize: isLandscape ? 140 : 220,
+                    textShadowColor: 'rgba(59, 130, 246, 0.6)',
+                    textShadowOffset: { width: 0, height: 8 },
+                    textShadowRadius: 30,
+                    lineHeight: isLandscape ? 140 : 220,
+                  }}
+                >
+                  {p2Score}
                 </Text>
-                <Text className="text-white text-6xl font-black mb-4">{p2Score}</Text>
+                {!isLandscape && (
+                  <Text className="text-blue-500 font-bold uppercase tracking-wide text-xl mt-2">
+                    Player 2
+                  </Text>
+                )}
+              </View>
 
-                <View className="flex-row gap-4">
+              {/* Bag Counters at Bottom */}
+              <View className="absolute bottom-4 left-0 right-0 px-4 pointer-events-auto">
+                <View className="flex-row justify-center gap-8">
                   <View className="items-center">
-                    <Text className="text-blue-500 font-bold mb-2">BAGS IN</Text>
-                    <View className="flex-row gap-2">
+                    <Text className="text-blue-500 font-bold text-xs mb-2">IN</Text>
+                    <View className="flex-row gap-1.5">
                       {[0, 1, 2, 3, 4].map((num) => (
                         <Pressable
                           key={num}
                           onPress={() => setBagCount(2, 'in', num)}
-                          className={`w-12 h-12 rounded-lg items-center justify-center ${
+                          className={`w-10 h-10 rounded-lg items-center justify-center ${
                             num === p2BagsIn
                               ? 'bg-blue-600 border-2 border-blue-400'
                               : num > 4 - p2BagsOn
-                              ? 'bg-gray-800 border-2 border-gray-700'
+                              ? 'bg-gray-900 border-2 border-gray-800'
                               : 'bg-gray-700 border-2 border-gray-600'
                           }`}
                           disabled={num > 4 - p2BagsOn}
                         >
-                          <Text className={`font-bold text-xl ${
-                            num === p2BagsIn ? 'text-white' : num > 4 - p2BagsOn ? 'text-gray-600' : 'text-gray-400'
+                          <Text className={`font-bold text-base ${
+                            num === p2BagsIn ? 'text-white' : num > 4 - p2BagsOn ? 'text-gray-700' : 'text-gray-400'
                           }`}>
                             {num}
                           </Text>
@@ -412,23 +500,23 @@ export default function TapScoreboardScreen() {
                   </View>
 
                   <View className="items-center">
-                    <Text className="text-blue-500 font-bold mb-2">BAGS ON</Text>
-                    <View className="flex-row gap-2">
+                    <Text className="text-blue-500 font-bold text-xs mb-2">ON</Text>
+                    <View className="flex-row gap-1.5">
                       {[0, 1, 2, 3, 4].map((num) => (
                         <Pressable
                           key={num}
                           onPress={() => setBagCount(2, 'on', num)}
-                          className={`w-12 h-12 rounded-lg items-center justify-center ${
+                          className={`w-10 h-10 rounded-lg items-center justify-center ${
                             num === p2BagsOn
                               ? 'bg-blue-600 border-2 border-blue-400'
                               : num > 4 - p2BagsIn
-                              ? 'bg-gray-800 border-2 border-gray-700'
+                              ? 'bg-gray-900 border-2 border-gray-800'
                               : 'bg-gray-700 border-2 border-gray-600'
                           }`}
                           disabled={num > 4 - p2BagsIn}
                         >
-                          <Text className={`font-bold text-xl ${
-                            num === p2BagsOn ? 'text-white' : num > 4 - p2BagsIn ? 'text-gray-600' : 'text-gray-400'
+                          <Text className={`font-bold text-base ${
+                            num === p2BagsOn ? 'text-white' : num > 4 - p2BagsIn ? 'text-gray-700' : 'text-gray-400'
                           }`}>
                             {num}
                           </Text>
@@ -438,16 +526,8 @@ export default function TapScoreboardScreen() {
                   </View>
                 </View>
               </View>
-
-              {/* Enter Button */}
-              <Pressable
-                onPress={nextRound}
-                className="bg-green-600 px-8 py-4 rounded-full mt-4"
-              >
-                <Text className="text-white font-bold text-lg">Enter Round</Text>
-              </Pressable>
             </View>
-          </ScrollView>
+          </View>
         )}
       </SafeAreaView>
 
