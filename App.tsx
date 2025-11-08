@@ -38,6 +38,7 @@ import PressurePracticeScreen from "./src/screens/PressurePracticeScreen";
 import PersonalStatsScreen from "./src/screens/PersonalStatsScreen";
 import PersonalMatchLogScreen from "./src/screens/PersonalMatchLogScreen";
 import PersonalSettingsScreen from "./src/screens/PersonalSettingsScreen";
+import TapScoreboardScreen from "./src/screens/TapScoreboardScreen";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -88,6 +89,7 @@ export default function App() {
             <Stack.Screen name="Home" component={HomeScreen} />
             <Stack.Screen name="ScoreboardSetup" component={ScoreboardSetupScreen} />
             <Stack.Screen name="Scoreboard" component={ScoreboardScreen} />
+            <Stack.Screen name="TapScoreboard" component={TapScoreboardScreen} />
             <Stack.Screen name="Clubhouse" component={ClubhouseScreen} />
             <Stack.Screen name="TeamsList" component={TeamsListScreen} />
             <Stack.Screen name="CreateTeam" component={CreateTeamScreen} />

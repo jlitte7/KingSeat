@@ -6,6 +6,11 @@ export type RootStackParamList = {
     player2Name: string;
     totalRounds?: number;
   };
+  TapScoreboard: {
+    player1Name: string;
+    player2Name: string;
+    totalRounds?: number;
+  };
   Clubhouse: undefined;
   TeamsList: undefined;
   TeamDetail: { teamId: string };

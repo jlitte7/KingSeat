@@ -28,7 +28,11 @@ A world-class cornhole league management and scoring app built with Expo and Rea
 
 ### 📊 Scoreboard
 - **Quick Game Setup**: Enter player names and start tracking immediately
-- **Live Scoring**: Track bags in/on with intuitive counter interface
+- **Dual Scoreboard Modes**:
+  - **Tap Mode (Scoreholio-style)**: Tap top half to increment score (+1), tap bottom half to decrement (-1)
+  - **Bags Mode**: Traditional bags in/on tracking with automatic cancellation scoring
+  - **Mode Toggle**: Switch between modes mid-game with a single tap
+- **Live Scoring**: Real-time score tracking with large, easy-to-read numbers
 - **Cancellation Scoring**: Automatic calculation of points (difference only counts)
 - **Real-Time Stats**: View PPR, bag accuracy, and four-bagger rates during games
 - **Four-Bagger Celebrations**: Animated celebration when a player gets all 4 bags in
@@ -36,14 +40,42 @@ A world-class cornhole league management and scoring app built with Expo and Rea
 - **Flexible Rounds**: Play unlimited rounds or set a specific limit
 
 ### 📊 My Stats (Personal Bag Tracking)
-A dedicated personal tracking system that works independently from team stats:
+A completely redesigned personal tracking system with enhanced visual appeal:
 
-- **Personal Stats Dashboard**: Track your individual performance
-  - Total throws and accuracy percentages (In%, On%, Board%, Miss%)
-  - Current and best streaks (both "in" streaks and board streaks)
-  - Four-baggers and three-baggers counts
-  - Match record and win percentage
-  - Recent match history with dates and scores
+- **Hero Stats Card**: Large, eye-catching display of your key metrics
+  - Win rate with large percentage display
+  - Average PPR with round count
+  - Quick stats: Games, Four Baggers, and Accuracy
+
+- **Performance vs Opponents**: Visual bar charts comparing your stats
+  - Your PPR vs Opponent PPR with colored progress bars
+  - Point differential with prominent display
+  - Color-coded for quick understanding (green = good, red = needs work)
+
+- **Throwing Accuracy**: Large visual progress bars showing
+  - Bags In Hole percentage (green)
+  - Bags On Board percentage (blue)
+  - Bags Missed percentage (red)
+  - Four Bagger Rate highlight card
+
+- **Win Quality Grid**: Card-based display of
+  - Shutouts, Dominant wins (10+)
+  - Close wins (≤3), Comebacks
+
+- **Current Streak Badge**: Large, prominent display when on a streak
+  - Win streaks in green
+  - Losing streaks in red (for motivation!)
+  - Shows your best streak below
+
+- **Sample Season Data**: Load 24 sample matches to test functionality
+  - Click "Load Sample" button when you have no stats
+  - Generates realistic match data over 3 months
+  - 60% win rate with varied opponents
+
+- **Recent Matches**: Condensed, card-based display
+  - Match score with win/loss badge
+  - PPR and round count
+  - Easy-to-scan layout
 
 - **Quick Log Mode**: Fast bag throw logging for practice
   - Big, colorful buttons for instant logging (In/On/Miss)

@@ -16,7 +16,7 @@ export default function ScoreboardSetupScreen() {
   const [customRounds, setCustomRounds] = useState('10');
 
   const handleStartGame = () => {
-    navigation.navigate('Scoreboard', {
+    navigation.navigate('TapScoreboard', {
       player1Name,
       player2Name,
       totalRounds: isUnlimited ? undefined : parseInt(customRounds) || 10,
