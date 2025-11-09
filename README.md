@@ -30,12 +30,17 @@ A world-class cornhole league management and scoring app built with Expo and Rea
 - **Quick Game Setup**: Enter player names and start tracking immediately
 - **Player Name Display**: Shows actual player names throughout the game (not generic "Player 1/2")
 - **Dual Scoreboard Modes**:
-  - **Bags Mode (Default)**: Traditional bags in/on tracking with automatic cancellation scoring
-  - **Tap Mode (Scoreholio-style)**: Clean, minimal interface with massive score numbers (180pt font)
+  - **Bags Mode (Default - Scoreboard 1)**: Traditional bags in/on tracking with automatic cancellation scoring
+  - **Tap Mode (Scoreboard 2 - Scoreholio-style)**: Clean, minimal interface with massive score numbers (180pt font)
     - Tap top half of player area to increment score (+1)
     - Tap bottom half of player area to decrement (-1)
     - No instruction text, just pure scoring interface
-  - **Mode Toggle**: Switch from Bags Mode to Tap Mode with "Tap Mode" button in header
+  - **Mode Toggle**:
+    - Switch from Bags Mode to Tap Mode with "Tap Mode" button in Bags Mode header
+    - Switch from Tap Mode back to Bags Mode with "Bags" button in Tap Mode header
+  - **Alternative Scoreboard Design (Scoreboard 3)**: Saved for future use - combines tap mode layout with bag counters overlay
+    - Code preserved in git history (commit before latest changes to TapScoreboardScreen.tsx)
+    - Can be restored if needed for future features
 - **Landscape Mode Support**: Both scoreboard modes detect landscape orientation automatically
   - Player names displayed above scores in landscape (Player 1 / Player 2)
   - Player names displayed below scores in portrait
