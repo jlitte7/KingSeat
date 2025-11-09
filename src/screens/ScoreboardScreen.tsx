@@ -319,18 +319,20 @@ export default function ScoreboardScreen() {
                       {player1Name}
                     </Text>
                   )}
-                  <Text
-                    className="font-black text-white"
-                    style={{
-                      fontSize: isLandscape ? 140 : 220,
-                      textShadowColor: 'rgba(239, 68, 68, 0.6)',
-                      textShadowOffset: { width: 0, height: 8 },
-                      textShadowRadius: 30,
-                      lineHeight: isLandscape ? 140 : 220,
-                    }}
-                  >
-                    {p1TotalScore}
-                  </Text>
+                  <View style={{ minWidth: isLandscape ? 200 : 280 }}>
+                    <Text
+                      className="font-black text-white text-center"
+                      style={{
+                        fontSize: isLandscape ? 140 : 220,
+                        textShadowColor: 'rgba(239, 68, 68, 0.6)',
+                        textShadowOffset: { width: 0, height: 8 },
+                        textShadowRadius: 30,
+                        lineHeight: isLandscape ? 140 : 220,
+                      }}
+                    >
+                      {p1TotalScore}
+                    </Text>
+                  </View>
                   <View className={`h-px bg-red-500 ${isLandscape ? 'w-2/3' : 'w-3/4'} my-2`} />
                   {!isLandscape && (
                     <Text className="text-red-500 font-bold uppercase tracking-wide text-xl">
@@ -349,18 +351,20 @@ export default function ScoreboardScreen() {
                       {player2Name}
                     </Text>
                   )}
-                  <Text
-                    className="font-black text-white"
-                    style={{
-                      fontSize: isLandscape ? 140 : 220,
-                      textShadowColor: 'rgba(59, 130, 246, 0.6)',
-                      textShadowOffset: { width: 0, height: 8 },
-                      textShadowRadius: 30,
-                      lineHeight: isLandscape ? 140 : 220,
-                    }}
-                  >
-                    {p2TotalScore}
-                  </Text>
+                  <View style={{ minWidth: isLandscape ? 200 : 280 }}>
+                    <Text
+                      className="font-black text-white text-center"
+                      style={{
+                        fontSize: isLandscape ? 140 : 220,
+                        textShadowColor: 'rgba(59, 130, 246, 0.6)',
+                        textShadowOffset: { width: 0, height: 8 },
+                        textShadowRadius: 30,
+                        lineHeight: isLandscape ? 140 : 220,
+                      }}
+                    >
+                      {p2TotalScore}
+                    </Text>
+                  </View>
                   <View className={`h-px bg-blue-500 ${isLandscape ? 'w-2/3' : 'w-3/4'} my-2`} />
                   {!isLandscape && (
                     <Text className="text-blue-500 font-bold uppercase tracking-wide text-xl">
@@ -531,6 +535,46 @@ export default function ScoreboardScreen() {
               backgroundColor: 'rgba(255, 215, 0, 0.3)',
             }}
           />
+
+          {/* Fireworks - Large bursts */}
+          <Animated.Text
+            entering={ZoomIn.duration(800).delay(100)}
+            className="absolute top-24 left-12 text-7xl"
+          >
+            🎆
+          </Animated.Text>
+          <Animated.Text
+            entering={ZoomIn.duration(800).delay(200)}
+            className="absolute top-24 right-12 text-7xl"
+          >
+            🎆
+          </Animated.Text>
+          <Animated.Text
+            entering={ZoomIn.duration(800).delay(300)}
+            className="absolute bottom-32 left-16 text-7xl"
+          >
+            🎇
+          </Animated.Text>
+          <Animated.Text
+            entering={ZoomIn.duration(800).delay(400)}
+            className="absolute bottom-32 right-16 text-7xl"
+          >
+            🎇
+          </Animated.Text>
+
+          {/* More fireworks scattered */}
+          <Animated.Text
+            entering={ZoomIn.duration(700).delay(250)}
+            className="absolute top-40 left-28 text-6xl"
+          >
+            🎆
+          </Animated.Text>
+          <Animated.Text
+            entering={ZoomIn.duration(700).delay(350)}
+            className="absolute top-40 right-28 text-6xl"
+          >
+            🎆
+          </Animated.Text>
 
           {/* Particle effects - top corners */}
           <Animated.Text
