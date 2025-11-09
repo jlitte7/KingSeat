@@ -5,7 +5,24 @@ import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
 import { Ionicons } from '@expo/vector-icons';
-import Animated, { FadeIn, FadeOut, SlideInUp } from 'react-native-reanimated';
+import Animated, {
+  FadeIn,
+  FadeOut,
+  SlideInUp,
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+  withRepeat,
+  withSequence,
+  withTiming,
+  Easing,
+  runOnJS,
+  FadeInUp,
+  ZoomIn,
+  RotateInDownLeft,
+  RotateInDownRight,
+  BounceIn
+} from 'react-native-reanimated';
 import { Audio } from 'expo-av';
 
 type ScoreboardScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Scoreboard'>;
@@ -501,31 +518,175 @@ export default function ScoreboardScreen() {
           entering={FadeIn}
           exiting={FadeOut}
           className="absolute inset-0 items-center justify-center"
-          style={{ pointerEvents: 'none' }}
+          style={{
+            pointerEvents: 'none',
+            backgroundColor: 'rgba(255, 215, 0, 0.15)'
+          }}
         >
-          <Animated.View entering={SlideInUp} className="items-center">
-            <Text
-              className="text-7xl font-black text-yellow-400 text-center px-4"
+          {/* Background flash effects */}
+          <Animated.View
+            entering={FadeIn.duration(200)}
+            className="absolute inset-0"
+            style={{
+              backgroundColor: 'rgba(255, 215, 0, 0.3)',
+            }}
+          />
+
+          {/* Particle effects - top corners */}
+          <Animated.Text
+            entering={RotateInDownLeft.duration(600).delay(100)}
+            className="absolute top-20 left-8 text-6xl"
+          >
+            ⭐
+          </Animated.Text>
+          <Animated.Text
+            entering={RotateInDownRight.duration(600).delay(150)}
+            className="absolute top-20 right-8 text-6xl"
+          >
+            ⭐
+          </Animated.Text>
+
+          {/* Scattered fire emojis */}
+          <Animated.Text
+            entering={BounceIn.duration(800).delay(200)}
+            className="absolute top-32 left-16 text-5xl"
+          >
+            🔥
+          </Animated.Text>
+          <Animated.Text
+            entering={BounceIn.duration(800).delay(250)}
+            className="absolute top-32 right-16 text-5xl"
+          >
+            🔥
+          </Animated.Text>
+
+          {/* Trophy/Medal emojis */}
+          <Animated.Text
+            entering={ZoomIn.duration(600).delay(300)}
+            className="absolute top-44 left-24 text-4xl"
+          >
+            🏆
+          </Animated.Text>
+          <Animated.Text
+            entering={ZoomIn.duration(600).delay(350)}
+            className="absolute top-44 right-24 text-4xl"
+          >
+            🏆
+          </Animated.Text>
+
+          {/* More particle effects - bottom */}
+          <Animated.Text
+            entering={BounceIn.duration(700).delay(400)}
+            className="absolute bottom-40 left-12 text-5xl"
+          >
+            💯
+          </Animated.Text>
+          <Animated.Text
+            entering={BounceIn.duration(700).delay(450)}
+            className="absolute bottom-40 right-12 text-5xl"
+          >
+            💯
+          </Animated.Text>
+
+          {/* Target emojis */}
+          <Animated.Text
+            entering={ZoomIn.duration(600).delay(500)}
+            className="absolute bottom-56 left-20 text-4xl"
+          >
+            🎯
+          </Animated.Text>
+          <Animated.Text
+            entering={ZoomIn.duration(600).delay(550)}
+            className="absolute bottom-56 right-20 text-4xl"
+          >
+            🎯
+          </Animated.Text>
+
+          {/* Center content with enhanced animations */}
+          <Animated.View entering={SlideInUp.duration(500)} className="items-center">
+            {/* Glowing background for text */}
+            <View
+              className="absolute inset-0 rounded-3xl"
               style={{
-                textShadowColor: 'rgba(255, 215, 0, 0.8)',
-                textShadowOffset: { width: 0, height: 0 },
-                textShadowRadius: 30,
+                backgroundColor: 'rgba(255, 215, 0, 0.2)',
+                shadowColor: '#FFD700',
+                shadowOffset: { width: 0, height: 0 },
+                shadowOpacity: 0.8,
+                shadowRadius: 40,
+              }}
+            />
+
+            <Animated.Text
+              entering={ZoomIn.duration(600).delay(100)}
+              className="text-8xl font-black text-yellow-400 text-center px-4 mb-2"
+              style={{
+                textShadowColor: 'rgba(255, 215, 0, 1)',
+                textShadowOffset: { width: 0, height: 4 },
+                textShadowRadius: 40,
               }}
             >
               {celebrationPlayer}
-            </Text>
-            <Text
-              className="text-6xl font-black text-yellow-400 mt-2"
+            </Animated.Text>
+
+            <Animated.Text
+              entering={ZoomIn.duration(700).delay(200)}
+              className="text-7xl font-black text-yellow-300 mb-3"
               style={{
-                textShadowColor: 'rgba(255, 215, 0, 0.8)',
-                textShadowOffset: { width: 0, height: 0 },
-                textShadowRadius: 30,
+                textShadowColor: 'rgba(255, 215, 0, 1)',
+                textShadowOffset: { width: 0, height: 4 },
+                textShadowRadius: 40,
               }}
             >
               FOUR BAGGER!
-            </Text>
-            <Text className="text-6xl mt-4">🔥 💯 🎯</Text>
+            </Animated.Text>
+
+            <Animated.View
+              entering={FadeInUp.duration(600).delay(400)}
+              className="flex-row gap-4 mt-2"
+            >
+              <Text className="text-7xl">🔥</Text>
+              <Text className="text-7xl">💯</Text>
+              <Text className="text-7xl">🎯</Text>
+            </Animated.View>
+
+            <Animated.Text
+              entering={FadeInUp.duration(600).delay(600)}
+              className="text-3xl font-bold text-white mt-4 tracking-widest"
+              style={{
+                textShadowColor: 'rgba(0, 0, 0, 0.8)',
+                textShadowOffset: { width: 0, height: 2 },
+                textShadowRadius: 10,
+              }}
+            >
+              PERFECT ROUND!
+            </Animated.Text>
           </Animated.View>
+
+          {/* Additional scattered effects around the edges */}
+          <Animated.Text
+            entering={BounceIn.duration(800).delay(100)}
+            className="absolute top-64 left-8 text-3xl"
+          >
+            ✨
+          </Animated.Text>
+          <Animated.Text
+            entering={BounceIn.duration(800).delay(150)}
+            className="absolute top-64 right-8 text-3xl"
+          >
+            ✨
+          </Animated.Text>
+          <Animated.Text
+            entering={BounceIn.duration(800).delay(200)}
+            className="absolute bottom-28 left-32 text-3xl"
+          >
+            ⚡
+          </Animated.Text>
+          <Animated.Text
+            entering={BounceIn.duration(800).delay(250)}
+            className="absolute bottom-28 right-32 text-3xl"
+          >
+            ⚡
+          </Animated.Text>
         </Animated.View>
       )}
 
