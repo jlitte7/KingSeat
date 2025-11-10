@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, Text, ScrollView, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
@@ -7,6 +7,8 @@ import { RootStackParamList } from "../navigation/types";
 import { usePersonalStatsStore } from "../state/personal-stats-store";
 import { Ionicons } from "@expo/vector-icons";
 import { generateSampleSeason } from "../utils/generate-sample-season";
+import { getGlobalStatsComparison } from "../utils/global-stats-simulator";
+import { StatsViewMode } from "../types/global-stats";
 
 type PersonalStatsNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -18,7 +20,10 @@ export default function PersonalStatsScreen() {
   const stats = usePersonalStatsStore((s) => s.stats);
   const settings = usePersonalStatsStore((s) => s.settings);
   const matches = usePersonalStatsStore((s) => s.matches);
+  const leagueStats = usePersonalStatsStore((s) => s.leagueStats);
   const recalculateStats = usePersonalStatsStore((s) => s.recalculateStats);
+
+  const [viewMode, setViewMode] = useState<StatsViewMode>("personal");
 
   const hasStats = stats.totalGames > 0;
 
@@ -27,6 +32,11 @@ export default function PersonalStatsScreen() {
     usePersonalStatsStore.setState({ matches: sampleMatches });
     recalculateStats();
   };
+
+  // Get global comparison data
+  const globalComparison = hasStats
+    ? getGlobalStatsComparison(stats, settings.myName)
+    : null;
 
   return (
     <View className="flex-1 bg-gray-900">
@@ -66,6 +76,56 @@ export default function PersonalStatsScreen() {
           </View>
         </View>
 
+        {/* View Mode Toggle */}
+        {hasStats && (
+          <View className="px-4 pt-3 pb-2">
+            <View className="flex-row bg-gray-800 rounded-xl p-1">
+              <Pressable
+                onPress={() => setViewMode("personal")}
+                className={`flex-1 py-2 rounded-lg ${
+                  viewMode === "personal" ? "bg-purple-600" : "bg-transparent"
+                }`}
+              >
+                <Text
+                  className={`text-center font-bold text-sm ${
+                    viewMode === "personal" ? "text-white" : "text-gray-400"
+                  }`}
+                >
+                  Personal
+                </Text>
+              </Pressable>
+              <Pressable
+                onPress={() => setViewMode("league")}
+                className={`flex-1 py-2 rounded-lg ${
+                  viewMode === "league" ? "bg-purple-600" : "bg-transparent"
+                }`}
+              >
+                <Text
+                  className={`text-center font-bold text-sm ${
+                    viewMode === "league" ? "text-white" : "text-gray-400"
+                  }`}
+                >
+                  League
+                </Text>
+              </Pressable>
+              <Pressable
+                onPress={() => setViewMode("global")}
+                className={`flex-1 py-2 rounded-lg ${
+                  viewMode === "global" ? "bg-purple-600" : "bg-transparent"
+                }`}
+              >
+                <Text
+                  className={`text-center font-bold text-sm ${
+                    viewMode === "global" ? "text-white" : "text-gray-400"
+                  }`}
+                >
+                  Global
+                </Text>
+              </Pressable>
+            </View>
+          </View>
+        )}
+
         {!hasStats ? (
           <View className="flex-1 items-center justify-center px-6">
             <Ionicons name="analytics-outline" size={80} color="#4b5563" />
@@ -86,6 +146,9 @@ export default function PersonalStatsScreen() {
           </View>
         ) : (
           <ScrollView className="flex-1 px-4 pt-4">
+            {/* PERSONAL VIEW */}
+            {viewMode === "personal" && (
+              <>
             {/* Hero Stats Card - Large and Eye-catching */}
             <View className="bg-gradient-to-br from-purple-600 to-purple-800 rounded-2xl p-6 mb-6 shadow-2xl">
               <View className="flex-row justify-between items-center mb-6">
@@ -380,6 +443,229 @@ export default function PersonalStatsScreen() {
                 <Text className="text-white font-bold text-lg">Log New Match</Text>
               </Pressable>
             </View>
+              </>
+            )}
+
+            {/* LEAGUE VIEW */}
+            {viewMode === "league" && (
+              <View className="mb-6">
+                {leagueStats.length === 0 ? (
+                  <View className="items-center justify-center py-12">
+                    <Ionicons name="trophy-outline" size={64} color="#6b7280" />
+                    <Text className="text-gray-400 text-lg font-bold mt-4 text-center">
+                      No League Stats Yet
+                    </Text>
+                    <Text className="text-gray-500 text-sm text-center mt-2 px-6">
+                      Link matches to leagues to see your performance broken down by league
+                    </Text>
+                  </View>
+                ) : (
+                  leagueStats.map((league) => (
+                    <View
+                      key={league.leagueId}
+                      className="bg-gray-800 rounded-2xl p-5 mb-4 border-2 border-gray-700"
+                    >
+                      <Text className="text-white text-xl font-bold mb-4">
+                        {league.leagueName}
+                      </Text>
+
+                      {/* League Summary Stats */}
+                      <View className="flex-row justify-around mb-4 pb-4 border-b border-gray-700">
+                        <View className="items-center">
+                          <Text className="text-white text-3xl font-bold">
+                            {league.stats.totalGames}
+                          </Text>
+                          <Text className="text-gray-400 text-xs">Games</Text>
+                        </View>
+                        <View className="items-center">
+                          <Text className="text-green-400 text-3xl font-bold">
+                            {(league.stats.winPercentage ?? 0).toFixed(0)}%
+                          </Text>
+                          <Text className="text-gray-400 text-xs">Win Rate</Text>
+                        </View>
+                        <View className="items-center">
+                          <Text className="text-purple-400 text-3xl font-bold">
+                            {(league.stats.averagePointsPerRound ?? 0).toFixed(1)}
+                          </Text>
+                          <Text className="text-gray-400 text-xs">PPR</Text>
+                        </View>
+                      </View>
+
+                      {/* League Accuracy */}
+                      <View className="space-y-2">
+                        <View className="flex-row justify-between">
+                          <Text className="text-gray-400 text-sm">Bags In</Text>
+                          <Text className="text-green-400 font-bold">
+                            {(league.stats.bagsInPercentage ?? 0).toFixed(1)}%
+                          </Text>
+                        </View>
+                        <View className="flex-row justify-between">
+                          <Text className="text-gray-400 text-sm">Four Baggers</Text>
+                          <Text className="text-yellow-400 font-bold">
+                            {league.stats.fourBaggers}
+                          </Text>
+                        </View>
+                        <View className="flex-row justify-between">
+                          <Text className="text-gray-400 text-sm">Record</Text>
+                          <Text className="text-white font-bold">
+                            {league.stats.totalWins}W - {league.stats.totalLosses}L
+                          </Text>
+                        </View>
+                      </View>
+                    </View>
+                  ))
+                )}
+              </View>
+            )}
+
+            {/* GLOBAL VIEW */}
+            {viewMode === "global" && globalComparison && (
+              <>
+                {/* Global Rank Card */}
+                <View className="bg-gradient-to-br from-blue-600 to-blue-800 rounded-2xl p-6 mb-6 shadow-2xl">
+                  <Text className="text-blue-200 text-sm font-semibold text-center mb-2">
+                    YOUR GLOBAL RANK
+                  </Text>
+                  <View className="items-center">
+                    <Text className="text-white text-7xl font-black">
+                      #{globalComparison.globalRank}
+                    </Text>
+                    <Text className="text-blue-200 text-base mt-2">
+                      out of {globalComparison.totalUsers} users
+                    </Text>
+                    <View className="bg-white bg-opacity-20 rounded-full px-4 py-2 mt-3">
+                      <Text className="text-white font-bold text-sm">
+                        Top {globalComparison.percentile.toFixed(1)}%
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+
+                {/* Global Leaderboard */}
+                <View className="bg-gray-800 rounded-2xl p-5 mb-6 border-2 border-gray-700">
+                  <View className="flex-row items-center mb-4">
+                    <Ionicons name="globe-outline" size={24} color="#60a5fa" />
+                    <Text className="text-white text-xl font-bold ml-2">
+                      Global Leaderboard
+                    </Text>
+                  </View>
+
+                  {globalComparison.globalLeaderboard.map((user, index) => {
+                    const isCurrentUser = user.userId === "current_user";
+                    return (
+                      <View
+                        key={user.userId}
+                        className={`flex-row items-center py-3 px-3 mb-2 rounded-lg ${
+                          isCurrentUser ? "bg-purple-600 bg-opacity-30 border-2 border-purple-500" : "bg-gray-700"
+                        }`}
+                      >
+                        <View className="w-8">
+                          <Text className={`font-bold text-lg ${
+                            index === 0 ? "text-yellow-400" :
+                            index === 1 ? "text-gray-300" :
+                            index === 2 ? "text-orange-400" :
+                            isCurrentUser ? "text-purple-400" : "text-gray-400"
+                          }`}>
+                            #{index + 1}
+                          </Text>
+                        </View>
+                        <View className="flex-1 ml-3">
+                          <Text className={`font-bold ${isCurrentUser ? "text-purple-300" : "text-white"}`}>
+                            {user.userName} {isCurrentUser && "(You)"}
+                          </Text>
+                          <View className="flex-row gap-3 mt-1">
+                            <Text className="text-gray-400 text-xs">
+                              {user.winPercentage.toFixed(0)}% WR
+                            </Text>
+                            <Text className="text-gray-400 text-xs">
+                              {user.averagePointsPerRound.toFixed(1)} PPR
+                            </Text>
+                            <Text className="text-gray-400 text-xs">
+                              {user.bagsInPercentage.toFixed(0)}% IN
+                            </Text>
+                          </View>
+                        </View>
+                        <View className="items-end">
+                          <Text className="text-white font-bold text-sm">
+                            {user.dominanceRating.toFixed(0)}
+                          </Text>
+                          <Text className="text-gray-400 text-xs">Rating</Text>
+                        </View>
+                      </View>
+                    );
+                  })}
+                </View>
+
+                {/* Stat Comparisons */}
+                <View className="bg-gray-800 rounded-2xl p-5 mb-6 border-2 border-gray-700">
+                  <Text className="text-white text-xl font-bold mb-4">
+                    vs Global Average
+                  </Text>
+
+                  <View className="space-y-4">
+                    <View>
+                      <View className="flex-row justify-between mb-2">
+                        <Text className="text-gray-400">Win Rate</Text>
+                        <Text className={`font-bold ${
+                          stats.winPercentage > 50 ? "text-green-400" : "text-red-400"
+                        }`}>
+                          {(stats.winPercentage ?? 0).toFixed(1)}%
+                        </Text>
+                      </View>
+                      <View className="h-2 bg-gray-700 rounded-full overflow-hidden">
+                        <View
+                          className="h-full bg-green-500 rounded-full"
+                          style={{ width: `${Math.min(100, stats.winPercentage)}%` }}
+                        />
+                      </View>
+                      <Text className="text-gray-500 text-xs mt-1">
+                        Global avg: 50%
+                      </Text>
+                    </View>
+
+                    <View>
+                      <View className="flex-row justify-between mb-2">
+                        <Text className="text-gray-400">Bags In %</Text>
+                        <Text className={`font-bold ${
+                          stats.bagsInPercentage > 35 ? "text-green-400" : "text-yellow-400"
+                        }`}>
+                          {(stats.bagsInPercentage ?? 0).toFixed(1)}%
+                        </Text>
+                      </View>
+                      <View className="h-2 bg-gray-700 rounded-full overflow-hidden">
+                        <View
+                          className="h-full bg-green-500 rounded-full"
+                          style={{ width: `${Math.min(100, stats.bagsInPercentage)}%` }}
+                        />
+                      </View>
+                      <Text className="text-gray-500 text-xs mt-1">
+                        Global avg: 35%
+                      </Text>
+                    </View>
+
+                    <View>
+                      <View className="flex-row justify-between mb-2">
+                        <Text className="text-gray-400">Points Per Round</Text>
+                        <Text className={`font-bold ${
+                          stats.averagePointsPerRound > 4.5 ? "text-green-400" : "text-yellow-400"
+                        }`}>
+                          {(stats.averagePointsPerRound ?? 0).toFixed(2)}
+                        </Text>
+                      </View>
+                      <View className="h-2 bg-gray-700 rounded-full overflow-hidden">
+                        <View
+                          className="h-full bg-purple-500 rounded-full"
+                          style={{ width: `${Math.min(100, (stats.averagePointsPerRound / 10) * 100)}%` }}
+                        />
+                      </View>
+                      <Text className="text-gray-500 text-xs mt-1">
+                        Global avg: 4.5 PPR
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              </>
+            )}
           </ScrollView>
         )}
       </SafeAreaView>

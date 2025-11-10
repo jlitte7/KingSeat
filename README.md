@@ -70,8 +70,14 @@ A world-class cornhole league management and scoring app built with Expo and Rea
 - **Flexible Rounds**: Play unlimited rounds or set a specific limit
 
 ### 📊 My Stats (Personal Bag Tracking)
-A completely redesigned personal tracking system with enhanced visual appeal:
+A completely redesigned personal tracking system with enhanced visual appeal and multi-view statistics:
 
+#### View Modes
+- **Personal View**: Your overall performance across all matches
+- **League View**: Stats broken down by individual leagues (when matches are tagged with league IDs)
+- **Global View**: Compare your performance vs all app users worldwide
+
+#### Personal View Features
 - **Hero Stats Card**: Large, eye-catching display of your key metrics
   - Win rate with large percentage display
   - Average PPR with round count
@@ -96,6 +102,33 @@ A completely redesigned personal tracking system with enhanced visual appeal:
   - Win streaks in green
   - Losing streaks in red (for motivation!)
   - Shows your best streak below
+
+#### League View Features
+- **League-Specific Breakdown**: View your performance in each league separately
+- **Per-League Stats**: Games played, win percentage, PPR, and accuracy for each league
+- **Compare Leagues**: See which leagues you perform best in
+- **Match Tracking**: Each league shows number of matches and your record
+
+#### Global View Features
+- **Global Rank Display**: See your rank out of all app users
+  - Large rank number (#1, #50, #200, etc.)
+  - Total user count
+  - Percentile ranking (e.g., "Top 15%")
+
+- **Global Leaderboard**: Top 10 users worldwide
+  - Shows win rate, PPR, and accuracy for each player
+  - Your position highlighted in purple
+  - Gold/Silver/Bronze colors for top 3
+  - Dominance rating scores
+
+- **vs Global Average**: Compare your stats to worldwide averages
+  - Win rate comparison (avg: 50%)
+  - Bags In % comparison (avg: 35%)
+  - Points Per Round comparison (avg: 4.5 PPR)
+  - Visual progress bars showing your performance
+  - Color-coded indicators (green = above average, yellow/red = below)
+
+#### Additional Features
 
 - **Sample Season Data**: Load 24 sample matches to test functionality
   - Click "Load Sample" button when you have no stats

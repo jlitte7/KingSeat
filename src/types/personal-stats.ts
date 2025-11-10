@@ -18,6 +18,7 @@ export interface PersonalMatch {
   won?: boolean; // Optional if just tracking bags without scoring
   rounds: PersonalRound[];
   notes?: string;
+  leagueId?: string; // Optional - link to a specific league
 }
 
 export interface PersonalRound {
@@ -99,4 +100,12 @@ export interface PersonalSettings {
   isTrackingEnabled: boolean;
   showQuickLog: boolean; // Show quick log button during games
   syncWithTeamStats: boolean; // Whether to sync personal bag logs with team player stats
+}
+
+// League-specific stats for a user
+export interface LeagueSpecificStats {
+  leagueId: string;
+  leagueName: string;
+  stats: PersonalStats;
+  matchIds: string[]; // Personal matches that belong to this league
 }

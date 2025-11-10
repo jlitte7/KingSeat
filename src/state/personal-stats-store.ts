@@ -8,6 +8,7 @@ import {
   PersonalRound,
   PersonalStats,
   PersonalSettings,
+  LeagueSpecificStats,
 } from "../types/personal-stats";
 
 interface PersonalStatsState {
@@ -16,12 +17,13 @@ interface PersonalStatsState {
   matches: PersonalMatch[];
   currentMatch: PersonalMatch | null;
   currentRound: PersonalRound | null;
+  leagueStats: LeagueSpecificStats[]; // Stats broken down by league
 
   // Settings actions
   updateSettings: (settings: Partial<PersonalSettings>) => void;
 
   // Match actions
-  startMatch: (opponent?: string, teammate?: string, notes?: string) => void;
+  startMatch: (opponent?: string, teammate?: string, notes?: string, leagueId?: string) => void;
   endMatch: (won?: boolean) => void;
   cancelMatch: () => void;
 
@@ -38,6 +40,8 @@ interface PersonalStatsState {
 
   // Stats actions
   recalculateStats: () => void;
+  getLeagueStats: (leagueId: string) => LeagueSpecificStats | undefined;
+  recalculateLeagueStats: () => void;
 
   // Utility
   resetPersonalStats: () => void;
@@ -101,6 +105,7 @@ export const usePersonalStatsStore = create<PersonalStatsState>()(
       matches: [],
       currentMatch: null,
       currentRound: null,
+      leagueStats: [],
 
       // Settings actions
       updateSettings: (updates: Partial<PersonalSettings>) => {
@@ -110,7 +115,7 @@ export const usePersonalStatsStore = create<PersonalStatsState>()(
       },
 
       // Match actions
-      startMatch: (opponent?: string, teammate?: string, notes?: string) => {
+      startMatch: (opponent?: string, teammate?: string, notes?: string, leagueId?: string) => {
         const match: PersonalMatch = {
           id: uuidv4(),
           date: new Date().toISOString(),
@@ -120,6 +125,7 @@ export const usePersonalStatsStore = create<PersonalStatsState>()(
           opponentScore: 0,
           rounds: [],
           notes,
+          leagueId,
         };
         set({ currentMatch: match, currentRound: null });
       },
@@ -145,6 +151,7 @@ export const usePersonalStatsStore = create<PersonalStatsState>()(
         }));
 
         get().recalculateStats();
+        get().recalculateLeagueStats();
       },
 
       cancelMatch: () => {
@@ -425,12 +432,127 @@ export const usePersonalStatsStore = create<PersonalStatsState>()(
         set({ stats });
       },
 
+      // League-specific stats calculation
+      getLeagueStats: (leagueId: string) => {
+        return get().leagueStats.find((ls) => ls.leagueId === leagueId);
+      },
+
+      recalculateLeagueStats: () => {
+        const { matches } = get();
+
+        // Group matches by leagueId
+        const leagueMatchMap = new Map<string, PersonalMatch[]>();
+
+        matches.forEach((match) => {
+          if (match.leagueId) {
+            const existing = leagueMatchMap.get(match.leagueId) || [];
+            leagueMatchMap.set(match.leagueId, [...existing, match]);
+          }
+        });
+
+        // Calculate stats for each league
+        const leagueStats: LeagueSpecificStats[] = [];
+
+        leagueMatchMap.forEach((leagueMatches, leagueId) => {
+          const stats = createInitialStats();
+
+          // Use same calculation logic as main stats
+          let totalBagsIn = 0;
+          let totalBagsOn = 0;
+          let totalBagsThrown = 0;
+          let totalPoints = 0;
+          let totalOpponentPoints = 0;
+          let totalRounds = 0;
+          let fourBaggers = 0;
+          let threeBaggers = 0;
+          let perfectRounds = 0;
+          let zeroPointRounds = 0;
+
+          leagueMatches.forEach((match) => {
+            match.rounds.forEach((round) => {
+              totalBagsIn += round.myBagsIn;
+              totalBagsOn += round.myBagsOn;
+              totalBagsThrown += 4;
+              const rawRoundPoints = (round.myBagsIn * 3) + (round.myBagsOn * 1);
+              totalPoints += rawRoundPoints;
+              const oppRawRoundPoints = (round.opponentBagsIn * 3) + (round.opponentBagsOn * 1);
+              totalOpponentPoints += oppRawRoundPoints;
+              totalRounds++;
+
+              if (round.myBagsIn === 4) {
+                fourBaggers++;
+                perfectRounds++;
+              }
+              if (round.myBagsIn === 3) threeBaggers++;
+              if (round.myScore === 0) zeroPointRounds++;
+            });
+          });
+
+          stats.totalGames = leagueMatches.length;
+          stats.totalBagsIn = totalBagsIn;
+          stats.totalBagsOn = totalBagsOn;
+          stats.totalBagsThrown = totalBagsThrown;
+          stats.totalPoints = totalPoints;
+          stats.totalOpponentPoints = totalOpponentPoints;
+          stats.totalRoundsPlayed = totalRounds;
+          stats.perfectRounds = perfectRounds;
+          stats.zeroPointRounds = zeroPointRounds;
+          stats.fourBaggers = fourBaggers;
+
+          if (totalBagsThrown > 0) {
+            stats.bagsInPercentage = (totalBagsIn / totalBagsThrown) * 100;
+            stats.bagsOnPercentage = (totalBagsOn / totalBagsThrown) * 100;
+            stats.boardPercentage = ((totalBagsIn + totalBagsOn) / totalBagsThrown) * 100;
+            stats.missPercentage = ((totalBagsThrown - totalBagsIn - totalBagsOn) / totalBagsThrown) * 100;
+          }
+
+          if (totalRounds > 0) {
+            stats.fourBaggerRate = (fourBaggers / totalRounds) * 100;
+            stats.threeBaggerRate = (threeBaggers / totalRounds) * 100;
+            stats.averagePointsPerRound = totalPoints / totalRounds;
+            stats.opponentPointsPerRound = totalOpponentPoints / totalRounds;
+            stats.pointDifferential = stats.averagePointsPerRound - stats.opponentPointsPerRound;
+          }
+
+          // Win/loss analysis
+          leagueMatches.forEach((match) => {
+            const isWin = match.won === true;
+            if (isWin) {
+              stats.totalWins++;
+            } else {
+              stats.totalLosses++;
+            }
+          });
+
+          if (stats.totalGames > 0) {
+            stats.winPercentage = (stats.totalWins / stats.totalGames) * 100;
+            stats.averagePointsPerGame = totalPoints / stats.totalGames;
+          }
+
+          stats.dominanceRating =
+            stats.winPercentage * 0.3 +
+            stats.bagsInPercentage * 0.25 +
+            stats.averagePointsPerRound * 10 * 0.25 +
+            (stats.winPercentage * 0.2);
+
+          leagueStats.push({
+            leagueId,
+            leagueName: `League ${leagueId.substring(0, 8)}`, // Will be enhanced with real league names
+            stats,
+            matchIds: leagueMatches.map((m) => m.id),
+          });
+        });
+
+        set({ leagueStats });
+      },
+
       resetPersonalStats: () => {
         set({
           stats: createInitialStats(),
           matches: [],
           currentMatch: null,
           currentRound: null,
+          leagueStats: [],
         });
       },
     }),
