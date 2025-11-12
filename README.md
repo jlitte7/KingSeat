@@ -396,7 +396,11 @@ Professional tournament management system with blind draw functionality, Switcho
 1. **Registration Phase**: Add players to the tournament
 2. **Check-In Phase**: Check in players as they arrive
 3. **Team Generation**: Generate teams using blind draw algorithm
-4. **Competition Phase**: Play round robin or bracket matches
+4. **Competition Phase**:
+   - For Round Robin: Tap "Start Round Robin" to generate the full schedule
+   - Tap **Start** on any match to begin live scoring
+   - Track bags in/on for each team using the scoring modal
+   - Scores automatically save to the tournament when the game ends
 5. **Completion**: View final standings and champion
 
 ## 🎮 How to Use
