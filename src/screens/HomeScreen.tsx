@@ -9,6 +9,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useTossSeriesStore } from "../state/toss-series-store";
 import { usePracticeStore } from "../state/practice-store";
 import { usePersonalStatsStore } from "../state/personal-stats-store";
+import { useProfileStore } from "../state/profile-store";
 
 const { width } = Dimensions.get("window");
 
@@ -28,6 +29,7 @@ export default function HomeScreen() {
   const practiceStats = usePracticeStore((s) => s.practiceStats);
   const personalStats = usePersonalStatsStore((s) => s.stats);
   const personalMatches = usePersonalStatsStore((s) => s.matches);
+  const profile = useProfileStore((s) => s.profile);
 
   // Dynamic greeting
   useEffect(() => {
@@ -231,9 +233,13 @@ export default function HomeScreen() {
                     Ultimate Cornhole Experience
                   </Text>
                 </View>
-                <View className="bg-gradient-to-br from-yellow-600 to-orange-600 rounded-2xl p-3">
-                  <Text className="text-3xl">👑</Text>
-                </View>
+                <Pressable
+                  onPress={() => navigation.navigate("Profile")}
+                  className="rounded-2xl p-3"
+                  style={{ backgroundColor: profile.favoriteColor + "50" }}
+                >
+                  <Text style={{ fontSize: 28 }}>{profile.avatar}</Text>
+                </Pressable>
               </View>
 
               {/* Live Stats Bar */}

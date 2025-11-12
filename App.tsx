@@ -39,6 +39,7 @@ import PersonalStatsScreen from "./src/screens/PersonalStatsScreen";
 import PersonalMatchLogScreen from "./src/screens/PersonalMatchLogScreen";
 import PersonalSettingsScreen from "./src/screens/PersonalSettingsScreen";
 import TapScoreboardScreen from "./src/screens/TapScoreboardScreen";
+import ProfileScreen from "./src/screens/ProfileScreen";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -117,6 +118,7 @@ export default function App() {
             <Stack.Screen name="PersonalStats" component={PersonalStatsScreen} />
             <Stack.Screen name="PersonalMatchLog" component={PersonalMatchLogScreen} />
             <Stack.Screen name="PersonalSettings" component={PersonalSettingsScreen} />
+            <Stack.Screen name="Profile" component={ProfileScreen} />
           </Stack.Navigator>
           <StatusBar style="light" />
         </NavigationContainer>

@@ -26,6 +26,24 @@ A world-class cornhole league management and scoring app built with Expo and Rea
 
 ## ✨ Features
 
+### 👤 Profile & Customization
+Create and customize your personal profile to make the app truly yours:
+
+#### Profile Features
+- **Avatar Selection**: Choose from 48+ emoji avatars including crowns, sports, faces, and animals
+- **Theme Colors**: Select from 12 premium color presets to personalize your profile
+  - Royal Purple, Crimson Red, Ocean Blue, Forest Green, and more
+  - Your chosen color appears throughout the app interface
+- **Personal Details**: Add your name, bio, location, and playing history
+- **Playing Info**: Set your favorite position (pitcher, blocker, or both) and when you started playing
+- **Quick Stats Display**: Toggle to show/hide your personal stats on your profile
+- **Member Badge**: Automatically tracks when you joined the app
+
+#### Access Your Profile
+- Tap your avatar icon in the top-right corner of the home screen
+- Edit mode allows you to customize all aspects of your profile
+- Changes save automatically
+
 ### 📊 Scoreboard
 - **Quick Game Setup**: Enter player names and start tracking immediately
 - **Player Name Display**: Shows actual player names throughout the game (not generic "Player 1/2")
@@ -336,6 +354,17 @@ All practice modes feature the intuitive bag counter interface and comprehensive
 
 ## 🎮 How to Use
 
+### Your Profile
+1. Tap your **avatar icon** in the top-right corner of the home screen
+2. Tap the **edit icon** to enter edit mode
+3. Customize your profile:
+   - Tap your avatar to choose a new one from 48+ options
+   - Select a theme color from 12 premium presets
+   - Add your name, bio, location, and playing history
+   - Set your favorite position and when you started playing
+4. Toggle settings like displaying stats on your profile
+5. Tap **Save** when done, or **Cancel** to discard changes
+
 ### Quick Game (Scoreboard)
 1. Tap **📊 Scoreboard** from home
 2. Enter player names
@@ -511,6 +540,7 @@ src/
 
 ### Data Persistence
 All data is automatically saved to device storage:
+- User profile and customization preferences
 - Teams and player rosters
 - Game history with full round-by-round data
 - Player statistics and achievements
@@ -561,6 +591,7 @@ The app features:
 ## 🏁 Getting Started
 
 The app automatically opens to the home screen. From there:
+- **Customize your profile** by tapping your avatar icon in the top-right
 - Play a quick game with **Scoreboard**
 - Build your league with **Clubhouse**
 - Review performance in **CornholeIQ**

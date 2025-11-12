@@ -52,4 +52,5 @@ export type RootStackParamList = {
   PersonalStats: undefined;
   PersonalMatchLog: undefined;
   PersonalSettings: undefined;
+  Profile: undefined;
 };
