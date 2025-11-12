@@ -40,6 +40,8 @@ import PersonalMatchLogScreen from "./src/screens/PersonalMatchLogScreen";
 import PersonalSettingsScreen from "./src/screens/PersonalSettingsScreen";
 import TapScoreboardScreen from "./src/screens/TapScoreboardScreen";
 import ProfileScreen from "./src/screens/ProfileScreen";
+import CreateTournamentScreen from "./src/screens/CreateTournamentScreen";
+import TournamentDetailScreen from "./src/screens/TournamentDetailScreen";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -119,6 +121,8 @@ export default function App() {
             <Stack.Screen name="PersonalMatchLog" component={PersonalMatchLogScreen} />
             <Stack.Screen name="PersonalSettings" component={PersonalSettingsScreen} />
             <Stack.Screen name="Profile" component={ProfileScreen} />
+            <Stack.Screen name="CreateTournament" component={CreateTournamentScreen} />
+            <Stack.Screen name="TournamentDetail" component={TournamentDetailScreen} />
           </Stack.Navigator>
           <StatusBar style="light" />
         </NavigationContainer>

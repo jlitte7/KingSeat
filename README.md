@@ -349,8 +349,55 @@ Transform your game with a comprehensive, elite-level practice environment desig
 
 All practice modes feature the intuitive bag counter interface and comprehensive stat tracking to help you identify strengths and target areas for improvement.
 
-### 🎯 Coming Soon
-- **TossOff**: Tournament brackets and playoff tracking
+### 🏆 TossOff (Tournaments & Brackets)
+Professional tournament management system with blind draw functionality, Switcholio, and bracket visualization. Perfect for running ACL-compliant events.
+
+#### Tournament Formats
+- **Blind Draw Doubles**: Automatically generate balanced teams using skill tier system (A/B/C)
+  - Smart pairing algorithm: pairs A with C first, then A with B, then B with C
+  - Ghost player handling for odd numbers
+  - Manual pairing override available
+- **Switcholio**: Rotating partners each game for individual rankings
+  - Track partner history to prevent repeats
+  - Individual leaderboards
+- **Round Robin**: Every team plays every other team
+  - Automatic scheduling
+  - Track standings and point differential
+- **Single Elimination**: Traditional bracket tournament
+- **Double Elimination**: Second chance bracket for losers
+
+#### ACL Compliance
+- Minimum team requirements (default 6 teams)
+- Tournament type tagging (Local, Regional, Open)
+- Large event splitting (>64 teams)
+- Points to win configuration (default 21)
+
+#### Tournament Management Features
+- **Player Registration & Check-In**: Manage player lists with check-in tracking
+- **Skill Tier Assignment**: Rate players as A/B/C for balanced team generation
+- **Team Generation**: One-click random team creation with tier balancing
+- **Live Leaderboards**: Real-time standings during events
+- **Season Tracking**: Track multiple tournaments and cumulative stats
+- **Match History**: Complete record of all tournament games
+
+#### Creating a Tournament
+1. Tap **TossOff** from home
+2. Tap **+ New** to create tournament
+3. Enter tournament name
+4. Select format (Blind Draw, Switcholio, Round Robin, or Bracket)
+5. Choose type (Local, Regional, or Open)
+6. Configure settings:
+   - Enable skill tiers for balanced pairing
+   - Set minimum teams (ACL compliance)
+   - Set points to win (default 21)
+7. Tap **Create** to start registration
+
+#### Running a Tournament
+1. **Registration Phase**: Add players to the tournament
+2. **Check-In Phase**: Check in players as they arrive
+3. **Team Generation**: Generate teams using blind draw algorithm
+4. **Competition Phase**: Play round robin or bracket matches
+5. **Completion**: View final standings and champion
 
 ## 🎮 How to Use
 
