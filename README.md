@@ -53,12 +53,13 @@ Create and customize your personal profile to make the app truly yours:
     - Tap top half of player area to increment score (+1)
     - Tap bottom half of player area to decrement (-1)
     - No instruction text, just pure scoring interface
+  - **Scoreboard 3 (Tournament Mode)**: Combines tap mode layout with bag counters overlay
+    - Large score displays with team names
+    - Compact bag counter overlays in corners (In/On buttons)
+    - Used in TossOff tournament matches for optimal visibility and control
   - **Mode Toggle**:
     - Switch from Bags Mode to Tap Mode with "Tap Mode" button in Bags Mode header
     - Switch from Tap Mode back to Bags Mode with "Bags" button in Tap Mode header
-  - **Alternative Scoreboard Design (Scoreboard 3)**: Saved for future use - combines tap mode layout with bag counters overlay
-    - Code preserved in git history (commit before latest changes to TapScoreboardScreen.tsx)
-    - Can be restored if needed for future features
 - **Landscape Mode Support**: Both scoreboard modes detect landscape orientation automatically
   - Player names displayed above scores in landscape (Player 1 / Player 2)
   - Player names displayed below scores in portrait
@@ -351,6 +352,15 @@ All practice modes feature the intuitive bag counter interface and comprehensive
 
 ### 🏆 TossOff (Tournaments & Brackets)
 Professional tournament management system with blind draw functionality, Switcholio, and bracket visualization. Perfect for running ACL-compliant events.
+
+#### Tournament Scoreboard
+- **Scoreboard 3 Design**: Clean tap-style layout with bag counter overlays
+  - Large score displays with team names
+  - Compact bag counters (In/On) overlaid in corners
+  - Real-time round score calculation
+  - Enter button to complete rounds
+  - Undo functionality for last round
+  - Landscape mode support
 
 #### Tournament Formats
 - **Blind Draw Doubles**: Automatically generate balanced teams using skill tier system (A/B/C)
