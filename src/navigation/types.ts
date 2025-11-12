@@ -18,8 +18,8 @@ export type RootStackParamList = {
   AddPlayer: { teamId: string };
   PlayerProfile: { playerId: string };
   TossOff: undefined;
-  TournamentDetail: { tournamentId: string };
   CreateTournament: undefined;
+  TournamentDetail: { tournamentId: string };
   CornHub: undefined;
   PracticeSession: { playerId: string };
   CornholeIQ: undefined;
