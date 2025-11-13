@@ -202,7 +202,7 @@ export default function HomeScreen() {
       subtitle: "Tournaments",
       icon: "trophy" as const,
       colors: ["#059669", "#047857"] as const,
-      stat: "Coming soon",
+      stat: "",
       badge: "NEW",
       onPress: () => navigation.navigate("TossOff"),
     },
