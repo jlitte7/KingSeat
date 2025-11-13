@@ -6,6 +6,8 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { RootStackParamList } from "./src/navigation/types";
 import React, { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { NetworkProvider } from "./src/utils/network";
+import { OfflineIndicator } from "./src/components/OfflineIndicator";
 // Tournament system added
 
 import OnboardingScreen from "./src/screens/OnboardingScreen";
@@ -73,8 +75,10 @@ export default function App() {
     return (
       <GestureHandlerRootView style={{ flex: 1 }}>
         <SafeAreaProvider>
-          <OnboardingScreen onComplete={handleOnboardingComplete} />
-          <StatusBar style="light" />
+          <NetworkProvider>
+            <OnboardingScreen onComplete={handleOnboardingComplete} />
+            <StatusBar style="light" />
+          </NetworkProvider>
         </SafeAreaProvider>
       </GestureHandlerRootView>
     );
@@ -83,52 +87,55 @@ export default function App() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
-        <NavigationContainer>
-          <Stack.Navigator
-            initialRouteName="Home"
-            screenOptions={{
-              headerShown: false,
-              animation: "slide_from_right",
-            }}
-          >
-            <Stack.Screen name="Home" component={HomeScreen} />
-            <Stack.Screen name="ScoreboardSetup" component={ScoreboardSetupScreen} />
-            <Stack.Screen name="Scoreboard" component={ScoreboardScreen} />
-            <Stack.Screen name="TapScoreboard" component={TapScoreboardScreen} />
-            <Stack.Screen name="Clubhouse" component={ClubhouseScreen} />
-            <Stack.Screen name="TeamsList" component={TeamsListScreen} />
-            <Stack.Screen name="CreateTeam" component={CreateTeamScreen} />
-            <Stack.Screen name="TeamDetail" component={TeamDetailScreen} />
-            <Stack.Screen name="AddPlayer" component={AddPlayerScreen} />
-            <Stack.Screen name="PlayerProfile" component={PlayerProfileScreen} />
-            <Stack.Screen name="TossOff" component={TossOffScreen} />
-            <Stack.Screen name="CornHub" component={CornHubScreen} />
-            <Stack.Screen name="CornholeIQ" component={CornholeIQScreen} />
-            <Stack.Screen name="SeriesSetup" component={SeriesSetupScreen} />
-            <Stack.Screen name="SeriesPlayerSelection" component={SeriesPlayerSelectionScreen} />
-            <Stack.Screen name="SeriesGame" component={SeriesGameScreen} />
-            <Stack.Screen name="SeriesComplete" component={SeriesCompleteScreen} />
-            <Stack.Screen name="LeagueList" component={LeagueListScreen} />
-            <Stack.Screen name="CreateLeague" component={CreateLeagueScreen} />
-            <Stack.Screen name="LeagueSchedule" component={LeagueScheduleScreen} />
-            <Stack.Screen name="LeagueMatchDetail" component={LeagueMatchDetailScreen} />
-            <Stack.Screen name="LeagueGameScoreboard" component={LeagueGameScoreboardScreen} />
-            <Stack.Screen name="GhostPlayer" component={GhostPlayerScreen} />
-            <Stack.Screen name="BagRun" component={BagRunScreen} />
-            <Stack.Screen name="AirmailRun" component={AirmailRunScreen} />
-            <Stack.Screen name="SituationalGames" component={SituationalGamesScreen} />
-            <Stack.Screen name="BestGameChallenge" component={BestGameChallengeScreen} />
-            <Stack.Screen name="PressurePractice" component={PressurePracticeScreen} />
-            <Stack.Screen name="PersonalStats" component={PersonalStatsScreen} />
-            <Stack.Screen name="PersonalMatchLog" component={PersonalMatchLogScreen} />
-            <Stack.Screen name="PersonalSettings" component={PersonalSettingsScreen} />
-            <Stack.Screen name="Profile" component={ProfileScreen} />
-            <Stack.Screen name="CreateTournament" component={CreateTournamentScreen} />
-            <Stack.Screen name="TournamentDetail" component={TournamentDetailScreen} />
-            <Stack.Screen name="TournamentMatch" component={TournamentMatchScreen} />
-          </Stack.Navigator>
-          <StatusBar style="light" />
-        </NavigationContainer>
+        <NetworkProvider>
+          <NavigationContainer>
+            <Stack.Navigator
+              initialRouteName="Home"
+              screenOptions={{
+                headerShown: false,
+                animation: "slide_from_right",
+              }}
+            >
+              <Stack.Screen name="Home" component={HomeScreen} />
+              <Stack.Screen name="ScoreboardSetup" component={ScoreboardSetupScreen} />
+              <Stack.Screen name="Scoreboard" component={ScoreboardScreen} />
+              <Stack.Screen name="TapScoreboard" component={TapScoreboardScreen} />
+              <Stack.Screen name="Clubhouse" component={ClubhouseScreen} />
+              <Stack.Screen name="TeamsList" component={TeamsListScreen} />
+              <Stack.Screen name="CreateTeam" component={CreateTeamScreen} />
+              <Stack.Screen name="TeamDetail" component={TeamDetailScreen} />
+              <Stack.Screen name="AddPlayer" component={AddPlayerScreen} />
+              <Stack.Screen name="PlayerProfile" component={PlayerProfileScreen} />
+              <Stack.Screen name="TossOff" component={TossOffScreen} />
+              <Stack.Screen name="CornHub" component={CornHubScreen} />
+              <Stack.Screen name="CornholeIQ" component={CornholeIQScreen} />
+              <Stack.Screen name="SeriesSetup" component={SeriesSetupScreen} />
+              <Stack.Screen name="SeriesPlayerSelection" component={SeriesPlayerSelectionScreen} />
+              <Stack.Screen name="SeriesGame" component={SeriesGameScreen} />
+              <Stack.Screen name="SeriesComplete" component={SeriesCompleteScreen} />
+              <Stack.Screen name="LeagueList" component={LeagueListScreen} />
+              <Stack.Screen name="CreateLeague" component={CreateLeagueScreen} />
+              <Stack.Screen name="LeagueSchedule" component={LeagueScheduleScreen} />
+              <Stack.Screen name="LeagueMatchDetail" component={LeagueMatchDetailScreen} />
+              <Stack.Screen name="LeagueGameScoreboard" component={LeagueGameScoreboardScreen} />
+              <Stack.Screen name="GhostPlayer" component={GhostPlayerScreen} />
+              <Stack.Screen name="BagRun" component={BagRunScreen} />
+              <Stack.Screen name="AirmailRun" component={AirmailRunScreen} />
+              <Stack.Screen name="SituationalGames" component={SituationalGamesScreen} />
+              <Stack.Screen name="BestGameChallenge" component={BestGameChallengeScreen} />
+              <Stack.Screen name="PressurePractice" component={PressurePracticeScreen} />
+              <Stack.Screen name="PersonalStats" component={PersonalStatsScreen} />
+              <Stack.Screen name="PersonalMatchLog" component={PersonalMatchLogScreen} />
+              <Stack.Screen name="PersonalSettings" component={PersonalSettingsScreen} />
+              <Stack.Screen name="Profile" component={ProfileScreen} />
+              <Stack.Screen name="CreateTournament" component={CreateTournamentScreen} />
+              <Stack.Screen name="TournamentDetail" component={TournamentDetailScreen} />
+              <Stack.Screen name="TournamentMatch" component={TournamentMatchScreen} />
+            </Stack.Navigator>
+            <StatusBar style="light" />
+          </NavigationContainer>
+          <OfflineIndicator />
+        </NetworkProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );

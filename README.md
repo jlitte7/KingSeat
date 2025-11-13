@@ -659,11 +659,49 @@ The app automatically opens to the home screen. From there:
 - Improve your skills in **CornHub** practice area
 - Compete in tournaments with **TossOff** (coming soon)
 
+## 🌐 Offline & Network Support
+
+Your app now works seamlessly both online and offline with intelligent handling of network-dependent features.
+
+### Offline Features
+- **All Core Functionality Works Offline**:
+  - Scoreboard and game tracking
+  - Team and league management
+  - Personal stats tracking
+  - Practice modes and CornHub
+  - Tournament management
+  - All data is stored locally and persists between sessions
+
+### Network Detection
+- **Live Status Indicator**: Amber banner appears at the top when you go offline
+- **Smart Caching**: API responses are cached so you can access previously loaded data offline
+- **Pending Actions Queue**: Actions that require internet are saved and automatically sync when you reconnect
+
+### Online-Only Features
+When internet is available, you can use:
+- AI-powered features (chat, analysis)
+- Image generation
+- Audio transcription
+- External API integrations
+
+### How It Works
+- The app automatically detects your network status
+- Features that require internet will show helpful messages when offline
+- All your game data, teams, players, and stats work without internet
+- When you reconnect, any pending actions automatically sync
+
+### Developer Tools
+Developers can use the offline system:
+- `useNetwork()` hook to check connection status
+- `useOfflineCache()` for caching API responses
+- `OfflineGuard` component to protect online-only features
+- `chatWithAIOffline()`, `generateImageOffline()`, `transcribeAudioOffline()` wrappers for graceful offline handling
+
 ## 📝 Notes
 
 - All changes are automatically saved
-- No internet connection required
-- Works offline completely
+- Core features work without internet
+- Network-dependent features gracefully handle offline state
 - Data persists between app sessions
 - Optimized for iOS (Android support may vary)
 
