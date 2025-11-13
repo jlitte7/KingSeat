@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, Pressable, ScrollView } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, Pressable, ScrollView, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -12,10 +12,19 @@ type CornholeIQNavigationProp = NativeStackNavigationProp<RootStackParamList, 'C
 export default function CornholeIQScreen() {
   const navigation = useNavigation<CornholeIQNavigationProp>();
   const players = useTossSeriesStore((s) => s.players);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const sortedPlayers = [...players].sort(
     (a, b) => (b.stats?.dominanceRating ?? 0) - (a.stats?.dominanceRating ?? 0)
   );
+
+  // Filter players by search query
+  const filteredPlayers = sortedPlayers.filter((player) => {
+    if (searchQuery.trim() === "") return true;
+    const query = searchQuery.toLowerCase();
+    return player.name.toLowerCase().includes(query) ||
+           player.nickname?.toLowerCase().includes(query);
+  });
 
   return (
     <SafeAreaView className="flex-1 bg-gray-900" edges={["top", "bottom"]}>
@@ -38,9 +47,42 @@ export default function CornholeIQScreen() {
             </Text>
           </View>
         ) : (
-          <ScrollView className="flex-1 px-4 pt-4">
-            <Text className="text-white text-lg font-bold mb-4">Top Players (by Dominance Rating)</Text>
-            {sortedPlayers.map((player, index) => (
+          <>
+            {/* Search Bar */}
+            <View className="px-4 py-3 border-b border-gray-800">
+              <View className="flex-row items-center bg-gray-800 rounded-lg px-3 py-2">
+                <Ionicons name="search" size={20} color="#9CA3AF" />
+                <TextInput
+                  value={searchQuery}
+                  onChangeText={setSearchQuery}
+                  placeholder="Search players..."
+                  placeholderTextColor="#9CA3AF"
+                  className="flex-1 ml-2 text-white text-base"
+                />
+                {searchQuery.length > 0 && (
+                  <Pressable onPress={() => setSearchQuery("")}>
+                    <Ionicons name="close-circle" size={20} color="#9CA3AF" />
+                  </Pressable>
+                )}
+              </View>
+            </View>
+
+            <ScrollView className="flex-1 px-4 pt-4">
+              <Text className="text-white text-lg font-bold mb-4">
+                Top Players (by Dominance Rating)
+              </Text>
+              {filteredPlayers.length === 0 ? (
+                <View className="items-center justify-center py-12">
+                  <Ionicons name="search-outline" size={60} color="#4b5563" />
+                  <Text className="text-gray-400 text-lg font-bold text-center mt-4">
+                    No Results Found
+                  </Text>
+                  <Text className="text-gray-500 text-center mt-2">
+                    No players match &quot;{searchQuery}&quot;
+                  </Text>
+                </View>
+              ) : (
+                filteredPlayers.map((player, index) => (
               <Pressable
                 key={player.id}
                 onPress={() => navigation.navigate('PlayerProfile', { playerId: player.id })}
@@ -107,8 +149,10 @@ export default function CornholeIQScreen() {
                   <Ionicons name="chevron-forward" size={16} color="#9ca3af" />
                 </View>
               </Pressable>
-            ))}
-          </ScrollView>
+            ))
+              )}
+            </ScrollView>
+          </>
         )}
       </View>
     </SafeAreaView>

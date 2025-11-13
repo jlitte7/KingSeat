@@ -23,7 +23,7 @@ import Animated, {
   RotateInDownRight,
   BounceIn
 } from 'react-native-reanimated';
-import { Audio } from 'expo-av';
+import { useAudioPlayer } from 'expo-audio';
 
 type ScoreboardScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Scoreboard'>;
 type ScoreboardScreenRouteProp = RouteProp<RootStackParamList, 'Scoreboard'>;
@@ -46,7 +46,7 @@ export default function ScoreboardScreen() {
   const [isLandscape, setIsLandscape] = useState(false);
   const [currentRound, setCurrentRound] = useState(1);
   const [showCelebration, setShowCelebration] = useState(false);
-  const [celebrationPlayer, setCelebrationPlayer] = useState<string>('');
+  const [celebrationPlayerName, setCelebrationPlayerName] = useState<string>('');
   const [showGameOver, setShowGameOver] = useState(false);
   const [showRoundHistory, setShowRoundHistory] = useState(false);
   const [showStatsCollapsed, setShowStatsCollapsed] = useState(false);
@@ -57,7 +57,10 @@ export default function ScoreboardScreen() {
   const [p2BagsOn, setP2BagsOn] = useState(0);
 
   const [rounds, setRounds] = useState<Round[]>([]);
-  const [sound, setSound] = useState<Audio.Sound | null>(null);
+
+  // Audio players for celebration and scoring sounds
+  const celebrationAudio = useAudioPlayer(require('../../assets/voice-1762370065630.mp3'));
+  const scoreAudio = useAudioPlayer(require('../../assets/voice-1762370065630.mp3'));
 
   const p1RoundScore = p1BagsIn * 3 + p1BagsOn;
   const p2RoundScore = p2BagsIn * 3 + p2BagsOn;
@@ -102,28 +105,16 @@ export default function ScoreboardScreen() {
 
     return () => {
       subscription?.remove();
-      if (sound) {
-        sound.unloadAsync();
-      }
     };
-  }, [sound]);
+  }, []);
 
   const playSound = async (type: 'celebrate' | 'score') => {
     try {
-      const { sound: newSound } = await Audio.Sound.createAsync(
-        type === 'celebrate'
-          ? require('../../assets/voice-1762370065630.mp3')
-          : require('../../assets/voice-1762370065630.mp3')
-      );
-      setSound(newSound);
-      await newSound.playAsync();
-
-      // Unload after playing
-      newSound.setOnPlaybackStatusUpdate((status) => {
-        if (status.isLoaded && status.didJustFinish) {
-          newSound.unloadAsync();
-        }
-      });
+      if (type === 'celebrate') {
+        celebrationAudio.play();
+      } else {
+        scoreAudio.play();
+      }
     } catch (error) {
       console.log('Error playing sound:', error);
     }
@@ -148,12 +139,12 @@ export default function ScoreboardScreen() {
   const nextRound = () => {
     // Check for four-bagger and play celebration sound
     if (p1BagsIn === 4) {
-      setCelebrationPlayer(player1Name);
+      setCelebrationPlayerName(player1Name);
       setShowCelebration(true);
       playSound('celebrate');
       setTimeout(() => setShowCelebration(false), 3000);
     } else if (p2BagsIn === 4) {
-      setCelebrationPlayer(player2Name);
+      setCelebrationPlayerName(player2Name);
       setShowCelebration(true);
       playSound('celebrate');
       setTimeout(() => setShowCelebration(false), 3000);
@@ -669,7 +660,7 @@ export default function ScoreboardScreen() {
                 textShadowRadius: 40,
               }}
             >
-              {celebrationPlayer}
+              {celebrationPlayerName}
             </Animated.Text>
 
             <Animated.Text

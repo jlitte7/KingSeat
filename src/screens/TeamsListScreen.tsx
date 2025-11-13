@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, Pressable, ScrollView, Alert } from "react-native";
+import { View, Text, Pressable, ScrollView, Alert, TextInput } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -21,12 +21,24 @@ export default function TeamsListScreen() {
   const toggleTeamVisibility = useTossSeriesStore((s) => s.toggleTeamVisibility);
 
   const [viewMode, setViewMode] = useState<"all" | "visible" | "hidden">("visible");
+  const [searchQuery, setSearchQuery] = useState("");
 
-  // Filter teams based on view mode
+  // Filter teams based on view mode and search query
   const filteredTeams = teams.filter((team) => {
-    if (viewMode === "all") return true;
-    if (viewMode === "visible") return !team.isHidden;
-    if (viewMode === "hidden") return team.isHidden;
+    // First apply view mode filter
+    if (viewMode === "visible" && team.isHidden) return false;
+    if (viewMode === "hidden" && !team.isHidden) return false;
+
+    // Then apply search filter
+    if (searchQuery.trim() !== "") {
+      const query = searchQuery.toLowerCase();
+      const nameMatch = team.name.toLowerCase().includes(query);
+      const playerMatch = team.players.some(player =>
+        player.name.toLowerCase().includes(query)
+      );
+      return nameMatch || playerMatch;
+    }
+
     return true;
   });
 
@@ -92,46 +104,67 @@ export default function TeamsListScreen() {
         </View>
 
         {teams.length > 0 && (
-          <View className="px-4 py-3 border-b border-gray-800">
-            <View className="flex-row gap-2">
-              <Pressable
-                onPress={() => setViewMode("visible")}
-                className={`flex-1 py-2 rounded-lg ${
-                  viewMode === "visible" ? "bg-blue-600" : "bg-gray-800"
-                }`}
-              >
-                <Text className={`text-center font-bold ${
-                  viewMode === "visible" ? "text-white" : "text-gray-400"
-                }`}>
-                  Active ({visibleTeamsCount})
-                </Text>
-              </Pressable>
-              <Pressable
-                onPress={() => setViewMode("hidden")}
-                className={`flex-1 py-2 rounded-lg ${
-                  viewMode === "hidden" ? "bg-blue-600" : "bg-gray-800"
-                }`}
-              >
-                <Text className={`text-center font-bold ${
-                  viewMode === "hidden" ? "text-white" : "text-gray-400"
-                }`}>
-                  Hidden ({hiddenTeamsCount})
-                </Text>
-              </Pressable>
-              <Pressable
-                onPress={() => setViewMode("all")}
-                className={`flex-1 py-2 rounded-lg ${
-                  viewMode === "all" ? "bg-blue-600" : "bg-gray-800"
-                }`}
-              >
-                <Text className={`text-center font-bold ${
-                  viewMode === "all" ? "text-white" : "text-gray-400"
-                }`}>
-                  All ({teams.length})
-                </Text>
-              </Pressable>
+          <>
+            <View className="px-4 py-3 border-b border-gray-800">
+              <View className="flex-row gap-2">
+                <Pressable
+                  onPress={() => setViewMode("visible")}
+                  className={`flex-1 py-2 rounded-lg ${
+                    viewMode === "visible" ? "bg-blue-600" : "bg-gray-800"
+                  }`}
+                >
+                  <Text className={`text-center font-bold ${
+                    viewMode === "visible" ? "text-white" : "text-gray-400"
+                  }`}>
+                    Active ({visibleTeamsCount})
+                  </Text>
+                </Pressable>
+                <Pressable
+                  onPress={() => setViewMode("hidden")}
+                  className={`flex-1 py-2 rounded-lg ${
+                    viewMode === "hidden" ? "bg-blue-600" : "bg-gray-800"
+                  }`}
+                >
+                  <Text className={`text-center font-bold ${
+                    viewMode === "hidden" ? "text-white" : "text-gray-400"
+                  }`}>
+                    Hidden ({hiddenTeamsCount})
+                  </Text>
+                </Pressable>
+                <Pressable
+                  onPress={() => setViewMode("all")}
+                  className={`flex-1 py-2 rounded-lg ${
+                    viewMode === "all" ? "bg-blue-600" : "bg-gray-800"
+                  }`}
+                >
+                  <Text className={`text-center font-bold ${
+                    viewMode === "all" ? "text-white" : "text-gray-400"
+                  }`}>
+                    All ({teams.length})
+                  </Text>
+                </Pressable>
+              </View>
             </View>
-          </View>
+
+            {/* Search Bar */}
+            <View className="px-4 py-3 border-b border-gray-800">
+              <View className="flex-row items-center bg-gray-800 rounded-lg px-3 py-2">
+                <Ionicons name="search" size={20} color="#9CA3AF" />
+                <TextInput
+                  value={searchQuery}
+                  onChangeText={setSearchQuery}
+                  placeholder="Search teams or players..."
+                  placeholderTextColor="#9CA3AF"
+                  className="flex-1 ml-2 text-white text-base"
+                />
+                {searchQuery.length > 0 && (
+                  <Pressable onPress={() => setSearchQuery("")}>
+                    <Ionicons name="close-circle" size={20} color="#9CA3AF" />
+                  </Pressable>
+                )}
+              </View>
+            </View>
+          </>
         )}
 
         {teams.length === 0 ? (
@@ -154,14 +187,22 @@ export default function TeamsListScreen() {
           <ScrollView className="flex-1 px-4 pt-4">
             {filteredTeams.length === 0 ? (
               <View className="items-center justify-center py-12">
-                <Ionicons name="eye-off-outline" size={60} color="#4b5563" />
+                <Ionicons
+                  name={searchQuery ? "search-outline" : "eye-off-outline"}
+                  size={60}
+                  color="#4b5563"
+                />
                 <Text className="text-gray-400 text-lg font-bold text-center mt-4">
-                  {viewMode === "hidden"
+                  {searchQuery
+                    ? "No Results Found"
+                    : viewMode === "hidden"
                     ? "No Hidden Teams"
                     : "No Active Teams"}
                 </Text>
                 <Text className="text-gray-500 text-center mt-2">
-                  {viewMode === "hidden"
+                  {searchQuery
+                    ? `No teams or players match "${searchQuery}"`
+                    : viewMode === "hidden"
                     ? "You can hide teams from the team list"
                     : "All teams are currently hidden"}
                 </Text>

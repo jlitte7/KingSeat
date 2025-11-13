@@ -362,6 +362,28 @@ Professional tournament management system with blind draw functionality, Switcho
   - Undo functionality for last round
   - Landscape mode support
 
+#### Bracket Visualization
+- **Visual Bracket Trees**: Beautiful, interactive tournament brackets
+  - Horizontal scrolling bracket display
+  - Color-coded winner highlighting (green for winners)
+  - Round-by-round progression from finals to earlier rounds
+  - Team name abbreviations for compact display
+  - Tap any match to enter scores
+  - Support for both single and double elimination
+  - Automatic spacing and visual connections between rounds
+  - Real-time bracket updates as matches complete
+
+#### Search & Filter
+- **Team Search**: Find teams or players quickly in Teams List
+  - Search by team name or player name
+  - Real-time filtering as you type
+  - Clear search button for quick reset
+  - Works with Active/Hidden/All views
+- **Player Search**: Search players in CornholeIQ stats screen
+  - Search by player name or nickname
+  - Instant results with stat preservation
+  - Smart empty states for no results
+
 #### Tournament Formats
 - **Blind Draw Doubles**: Automatically generate balanced teams using skill tier system (A/B/C)
   - Smart pairing algorithm: pairs A with C first, then A with B, then B with C
@@ -638,15 +660,15 @@ The app features:
 
 ## 🚀 Future Enhancements
 
-1. Tournament bracket visualization
-2. Practice drills with targets and timers
-3. Photo uploads for players and teams
-4. Export stats to CSV/PDF
-5. Head-to-head player comparisons
-6. Historical trend charts
-7. Leaderboards and rankings
-8. Custom rule configurations
-9. Multi-league support
+1. ~~Tournament bracket visualization~~ ✅ **COMPLETED**
+2. ~~Search/filter for teams and players~~ ✅ **COMPLETED**
+3. Tournament seeding options (manual/skill-based)
+4. Practice drills with targets and timers
+5. Photo uploads for players and teams
+6. Export stats to CSV/PDF
+7. Head-to-head player comparisons
+8. Historical trend charts
+9. Game templates for recurring matchups
 10. Social features (share games, challenge friends)
 
 ## 🏁 Getting Started

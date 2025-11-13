@@ -15,6 +15,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useTournamentStore } from "../state/tournament-store";
 import { SkillTier } from "../types/tournament";
+import { BracketView } from "../components/BracketView";
 
 type TournamentDetailScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -46,6 +47,8 @@ export default function TournamentDetailScreen() {
   const generateRoundRobinSchedule = useTournamentStore(
     (s) => s.generateRoundRobinSchedule
   );
+  const generateBracket = useTournamentStore((s) => s.generateBracket);
+  const recordBracketResult = useTournamentStore((s) => s.recordBracketResult);
 
   const [playerName, setPlayerName] = useState("");
   const [showAddPlayer, setShowAddPlayer] = useState(false);
@@ -93,6 +96,28 @@ export default function TournamentDetailScreen() {
 
     generateRoundRobinSchedule(tournamentId);
     Alert.alert("Schedule Created!", "Round robin matches have been scheduled");
+  };
+
+  const handleGenerateBracket = (eliminationType: "single" | "double") => {
+    if (tournament.teams.length < 2) {
+      Alert.alert("Not Enough Teams", "You need at least 2 teams to create a bracket");
+      return;
+    }
+
+    generateBracket(tournamentId, eliminationType);
+    updateTournamentStatus(tournamentId, "bracket");
+    Alert.alert(
+      "Bracket Created!",
+      `${eliminationType === "single" ? "Single" : "Double"} elimination bracket has been generated`
+    );
+  };
+
+  const handleMatchPress = (matchId: string, team1Score?: number, team2Score?: number) => {
+    // Navigate to tournament match screen for scoring
+    navigation.navigate("TournamentMatch", {
+      tournamentId,
+      matchId,
+    });
   };
 
   const getStatusColor = (status: string) => {
@@ -235,14 +260,40 @@ export default function TournamentDetailScreen() {
 
               {tournament.status === "team-generation" &&
                 tournament.teams.length >= tournament.minTeamsRequired && (
-                  <Pressable
-                    onPress={handleStartRoundRobin}
-                    className="bg-green-600 rounded-xl p-4 mb-3"
-                  >
-                    <Text className="text-white font-bold text-center">
-                      Start Round Robin
-                    </Text>
-                  </Pressable>
+                  <>
+                    {(tournament.format === "round-robin" || tournament.roundRobinMatches.length > 0) && (
+                      <Pressable
+                        onPress={handleStartRoundRobin}
+                        className="bg-green-600 rounded-xl p-4 mb-3"
+                      >
+                        <Text className="text-white font-bold text-center">
+                          Start Round Robin
+                        </Text>
+                      </Pressable>
+                    )}
+
+                    {tournament.format === "single-elimination" && tournament.bracketMatches.length === 0 && (
+                      <Pressable
+                        onPress={() => handleGenerateBracket("single")}
+                        className="bg-red-600 rounded-xl p-4 mb-3"
+                      >
+                        <Text className="text-white font-bold text-center">
+                          🏆 Generate Single Elimination Bracket
+                        </Text>
+                      </Pressable>
+                    )}
+
+                    {tournament.format === "double-elimination" && tournament.bracketMatches.length === 0 && (
+                      <Pressable
+                        onPress={() => handleGenerateBracket("double")}
+                        className="bg-red-600 rounded-xl p-4 mb-3"
+                      >
+                        <Text className="text-white font-bold text-center">
+                          🏆 Generate Double Elimination Bracket
+                        </Text>
+                      </Pressable>
+                    )}
+                  </>
                 )}
             </View>
 
@@ -451,6 +502,25 @@ export default function TournamentDetailScreen() {
                     </View>
                   </View>
                 ))}
+              </View>
+            )}
+
+            {/* Bracket View */}
+            {tournament.bracketMatches.length > 0 && (
+              <View className="py-4">
+                <View className="px-6 mb-3">
+                  <Text className="text-white text-lg font-bold">
+                    Tournament Bracket
+                  </Text>
+                  <Text className="text-gray-400 text-sm mt-1">
+                    {tournament.format === "double-elimination" ? "Double Elimination" : "Single Elimination"}
+                  </Text>
+                </View>
+                <BracketView
+                  matches={tournament.bracketMatches}
+                  eliminationType={tournament.format === "double-elimination" ? "double" : "single"}
+                  onMatchPress={(match) => handleMatchPress(match.id, match.team1Score, match.team2Score)}
+                />
               </View>
             )}
           </ScrollView>
