@@ -74,6 +74,7 @@ export default function MatchDetailScreen() {
 
   const myPPR = match.rounds.length > 0 ? (totalRawPoints / match.rounds.length).toFixed(2) : "0.00";
   const oppPPR = match.rounds.length > 0 ? (oppRawPoints / match.rounds.length).toFixed(2) : "0.00";
+  const dpr = match.rounds.length > 0 ? (totalBagsMissed / match.rounds.length).toFixed(2) : "0.00";
 
   const fourBaggers = match.rounds.filter((r) => r.myBagsIn === 4).length;
   const threeBaggers = match.rounds.filter((r) => r.myBagsIn === 3).length;
@@ -168,6 +169,12 @@ export default function MatchDetailScreen() {
                   {myPPR}
                 </Text>
                 <Text className="text-gray-400 text-xs">Your PPR</Text>
+              </View>
+              <View className="items-center">
+                <Text className="text-orange-400 text-3xl font-bold">
+                  {dpr}
+                </Text>
+                <Text className="text-gray-400 text-xs">DPR</Text>
               </View>
               <View className="items-center">
                 <Text className="text-red-400 text-3xl font-bold">{oppPPR}</Text>
