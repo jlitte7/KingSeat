@@ -319,14 +319,14 @@ export default function PersonalStatsScreen() {
               </View>
 
               {/* Four Bagger Rate Highlight */}
-              <View className="bg-yellow-500 bg-opacity-10 border border-yellow-500 rounded-xl p-4 mt-4">
+              <View className="bg-yellow-500 border-2 border-yellow-400 rounded-xl p-5 mt-4">
                 <View className="flex-row justify-between items-center">
-                  <Text className="text-yellow-400 font-bold text-lg">Four Bagger Rate</Text>
+                  <Text className="text-white font-bold text-lg tracking-wide">Four Bagger Rate</Text>
                   <View className="items-end">
-                    <Text className="text-yellow-400 font-black text-3xl">
+                    <Text className="text-white font-black text-4xl">
                       {(stats.fourBaggerRate ?? 0).toFixed(1)}%
                     </Text>
-                    <Text className="text-yellow-500 text-sm">
+                    <Text className="text-white text-sm font-semibold opacity-90">
                       {stats.fourBaggers} total
                     </Text>
                   </View>
