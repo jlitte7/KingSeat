@@ -369,21 +369,17 @@ export default function PersonalStatsScreen() {
 
             {/* Current Streak Badge */}
             {(stats.currentWinStreak > 0 || stats.currentLosingStreak > 0) && (
-              <View className={`rounded-2xl p-5 mb-4 border-2 ${
-                stats.currentWinStreak > 0 ? "bg-green-500 bg-opacity-10 border-green-500" : "bg-red-500 bg-opacity-10 border-red-500"
+              <View className={`rounded-2xl p-6 mb-4 border-2 ${
+                stats.currentWinStreak > 0 ? "bg-green-500 border-green-400" : "bg-red-500 border-red-400"
               }`}>
                 <View className="items-center">
-                  <Text className={`text-sm font-semibold mb-2 ${
-                    stats.currentWinStreak > 0 ? "text-green-400" : "text-red-400"
-                  }`}>
+                  <Text className="text-white text-sm font-bold mb-3 opacity-90 tracking-wider">
                     CURRENT STREAK
                   </Text>
-                  <Text className={`text-6xl font-black ${
-                    stats.currentWinStreak > 0 ? "text-green-400" : "text-red-400"
-                  }`}>
+                  <Text className="text-white text-7xl font-black shadow-lg">
                     {stats.currentWinStreak > 0 ? `${stats.currentWinStreak}W` : `${stats.currentLosingStreak}L`}
                   </Text>
-                  <Text className="text-gray-400 text-sm mt-2">
+                  <Text className="text-white text-base font-semibold mt-3 opacity-80">
                     Best: {stats.longestWinStreak}W
                   </Text>
                 </View>
