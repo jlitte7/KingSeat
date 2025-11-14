@@ -48,6 +48,7 @@ export interface PersonalStats {
   averagePointsPerRound: number; // PPR
   opponentPointsPerRound: number; // NEW: OPPR - opponent's average points per round
   pointDifferential: number; // NEW: Pt. Diff - your PPR minus opponent's PPR
+  deadwoodPerRound: number; // DPR - average bags missed per round
 
   // Accuracy & Efficiency (Bag-Placement / Throwing Statistics)
   bagsInPercentage: number; // % Bags "In" (Hole)

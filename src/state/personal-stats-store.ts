@@ -68,6 +68,7 @@ const createInitialStats = (): PersonalStats => ({
   averagePointsPerRound: 0,
   opponentPointsPerRound: 0,
   pointDifferential: 0,
+  deadwoodPerRound: 0,
   averagePointsPerGame: 0,
   highestGameScore: 0,
   shutoutWins: 0,
@@ -328,6 +329,10 @@ export const usePersonalStatsStore = create<PersonalStatsState>()(
           stats.averagePointsPerRound = totalPoints / totalRounds;
           stats.opponentPointsPerRound = totalOpponentPoints / totalRounds;
           stats.pointDifferential = stats.averagePointsPerRound - stats.opponentPointsPerRound;
+
+          // Calculate DPR (Deadwood Per Round) - average bags missed per round
+          const totalMissedBags = totalBagsThrown - totalBagsIn - totalBagsOn;
+          stats.deadwoodPerRound = totalMissedBags / totalRounds;
         }
 
         if (stats.totalGames > 0) {
@@ -512,6 +517,10 @@ export const usePersonalStatsStore = create<PersonalStatsState>()(
             stats.averagePointsPerRound = totalPoints / totalRounds;
             stats.opponentPointsPerRound = totalOpponentPoints / totalRounds;
             stats.pointDifferential = stats.averagePointsPerRound - stats.opponentPointsPerRound;
+
+            // Calculate DPR for league stats
+            const totalMissedBags = totalBagsThrown - totalBagsIn - totalBagsOn;
+            stats.deadwoodPerRound = totalMissedBags / totalRounds;
           }
 
           // Win/loss analysis

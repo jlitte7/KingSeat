@@ -100,7 +100,7 @@ A completely redesigned personal tracking system with enhanced visual appeal and
 - **Hero Stats Card**: Large, eye-catching display of your key metrics
   - Win rate with large percentage display
   - Average PPR with round count
-  - Quick stats: Games, Four Baggers, and Accuracy
+  - Quick stats: Total Rounds, DPR (Deadwood Per Round), Four Baggers, and Accuracy
 
 - **Performance vs Opponents**: Visual bar charts comparing your stats
   - Your PPR vs Opponent PPR with colored progress bars
@@ -158,6 +158,7 @@ A completely redesigned personal tracking system with enhanced visual appeal and
   - Match score with win/loss badge
   - PPR and round count
   - Easy-to-scan layout
+  - **Tap to View Details**: Click any match to see complete round-by-round breakdown
   - **View All Button**: Navigate to full Match History to see all completed games
 
 - **Match History**: Complete archive of all your games

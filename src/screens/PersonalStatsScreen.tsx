@@ -183,9 +183,15 @@ export default function PersonalStatsScreen() {
               <View className="flex-row justify-around pt-4 border-t border-purple-400 border-opacity-30">
                 <View className="items-center">
                   <Text className="text-white text-2xl font-bold">
-                    {stats.totalGames}
+                    {stats.totalRoundsPlayed}
                   </Text>
-                  <Text className="text-purple-200 text-xs">Games</Text>
+                  <Text className="text-purple-200 text-xs">Rounds</Text>
+                </View>
+                <View className="items-center">
+                  <Text className="text-white text-2xl font-bold">
+                    {(stats.deadwoodPerRound ?? 0).toFixed(1)}
+                  </Text>
+                  <Text className="text-purple-200 text-xs">DPR</Text>
                 </View>
                 <View className="items-center">
                   <Text className="text-yellow-400 text-2xl font-bold">
@@ -408,8 +414,9 @@ export default function PersonalStatsScreen() {
                     const matchPPR = match.rounds.length > 0 ? (matchRawPoints / match.rounds.length).toFixed(2) : "0.00";
 
                     return (
-                      <View
+                      <Pressable
                         key={match.id}
+                        onPress={() => navigation.navigate("MatchDetail", { matchId: match.id })}
                         className="mb-3 bg-gray-700 rounded-xl p-4"
                       >
                         <View className="flex-row justify-between items-center">
@@ -436,7 +443,7 @@ export default function PersonalStatsScreen() {
                             )}
                           </View>
                         </View>
-                      </View>
+                      </Pressable>
                     );
                   })}
               </View>
