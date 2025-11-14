@@ -411,7 +411,11 @@ export default function PersonalStatsScreen() {
                     const matchRawPoints = match.rounds.reduce((sum, round) =>
                       sum + (round.myBagsIn * 3) + (round.myBagsOn * 1), 0
                     );
+                    const oppRawPoints = match.rounds.reduce((sum, round) =>
+                      sum + (round.opponentBagsIn * 3) + (round.opponentBagsOn * 1), 0
+                    );
                     const matchPPR = match.rounds.length > 0 ? (matchRawPoints / match.rounds.length).toFixed(2) : "0.00";
+                    const matchDPR = match.rounds.length > 0 ? ((matchRawPoints - oppRawPoints) / match.rounds.length).toFixed(2) : "0.00";
 
                     return (
                       <Pressable
@@ -425,7 +429,7 @@ export default function PersonalStatsScreen() {
                               {match.opponent ? `vs ${match.opponent}` : "Solo Practice"}
                             </Text>
                             <Text className="text-gray-400 text-xs mt-1">
-                              {new Date(match.date).toLocaleDateString()} • {match.rounds.length} rounds • PPR: {matchPPR}
+                              {new Date(match.date).toLocaleDateString()} • {match.rounds.length} rounds • PPR: {matchPPR} • DPR: {parseFloat(matchDPR) > 0 ? "+" : ""}{matchDPR}
                             </Text>
                           </View>
                           <View className="items-end ml-3">
