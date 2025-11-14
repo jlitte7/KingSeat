@@ -188,8 +188,8 @@ export default function PersonalStatsScreen() {
                   <Text className="text-purple-200 text-xs">Rounds</Text>
                 </View>
                 <View className="items-center">
-                  <Text className="text-white text-2xl font-bold">
-                    {(stats.deadwoodPerRound ?? 0).toFixed(1)}
+                  <Text className={`text-2xl font-bold ${(stats.pointDifferential ?? 0) >= 0 ? "text-green-400" : "text-red-400"}`}>
+                    {(stats.pointDifferential ?? 0) >= 0 ? "+" : ""}{(stats.pointDifferential ?? 0).toFixed(1)}
                   </Text>
                   <Text className="text-purple-200 text-xs">DPR</Text>
                 </View>
