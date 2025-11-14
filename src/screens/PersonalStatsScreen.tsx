@@ -387,9 +387,17 @@ export default function PersonalStatsScreen() {
             {/* Recent Matches - Condensed */}
             {matches.length > 0 && (
               <View className="bg-gray-800 rounded-2xl p-5 mb-4 border-2 border-gray-700">
-                <Text className="text-white text-xl font-bold mb-4">
-                  Recent Matches ({matches.length})
-                </Text>
+                <View className="flex-row justify-between items-center mb-4">
+                  <Text className="text-white text-xl font-bold">
+                    Recent Matches ({matches.length})
+                  </Text>
+                  <Pressable
+                    onPress={() => navigation.navigate("MatchHistory")}
+                    className="bg-purple-600 px-3 py-2 rounded-lg"
+                  >
+                    <Text className="text-white text-xs font-bold">View All</Text>
+                  </Pressable>
+                </View>
                 {matches
                   .slice(-5)
                   .reverse()

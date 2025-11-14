@@ -41,6 +41,8 @@ import PressurePracticeScreen from "./src/screens/PressurePracticeScreen";
 import PersonalStatsScreen from "./src/screens/PersonalStatsScreen";
 import PersonalMatchLogScreen from "./src/screens/PersonalMatchLogScreen";
 import PersonalSettingsScreen from "./src/screens/PersonalSettingsScreen";
+import MatchHistoryScreen from "./src/screens/MatchHistoryScreen";
+import MatchDetailScreen from "./src/screens/MatchDetailScreen";
 import TapScoreboardScreen from "./src/screens/TapScoreboardScreen";
 import ProfileScreen from "./src/screens/ProfileScreen";
 import CreateTournamentScreen from "./src/screens/CreateTournamentScreen";
@@ -127,6 +129,8 @@ export default function App() {
               <Stack.Screen name="PersonalStats" component={PersonalStatsScreen} />
               <Stack.Screen name="PersonalMatchLog" component={PersonalMatchLogScreen} />
               <Stack.Screen name="PersonalSettings" component={PersonalSettingsScreen} />
+              <Stack.Screen name="MatchHistory" component={MatchHistoryScreen} />
+              <Stack.Screen name="MatchDetail" component={MatchDetailScreen} />
               <Stack.Screen name="Profile" component={ProfileScreen} />
               <Stack.Screen name="CreateTournament" component={CreateTournamentScreen} />
               <Stack.Screen name="TournamentDetail" component={TournamentDetailScreen} />

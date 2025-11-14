@@ -158,6 +158,19 @@ A completely redesigned personal tracking system with enhanced visual appeal and
   - Match score with win/loss badge
   - PPR and round count
   - Easy-to-scan layout
+  - **View All Button**: Navigate to full Match History to see all completed games
+
+- **Match History**: Complete archive of all your games
+  - View every match you've played with scores, dates, and results
+  - See match stats: rounds played, PPR, and accuracy
+  - Tap any match to view detailed breakdown
+
+- **Match Details**: Deep dive into individual game performance
+  - Complete round-by-round breakdown showing your throws and opponent's performance
+  - Match summary stats: total bags in/on/missed, accuracy percentages
+  - Notable achievements: four-baggers, three-baggers, zero rounds
+  - Your PPR vs opponent PPR comparison
+  - Full scoring history with raw points per round
 
 - **Quick Log Mode**: Fast bag throw logging for practice
   - Big, colorful buttons for instant logging (In/On/Miss)

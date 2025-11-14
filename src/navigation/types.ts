@@ -56,5 +56,7 @@ export type RootStackParamList = {
   PersonalStats: undefined;
   PersonalMatchLog: undefined;
   PersonalSettings: undefined;
+  MatchHistory: undefined;
+  MatchDetail: { matchId: string };
   Profile: undefined;
 };
