@@ -50,23 +50,12 @@ export default function TournamentMatchScreen() {
   const [currentRound, setCurrentRound] = useState(1);
   const [showGameOver, setShowGameOver] = useState(false);
 
-  const [team1BagsIn, setTeam1BagsIn] = useState(0);
-  const [team1BagsOn, setTeam1BagsOn] = useState(0);
-  const [team2BagsIn, setTeam2BagsIn] = useState(0);
-  const [team2BagsOn, setTeam2BagsOn] = useState(0);
+  const [team1Score, setTeam1Score] = useState(0);
+  const [team2Score, setTeam2Score] = useState(0);
 
   const [rounds, setRounds] = useState<Round[]>([]);
 
-  const team1RoundScore = team1BagsIn * 3 + team1BagsOn;
-  const team2RoundScore = team2BagsIn * 3 + team2BagsOn;
-  const roundDiff = Math.abs(team1RoundScore - team2RoundScore);
-  const team1RoundPoints = team1RoundScore > team2RoundScore ? roundDiff : 0;
-  const team2RoundPoints = team2RoundScore > team1RoundScore ? roundDiff : 0;
-
-  const team1TotalScore = rounds.reduce((sum, r) => sum + r.team1Score, 0);
-  const team2TotalScore = rounds.reduce((sum, r) => sum + r.team2Score, 0);
-
-  const gameWon = team1TotalScore >= 21 || team2TotalScore >= 21;
+  const gameWon = team1Score >= 21 || team2Score >= 21;
 
   useEffect(() => {
     const updateLayout = () => {
@@ -103,32 +92,41 @@ export default function TournamentMatchScreen() {
       ? `${match.team2.player1.name} & Ghost`
       : `${match.team2.player1.name} & ${match.team2.player2.name}`;
 
-  const handleEndRound = () => {
-    const newRound: Round = {
-      team1In: team1BagsIn,
-      team1On: team1BagsOn,
-      team2In: team2BagsIn,
-      team2On: team2BagsOn,
-      team1Score: team1RoundPoints,
-      team2Score: team2RoundPoints,
-    };
+  const handleTopHalfPress = (team: 1 | 2) => {
+    if (gameWon) return;
 
-    setRounds([...rounds, newRound]);
-    setTeam1BagsIn(0);
-    setTeam1BagsOn(0);
-    setTeam2BagsIn(0);
-    setTeam2BagsOn(0);
-    setCurrentRound(currentRound + 1);
+    if (team === 1) {
+      setTeam1Score(team1Score + 1);
+    } else {
+      setTeam2Score(team2Score + 1);
+    }
+  };
+
+  const handleBottomHalfPress = (team: 1 | 2) => {
+    if (gameWon) return;
+
+    if (team === 1) {
+      setTeam1Score(Math.max(0, team1Score - 1));
+    } else {
+      setTeam2Score(Math.max(0, team2Score - 1));
+    }
   };
 
   const handleFinishGame = () => {
     recordRoundRobinResult(
       tournamentId,
       matchId,
-      team1TotalScore,
-      team2TotalScore
+      team1Score,
+      team2Score
     );
     navigation.goBack();
+  };
+
+  const handleReset = () => {
+    setTeam1Score(0);
+    setTeam2Score(0);
+    setCurrentRound(1);
+    setRounds([]);
   };
 
   const handleUndoLastRound = () => {
@@ -181,220 +179,134 @@ export default function TournamentMatchScreen() {
           </Text>
         </View>
 
-        {/* Scoreboard 3 Style - Tap layout with bag counters */}
+        {/* Tap Mode Scoreboard */}
         <View className="flex-1">
-          {/* Team 1 Area */}
+          {/* Team 1 Score */}
           <View className="flex-1 bg-gray-800 relative">
-            {/* Score Display */}
+            {/* Top Half - Increment */}
+            <Pressable
+              onPress={() => handleTopHalfPress(1)}
+              className="flex-1 active:bg-gray-700"
+            />
+
+            {/* Divider Line */}
+            <View className="absolute left-0 right-0 h-px bg-gray-700" style={{ top: "50%" }} />
+
+            {/* Score and Team Name centered on divider line */}
             <View
-              className="absolute left-0 right-0 items-center pointer-events-none z-10"
+              className="absolute left-0 right-0 items-center pointer-events-none"
               style={{
                 top: "50%",
-                transform: [{ translateY: isLandscape ? -70 : -100 }],
+                transform: [{ translateY: isLandscape ? -90 : -120 }]
               }}
             >
               {isLandscape && (
-                <Text className="text-red-500 font-bold uppercase tracking-wide text-sm mb-1">
+                <Text className="text-red-500 font-bold uppercase tracking-wide text-base mb-2">
                   {team1Name}
                 </Text>
               )}
               <Text
                 className="font-black text-white"
                 style={{
-                  fontSize: isLandscape ? 100 : 160,
+                  fontSize: isLandscape ? 140 : 220,
                   textShadowColor: "rgba(239, 68, 68, 0.6)",
                   textShadowOffset: { width: 0, height: 8 },
                   textShadowRadius: 30,
-                  lineHeight: isLandscape ? 100 : 160,
+                  lineHeight: isLandscape ? 140 : 220,
                 }}
               >
-                {team1TotalScore}
+                {team1Score}
               </Text>
               {!isLandscape && (
-                <Text className="text-red-500 font-bold uppercase tracking-wide text-base mt-1">
+                <Text className="text-red-500 font-bold uppercase tracking-wide text-xl mt-2">
                   {team1Name}
                 </Text>
               )}
             </View>
 
-            {/* Bag Counter Overlay - Top Right */}
-            <View className="absolute top-4 right-4 bg-black/60 rounded-xl p-3 z-20">
-              <View className="items-center mb-2">
-                <Text className="text-green-400 text-xs mb-1">IN</Text>
-                <View className="flex-row gap-2">
-                  <Pressable
-                    onPress={() => setTeam1BagsIn(Math.max(0, team1BagsIn - 1))}
-                    className="bg-red-600/80 rounded-lg w-8 h-8 items-center justify-center"
-                  >
-                    <Text className="text-white font-bold">-</Text>
-                  </Pressable>
-                  <View className="bg-gray-700 rounded-lg w-10 h-8 items-center justify-center">
-                    <Text className="text-white font-bold text-lg">
-                      {team1BagsIn}
-                    </Text>
-                  </View>
-                  <Pressable
-                    onPress={() => setTeam1BagsIn(Math.min(4, team1BagsIn + 1))}
-                    className="bg-green-600/80 rounded-lg w-8 h-8 items-center justify-center"
-                  >
-                    <Text className="text-white font-bold">+</Text>
-                  </Pressable>
-                </View>
-              </View>
-              <View className="items-center">
-                <Text className="text-blue-400 text-xs mb-1">ON</Text>
-                <View className="flex-row gap-2">
-                  <Pressable
-                    onPress={() => setTeam1BagsOn(Math.max(0, team1BagsOn - 1))}
-                    className="bg-red-600/80 rounded-lg w-8 h-8 items-center justify-center"
-                  >
-                    <Text className="text-white font-bold">-</Text>
-                  </Pressable>
-                  <View className="bg-gray-700 rounded-lg w-10 h-8 items-center justify-center">
-                    <Text className="text-white font-bold text-lg">
-                      {team1BagsOn}
-                    </Text>
-                  </View>
-                  <Pressable
-                    onPress={() =>
-                      setTeam1BagsOn(
-                        Math.min(4 - team1BagsIn, team1BagsOn + 1)
-                      )
-                    }
-                    className="bg-green-600/80 rounded-lg w-8 h-8 items-center justify-center"
-                  >
-                    <Text className="text-white font-bold">+</Text>
-                  </Pressable>
-                </View>
-              </View>
-              <View className="mt-2 pt-2 border-t border-white/20">
-                <Text className="text-gray-400 text-xs text-center">
-                  Round: {team1RoundScore}
-                </Text>
-              </View>
-            </View>
+            {/* Bottom Half - Decrement */}
+            <Pressable
+              onPress={() => handleBottomHalfPress(1)}
+              className="flex-1 active:bg-gray-700"
+            />
           </View>
 
           {/* Center Controls */}
-          <View className="bg-gray-900 py-3 px-4">
+          <View className="bg-gray-900 py-4 px-4">
             <View className="flex-row justify-around items-center">
               <Pressable
-                onPress={handleEndRound}
-                className="bg-green-600 px-8 py-3 rounded-full"
+                onPress={handleReset}
+                className="bg-red-600 px-6 py-3 rounded-full"
               >
                 <View className="flex-row items-center gap-2">
-                  <Ionicons name="checkmark" size={20} color="#fff" />
-                  <Text className="text-white font-bold">Enter</Text>
+                  <Ionicons name="refresh" size={20} color="#fff" />
+                  <Text className="text-white font-bold">Reset</Text>
                 </View>
               </Pressable>
 
-              {rounds.length > 0 && (
-                <View className="bg-gray-800 px-4 py-2 rounded-lg">
-                  <Text className="text-gray-400 text-xs">Round {currentRound}</Text>
-                  <View className="flex-row gap-3 mt-1">
-                    <Text className="text-red-400 font-bold">
-                      {team1TotalScore}
-                    </Text>
-                    <Text className="text-gray-600">-</Text>
-                    <Text className="text-blue-400 font-bold">
-                      {team2TotalScore}
-                    </Text>
-                  </View>
+              <View className="bg-gray-800 px-4 py-2 rounded-lg">
+                <Text className="text-gray-400 text-xs">Score</Text>
+                <View className="flex-row gap-3 mt-1">
+                  <Text className="text-red-400 font-bold">
+                    {team1Score}
+                  </Text>
+                  <Text className="text-gray-600">-</Text>
+                  <Text className="text-blue-400 font-bold">
+                    {team2Score}
+                  </Text>
                 </View>
-              )}
+              </View>
             </View>
           </View>
 
-          {/* Team 2 Area */}
+          {/* Team 2 Score */}
           <View className="flex-1 bg-gray-800 relative">
-            {/* Score Display */}
+            {/* Top Half - Increment */}
+            <Pressable
+              onPress={() => handleTopHalfPress(2)}
+              className="flex-1 active:bg-gray-700"
+            />
+
+            {/* Divider Line */}
+            <View className="absolute left-0 right-0 h-px bg-gray-700" style={{ top: "50%" }} />
+
+            {/* Score and Team Name centered on divider line */}
             <View
-              className="absolute left-0 right-0 items-center pointer-events-none z-10"
+              className="absolute left-0 right-0 items-center pointer-events-none"
               style={{
                 top: "50%",
-                transform: [{ translateY: isLandscape ? -70 : -100 }],
+                transform: [{ translateY: isLandscape ? -90 : -120 }]
               }}
             >
               {isLandscape && (
-                <Text className="text-blue-500 font-bold uppercase tracking-wide text-sm mb-1">
+                <Text className="text-blue-500 font-bold uppercase tracking-wide text-base mb-2">
                   {team2Name}
                 </Text>
               )}
               <Text
                 className="font-black text-white"
                 style={{
-                  fontSize: isLandscape ? 100 : 160,
+                  fontSize: isLandscape ? 140 : 220,
                   textShadowColor: "rgba(59, 130, 246, 0.6)",
                   textShadowOffset: { width: 0, height: 8 },
                   textShadowRadius: 30,
-                  lineHeight: isLandscape ? 100 : 160,
+                  lineHeight: isLandscape ? 140 : 220,
                 }}
               >
-                {team2TotalScore}
+                {team2Score}
               </Text>
               {!isLandscape && (
-                <Text className="text-blue-500 font-bold uppercase tracking-wide text-base mt-1">
+                <Text className="text-blue-500 font-bold uppercase tracking-wide text-xl mt-2">
                   {team2Name}
                 </Text>
               )}
             </View>
 
-            {/* Bag Counter Overlay - Bottom Right */}
-            <View className="absolute top-4 right-4 bg-black/60 rounded-xl p-3 z-20">
-              <View className="items-center mb-2">
-                <Text className="text-green-400 text-xs mb-1">IN</Text>
-                <View className="flex-row gap-2">
-                  <Pressable
-                    onPress={() => setTeam2BagsIn(Math.max(0, team2BagsIn - 1))}
-                    className="bg-red-600/80 rounded-lg w-8 h-8 items-center justify-center"
-                  >
-                    <Text className="text-white font-bold">-</Text>
-                  </Pressable>
-                  <View className="bg-gray-700 rounded-lg w-10 h-8 items-center justify-center">
-                    <Text className="text-white font-bold text-lg">
-                      {team2BagsIn}
-                    </Text>
-                  </View>
-                  <Pressable
-                    onPress={() => setTeam2BagsIn(Math.min(4, team2BagsIn + 1))}
-                    className="bg-green-600/80 rounded-lg w-8 h-8 items-center justify-center"
-                  >
-                    <Text className="text-white font-bold">+</Text>
-                  </Pressable>
-                </View>
-              </View>
-              <View className="items-center">
-                <Text className="text-blue-400 text-xs mb-1">ON</Text>
-                <View className="flex-row gap-2">
-                  <Pressable
-                    onPress={() => setTeam2BagsOn(Math.max(0, team2BagsOn - 1))}
-                    className="bg-red-600/80 rounded-lg w-8 h-8 items-center justify-center"
-                  >
-                    <Text className="text-white font-bold">-</Text>
-                  </Pressable>
-                  <View className="bg-gray-700 rounded-lg w-10 h-8 items-center justify-center">
-                    <Text className="text-white font-bold text-lg">
-                      {team2BagsOn}
-                    </Text>
-                  </View>
-                  <Pressable
-                    onPress={() =>
-                      setTeam2BagsOn(
-                        Math.min(4 - team2BagsIn, team2BagsOn + 1)
-                      )
-                    }
-                    className="bg-green-600/80 rounded-lg w-8 h-8 items-center justify-center"
-                  >
-                    <Text className="text-white font-bold">+</Text>
-                  </Pressable>
-                </View>
-              </View>
-              <View className="mt-2 pt-2 border-t border-white/20">
-                <Text className="text-gray-400 text-xs text-center">
-                  Round: {team2RoundScore}
-                </Text>
-              </View>
-            </View>
+            {/* Bottom Half - Decrement */}
+            <Pressable
+              onPress={() => handleBottomHalfPress(2)}
+              className="flex-1 active:bg-gray-700"
+            />
           </View>
         </View>
       </SafeAreaView>
@@ -412,20 +324,20 @@ export default function TournamentMatchScreen() {
             <View className="mb-8">
               <Text className="text-gray-400 text-center mb-2">Winner</Text>
               <Text className="text-green-500 text-2xl font-bold text-center">
-                {team1TotalScore > team2TotalScore ? team1Name : team2Name}
+                {team1Score > team2Score ? team1Name : team2Name}
               </Text>
             </View>
             <View className="bg-white/5 rounded-xl p-6 border border-white/10 mb-6">
               <View className="flex-row justify-between mb-3">
                 <Text className="text-white">{team1Name}</Text>
                 <Text className="text-white font-bold text-xl">
-                  {team1TotalScore}
+                  {team1Score}
                 </Text>
               </View>
               <View className="flex-row justify-between">
                 <Text className="text-white">{team2Name}</Text>
                 <Text className="text-white font-bold text-xl">
-                  {team2TotalScore}
+                  {team2Score}
                 </Text>
               </View>
             </View>
