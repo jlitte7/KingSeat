@@ -46,45 +46,18 @@ Create and customize your personal profile to make the app truly yours:
 
 ### 📊 Scoreboard
 - **Quick Game Setup**: Enter player names and start tracking immediately
-- **Player Name Display**: Shows actual player names throughout the game (not generic "Player 1/2")
-- **Dual Scoreboard Modes**:
-  - **Bags Mode (Default - Scoreboard 1)**: Traditional bags in/on tracking with automatic cancellation scoring
-  - **Tap Mode (Scoreboard 2 - Scoreholio-style)**: Clean, minimal interface with massive score numbers (180pt font)
-    - Tap top half of player area to increment score (+1)
-    - Tap bottom half of player area to decrement (-1)
-    - No instruction text, just pure scoring interface
-  - **Scoreboard 3 (Tournament Mode)**: Combines tap mode layout with bag counters overlay
-    - Large score displays with team names
-    - Compact bag counter overlays in corners (In/On buttons)
-    - Used in TossOff tournament matches for optimal visibility and control
-  - **Mode Toggle**:
-    - Switch from Bags Mode to Tap Mode with "Tap Mode" button in Bags Mode header
-    - Switch from Tap Mode back to Bags Mode with "Bags" button in Tap Mode header
-- **Landscape Mode Support**: Both scoreboard modes detect landscape orientation automatically
-  - Player names displayed above scores in landscape (Player 1 / Player 2)
+- **Player Name Display**: Shows actual player names throughout the game
+- **Tap Mode Scoreboard**: Clean, minimal interface with massive score numbers (220pt font)
+  - Tap top half of player area to increment score (+1)
+  - Tap bottom half of player area to decrement (-1)
+  - No instruction text, just pure scoring interface
+  - Scoreholio-style design for maximum visibility
+- **Landscape Mode Support**: Automatic landscape orientation detection
+  - Player names displayed above scores in landscape
   - Player names displayed below scores in portrait
   - Optimized number sizes and spacing for landscape viewing
   - Note: Landscape requires device rotation to be enabled in system settings
 - **Live Scoring**: Real-time score tracking with large, easy-to-read numbers
-- **Cancellation Scoring**: Automatic calculation of points (difference only counts)
-- **Collapsible Stats Panel**: Toggle stats visibility with chevron button in header
-  - Shows PPR, bag accuracy, and four-bagger rates during games
-  - Stays hidden by default to maximize scoreboard space
-  - Easy access whenever needed
-- **Round History**: Full round-by-round breakdown with "View Round History" button
-  - Shows each player's bags in/on for every round
-  - Displays points scored per round with running totals
-  - Highlights four-baggers with special badges
-  - Clean, card-based layout for easy review
-- **Undo Last Round**: Made a mistake? Use the undo button in the header to remove the last round
-  - Button disabled when no rounds have been played
-  - Automatically decrements round counter
-- **Four-Bagger Celebrations**: Animated celebration with player name when someone gets all 4 bags in
-  - Shows which player achieved the four-bagger
-  - Sound effects for celebrations
-- **Sound Effects**: Audio feedback for scoring and celebrations
-  - Celebration sound for four-baggers
-  - Regular scoring sound for normal rounds
 - **Game Completion**: Winner announcement with final stats
 - **Flexible Rounds**: Play unlimited rounds or set a specific limit
 
@@ -466,9 +439,9 @@ Professional tournament management system with blind draw functionality, Switcho
 1. Tap **📊 Scoreboard** from home
 2. Enter player names
 3. Optionally set total rounds
-4. Tap the screen to enter scores
-5. Use the counters to track bags in/on for each player
-6. Tap **Enter** to complete the round
+4. Tap **Start Game**
+5. Tap top half of player area to add points (+1)
+6. Tap bottom half of player area to subtract points (-1)
 7. Game ends at 21 points or when rounds complete
 
 ### League Management (Clubhouse)

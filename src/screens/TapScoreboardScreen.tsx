@@ -72,13 +72,6 @@ export default function TapScoreboardScreen() {
     navigation.goBack();
   };
 
-  const switchToBagsMode = () => {
-    navigation.replace('Scoreboard', {
-      player1Name,
-      player2Name,
-      totalRounds,
-    });
-  };
 
   const p1PPR = completedRounds > 0 ? (p1Score / completedRounds).toFixed(1) : '0.0';
   const p2PPR = completedRounds > 0 ? (p2Score / completedRounds).toFixed(1) : '0.0';
@@ -100,16 +93,7 @@ export default function TapScoreboardScreen() {
               />
               <Text className="text-white font-bold tracking-wider" style={{ fontSize: isLandscape ? 16 : 20 }}>KINGSEAT</Text>
             </View>
-            <View className="w-20 items-end">
-              <Pressable
-                onPress={switchToBagsMode}
-                className="bg-purple-600 px-3 py-1.5 rounded-lg"
-              >
-                <Text className="text-white text-xs font-bold">
-                  Bags
-                </Text>
-              </Pressable>
-            </View>
+            <View className="w-20" />
           </View>
           <Text className="text-white text-center font-semibold" style={{ fontSize: isLandscape ? 10 : 12 }}>
             {totalRounds ? `Round ${currentRound} of ${totalRounds}` : `Round ${currentRound}`}
@@ -140,7 +124,7 @@ export default function TapScoreboardScreen() {
               >
                 {isLandscape && (
                   <Text className="text-red-500 font-bold uppercase tracking-wide text-base mb-2">
-                    Player 1
+                    {player1Name}
                   </Text>
                 )}
                 <Text
@@ -157,7 +141,7 @@ export default function TapScoreboardScreen() {
                 </Text>
                 {!isLandscape && (
                   <Text className="text-red-500 font-bold uppercase tracking-wide text-xl mt-2">
-                    Player 1
+                    {player1Name}
                   </Text>
                 )}
               </View>
@@ -218,7 +202,7 @@ export default function TapScoreboardScreen() {
               >
                 {isLandscape && (
                   <Text className="text-blue-500 font-bold uppercase tracking-wide text-base mb-2">
-                    Player 2
+                    {player2Name}
                   </Text>
                 )}
                 <Text
@@ -235,7 +219,7 @@ export default function TapScoreboardScreen() {
                 </Text>
                 {!isLandscape && (
                   <Text className="text-blue-500 font-bold uppercase tracking-wide text-xl mt-2">
-                    Player 2
+                    {player2Name}
                   </Text>
                 )}
               </View>
