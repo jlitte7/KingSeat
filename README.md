@@ -53,10 +53,11 @@ Create and customize your personal profile to make the app truly yours:
   - No instruction text, just pure scoring interface
   - Scoreholio-style design for maximum visibility
 - **Landscape Mode Support**: Automatic landscape orientation detection
+  - Screen automatically unlocks orientation when scoreboard opens
   - Player names displayed above scores in landscape
   - Player names displayed below scores in portrait
   - Optimized number sizes and spacing for landscape viewing
-  - Note: Landscape requires device rotation to be enabled in system settings
+  - Returns to portrait lock when you exit the scoreboard
 - **Live Scoring**: Real-time score tracking with large, easy-to-read numbers
 - **Game Completion**: Winner announcement with final stats
 - **Flexible Rounds**: Play unlimited rounds or set a specific limit
