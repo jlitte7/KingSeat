@@ -134,6 +134,22 @@ export default function TournamentMatchScreen() {
     }
   };
 
+  const setBagCount = (team: number, type: "in" | "on", value: number) => {
+    if (team === 1) {
+      if (type === "in") {
+        setTeam1BagsIn(Math.min(value, 4 - team1BagsOn));
+      } else {
+        setTeam1BagsOn(Math.min(value, 4 - team1BagsIn));
+      }
+    } else {
+      if (type === "in") {
+        setTeam2BagsIn(Math.min(value, 4 - team2BagsOn));
+      } else {
+        setTeam2BagsOn(Math.min(value, 4 - team2BagsIn));
+      }
+    }
+  };
+
   const handleEndRound = () => {
     if (!isTapMode) {
       const newRound: Round = {
@@ -178,6 +194,54 @@ export default function TournamentMatchScreen() {
   const switchMode = () => {
     setIsTapMode(!isTapMode);
   };
+
+  const BagCounter = ({
+    label,
+    count,
+    onSelect,
+    color,
+    disabled,
+  }: {
+    label: string;
+    count: number;
+    onSelect: (num: number) => void;
+    color: string;
+    disabled?: (num: number) => boolean;
+  }) => (
+    <View className="items-center gap-1">
+      <Text className={`text-xs font-bold ${color}`}>{label}</Text>
+      <View className="gap-0.5">
+        {[0, 1, 2, 3, 4].map((num) => (
+          <Pressable
+            key={num}
+            onPress={() => onSelect(num)}
+            disabled={disabled && disabled(num)}
+            className={`rounded-lg font-bold ${
+              isLandscape ? "w-9 h-4" : "w-14 h-12"
+            } items-center justify-center ${
+              num === count
+                ? "bg-gray-900 border-2 border-gray-700"
+                : disabled && disabled(num)
+                ? "bg-gray-800 border-2 border-gray-700"
+                : "bg-gray-700 border-2 border-gray-600"
+            }`}
+          >
+            <Text
+              className={`font-bold ${isLandscape ? "text-xs" : "text-2xl"} ${
+                num === count
+                  ? "text-white"
+                  : disabled && disabled(num)
+                  ? "text-gray-600"
+                  : "text-gray-400"
+              }`}
+            >
+              {num}
+            </Text>
+          </Pressable>
+        ))}
+      </View>
+    </View>
+  );
 
   const handleUndoLastRound = () => {
     if (rounds.length > 0) {
@@ -367,218 +431,161 @@ export default function TournamentMatchScreen() {
         ) : (
           // BAGS MODE
           <View className="flex-1">
-            {/* Team 1 Area */}
-            <View className="flex-1 bg-gray-800 relative">
-              {/* Score Display */}
-              <View
-                className="absolute left-0 right-0 items-center pointer-events-none z-10"
-                style={{
-                  top: "50%",
-                  transform: [{ translateY: isLandscape ? -70 : -100 }],
-                }}
-              >
-                {isLandscape && (
-                  <Text className="text-red-500 font-bold uppercase tracking-wide text-sm mb-1">
-                    {team1Name}
-                  </Text>
-                )}
-                <Text
-                  className="font-black text-white"
-                  style={{
-                    fontSize: isLandscape ? 100 : 160,
-                    textShadowColor: "rgba(239, 68, 68, 0.6)",
-                    textShadowOffset: { width: 0, height: 8 },
-                    textShadowRadius: 30,
-                    lineHeight: isLandscape ? 100 : 160,
-                  }}
-                >
-                  {team1TotalScore}
+            {/* Team Scores Display */}
+            <View className="flex-1 items-center justify-center">
+              <View className="flex-row items-center justify-center w-full px-4">
+                <View className="flex-1 items-center">
+                  {isLandscape && (
+                    <Text className="text-red-500 font-bold uppercase tracking-wide text-base mb-2">
+                      {team1Name}
+                    </Text>
+                  )}
+                  <View style={{ minWidth: isLandscape ? 200 : 280 }}>
+                    <Text
+                      className="font-black text-white text-center"
+                      style={{
+                        fontSize: isLandscape ? 140 : 220,
+                        textShadowColor: "rgba(239, 68, 68, 0.6)",
+                        textShadowOffset: { width: 0, height: 8 },
+                        textShadowRadius: 30,
+                        lineHeight: isLandscape ? 140 : 220,
+                      }}
+                    >
+                      {team1TotalScore}
+                    </Text>
+                  </View>
+                  <View className={`h-px bg-red-500 ${isLandscape ? "w-2/3" : "w-3/4"} my-2`} />
+                  {!isLandscape && (
+                    <Text className="text-red-500 font-bold uppercase tracking-wide text-xl">
+                      {team1Name}
+                    </Text>
+                  )}
+                </View>
+
+                <Text className="text-gray-700 font-bold px-4" style={{ fontSize: isLandscape ? 60 : 100 }}>
+                  -
                 </Text>
-                {!isLandscape && (
-                  <Text className="text-red-500 font-bold uppercase tracking-wide text-base mt-1">
-                    {team1Name}
-                  </Text>
-                )}
+
+                <View className="flex-1 items-center">
+                  {isLandscape && (
+                    <Text className="text-blue-500 font-bold uppercase tracking-wide text-base mb-2">
+                      {team2Name}
+                    </Text>
+                  )}
+                  <View style={{ minWidth: isLandscape ? 200 : 280 }}>
+                    <Text
+                      className="font-black text-white text-center"
+                      style={{
+                        fontSize: isLandscape ? 140 : 220,
+                        textShadowColor: "rgba(59, 130, 246, 0.6)",
+                        textShadowOffset: { width: 0, height: 8 },
+                        textShadowRadius: 30,
+                        lineHeight: isLandscape ? 140 : 220,
+                      }}
+                    >
+                      {team2TotalScore}
+                    </Text>
+                  </View>
+                  <View className={`h-px bg-blue-500 ${isLandscape ? "w-2/3" : "w-3/4"} my-2`} />
+                  {!isLandscape && (
+                    <Text className="text-blue-500 font-bold uppercase tracking-wide text-xl">
+                      {team2Name}
+                    </Text>
+                  )}
+                </View>
               </View>
 
-              {/* Bag Counter Overlay - Top Right */}
-              <View className="absolute top-4 right-4 bg-black/60 rounded-xl p-3 z-20">
-                <View className="items-center mb-2">
-                  <Text className="text-green-400 text-xs mb-1">IN</Text>
-                  <View className="flex-row gap-2">
-                    <Pressable
-                      onPress={() => setTeam1BagsIn(Math.max(0, team1BagsIn - 1))}
-                      className="bg-red-600/80 rounded-lg w-8 h-8 items-center justify-center"
-                    >
-                      <Text className="text-white font-bold">-</Text>
-                    </Pressable>
-                    <View className="bg-gray-700 rounded-lg w-10 h-8 items-center justify-center">
-                      <Text className="text-white font-bold text-lg">
-                        {team1BagsIn}
-                      </Text>
-                    </View>
-                    <Pressable
-                      onPress={() => setTeam1BagsIn(Math.min(4, team1BagsIn + 1))}
-                      className="bg-green-600/80 rounded-lg w-8 h-8 items-center justify-center"
-                    >
-                      <Text className="text-white font-bold">+</Text>
-                    </Pressable>
-                  </View>
-                </View>
-                <View className="items-center">
-                  <Text className="text-blue-400 text-xs mb-1">ON</Text>
-                  <View className="flex-row gap-2">
-                    <Pressable
-                      onPress={() => setTeam1BagsOn(Math.max(0, team1BagsOn - 1))}
-                      className="bg-red-600/80 rounded-lg w-8 h-8 items-center justify-center"
-                    >
-                      <Text className="text-white font-bold">-</Text>
-                    </Pressable>
-                    <View className="bg-gray-700 rounded-lg w-10 h-8 items-center justify-center">
-                      <Text className="text-white font-bold text-lg">
-                        {team1BagsOn}
-                      </Text>
-                    </View>
-                    <Pressable
-                      onPress={() =>
-                        setTeam1BagsOn(
-                          Math.min(4 - team1BagsIn, team1BagsOn + 1)
-                        )
-                      }
-                      className="bg-green-600/80 rounded-lg w-8 h-8 items-center justify-center"
-                    >
-                      <Text className="text-white font-bold">+</Text>
-                    </Pressable>
-                  </View>
-                </View>
-                <View className="mt-2 pt-2 border-t border-white/20">
-                  <Text className="text-gray-400 text-xs text-center">
-                    Round: {team1RoundScore}
+              {/* Bag Counters */}
+              <View className={`flex-row justify-around w-full max-w-2xl gap-4 px-4 ${isLandscape ? "mt-4" : "mt-8"}`}>
+                <View className="items-center gap-1">
+                  <Text className={`font-bold text-red-500 ${isLandscape ? "text-xs" : "text-lg"}`}>
+                    {team1Name}
                   </Text>
+                  <View className="flex-row gap-2">
+                    <BagCounter
+                      label={isLandscape ? "IN" : "BAGS IN"}
+                      count={team1BagsIn}
+                      onSelect={(value) => setBagCount(1, "in", value)}
+                      disabled={(value) => value > 4 - team1BagsOn}
+                      color="text-red-500"
+                    />
+                    <BagCounter
+                      label={isLandscape ? "ON" : "BAGS ON"}
+                      count={team1BagsOn}
+                      onSelect={(value) => setBagCount(1, "on", value)}
+                      disabled={(value) => value > 4 - team1BagsIn}
+                      color="text-red-500"
+                    />
+                  </View>
+                </View>
+
+                <View className="items-center gap-1">
+                  <Text className={`font-bold text-blue-500 ${isLandscape ? "text-xs" : "text-lg"}`}>
+                    {team2Name}
+                  </Text>
+                  <View className="flex-row gap-2">
+                    <BagCounter
+                      label={isLandscape ? "IN" : "BAGS IN"}
+                      count={team2BagsIn}
+                      onSelect={(value) => setBagCount(2, "in", value)}
+                      disabled={(value) => value > 4 - team2BagsOn}
+                      color="text-blue-500"
+                    />
+                    <BagCounter
+                      label={isLandscape ? "ON" : "BAGS ON"}
+                      count={team2BagsOn}
+                      onSelect={(value) => setBagCount(2, "on", value)}
+                      disabled={(value) => value > 4 - team2BagsIn}
+                      color="text-blue-500"
+                    />
+                  </View>
                 </View>
               </View>
             </View>
 
-            {/* Center Controls */}
+            {/* Bottom Controls */}
             <View className="bg-gray-900 py-3 px-4">
               <View className="flex-row justify-around items-center">
+                <Pressable
+                  onPress={() => {
+                    setTeam1BagsIn(0);
+                    setTeam1BagsOn(0);
+                    setTeam2BagsIn(0);
+                    setTeam2BagsOn(0);
+                  }}
+                  className="bg-red-600 px-6 py-3 rounded-full"
+                >
+                  <View className="flex-row items-center gap-2">
+                    <Ionicons name="close" size={20} color="#fff" />
+                    <Text className="text-white font-bold">Cancel</Text>
+                  </View>
+                </Pressable>
+
                 <Pressable
                   onPress={handleEndRound}
                   className="bg-green-600 px-8 py-3 rounded-full"
                 >
                   <View className="flex-row items-center gap-2">
                     <Ionicons name="checkmark" size={20} color="#fff" />
-                    <Text className="text-white font-bold">Enter</Text>
+                    <Text className="text-white font-bold">Enter Round</Text>
                   </View>
                 </Pressable>
-
-                {rounds.length > 0 && (
-                  <View className="bg-gray-800 px-4 py-2 rounded-lg">
-                    <Text className="text-gray-400 text-xs">Round {currentRound}</Text>
-                    <View className="flex-row gap-3 mt-1">
-                      <Text className="text-red-400 font-bold">
-                        {team1TotalScore}
-                      </Text>
-                      <Text className="text-gray-600">-</Text>
-                      <Text className="text-blue-400 font-bold">
-                        {team2TotalScore}
-                      </Text>
-                    </View>
-                  </View>
-                )}
-              </View>
-            </View>
-
-            {/* Team 2 Area */}
-            <View className="flex-1 bg-gray-800 relative">
-              {/* Score Display */}
-              <View
-                className="absolute left-0 right-0 items-center pointer-events-none z-10"
-                style={{
-                  top: "50%",
-                  transform: [{ translateY: isLandscape ? -70 : -100 }],
-                }}
-              >
-                {isLandscape && (
-                  <Text className="text-blue-500 font-bold uppercase tracking-wide text-sm mb-1">
-                    {team2Name}
-                  </Text>
-                )}
-                <Text
-                  className="font-black text-white"
-                  style={{
-                    fontSize: isLandscape ? 100 : 160,
-                    textShadowColor: "rgba(59, 130, 246, 0.6)",
-                    textShadowOffset: { width: 0, height: 8 },
-                    textShadowRadius: 30,
-                    lineHeight: isLandscape ? 100 : 160,
-                  }}
-                >
-                  {team2TotalScore}
-                </Text>
-                {!isLandscape && (
-                  <Text className="text-blue-500 font-bold uppercase tracking-wide text-base mt-1">
-                    {team2Name}
-                  </Text>
-                )}
               </View>
 
-              {/* Bag Counter Overlay - Bottom Right */}
-              <View className="absolute top-4 right-4 bg-black/60 rounded-xl p-3 z-20">
-                <View className="items-center mb-2">
-                  <Text className="text-green-400 text-xs mb-1">IN</Text>
-                  <View className="flex-row gap-2">
-                    <Pressable
-                      onPress={() => setTeam2BagsIn(Math.max(0, team2BagsIn - 1))}
-                      className="bg-red-600/80 rounded-lg w-8 h-8 items-center justify-center"
-                    >
-                      <Text className="text-white font-bold">-</Text>
-                    </Pressable>
-                    <View className="bg-gray-700 rounded-lg w-10 h-8 items-center justify-center">
-                      <Text className="text-white font-bold text-lg">
-                        {team2BagsIn}
-                      </Text>
-                    </View>
-                    <Pressable
-                      onPress={() => setTeam2BagsIn(Math.min(4, team2BagsIn + 1))}
-                      className="bg-green-600/80 rounded-lg w-8 h-8 items-center justify-center"
-                    >
-                      <Text className="text-white font-bold">+</Text>
-                    </Pressable>
+              {rounds.length > 0 && (
+                <View className="bg-gray-800 px-4 py-2 rounded-lg mt-3 items-center">
+                  <Text className="text-gray-400 text-xs">Score</Text>
+                  <View className="flex-row gap-3 mt-1">
+                    <Text className="text-red-400 font-bold">
+                      {team1TotalScore}
+                    </Text>
+                    <Text className="text-gray-600">-</Text>
+                    <Text className="text-blue-400 font-bold">
+                      {team2TotalScore}
+                    </Text>
                   </View>
                 </View>
-                <View className="items-center">
-                  <Text className="text-blue-400 text-xs mb-1">ON</Text>
-                  <View className="flex-row gap-2">
-                    <Pressable
-                      onPress={() => setTeam2BagsOn(Math.max(0, team2BagsOn - 1))}
-                      className="bg-red-600/80 rounded-lg w-8 h-8 items-center justify-center"
-                    >
-                      <Text className="text-white font-bold">-</Text>
-                    </Pressable>
-                    <View className="bg-gray-700 rounded-lg w-10 h-8 items-center justify-center">
-                      <Text className="text-white font-bold text-lg">
-                        {team2BagsOn}
-                      </Text>
-                    </View>
-                    <Pressable
-                      onPress={() =>
-                        setTeam2BagsOn(
-                          Math.min(4 - team2BagsIn, team2BagsOn + 1)
-                        )
-                      }
-                      className="bg-green-600/80 rounded-lg w-8 h-8 items-center justify-center"
-                    >
-                      <Text className="text-white font-bold">+</Text>
-                    </Pressable>
-                  </View>
-                </View>
-                <View className="mt-2 pt-2 border-t border-white/20">
-                  <Text className="text-gray-400 text-xs text-center">
-                    Round: {team2RoundScore}
-                  </Text>
-                </View>
-              </View>
+              )}
             </View>
           </View>
         )}
