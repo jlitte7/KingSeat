@@ -17,6 +17,7 @@ export default function PersonalMatchLogScreen() {
   const navigation = useNavigation<PersonalMatchLogNavigationProp>();
   const route = useRoute<PersonalMatchLogRouteProp>();
   const matchIdParam = route.params?.matchId;
+  const roundNumberParam = route.params?.roundNumber;
 
   const currentMatch = usePersonalStatsStore((s) => s.currentMatch);
   const currentRound = usePersonalStatsStore((s) => s.currentRound);
@@ -47,16 +48,24 @@ export default function PersonalMatchLogScreen() {
       if (matchToEdit && matchToEdit.rounds.length > 0) {
         setIsEditMode(true);
         setEditMatchId(matchIdParam);
-        setCurrentEditRoundIndex(0);
-        // Load first round data
-        const firstRound = matchToEdit.rounds[0];
-        setMyBagsIn(firstRound.myBagsIn);
-        setMyBagsOn(firstRound.myBagsOn);
-        const oppRawScore = firstRound.opponentBagsIn * 3 + firstRound.opponentBagsOn;
+
+        // If roundNumber is provided, load that specific round, otherwise load first round
+        const roundIndex = roundNumberParam
+          ? matchToEdit.rounds.findIndex((r) => r.roundNumber === roundNumberParam)
+          : 0;
+
+        const targetRoundIndex = roundIndex >= 0 ? roundIndex : 0;
+        setCurrentEditRoundIndex(targetRoundIndex);
+
+        // Load the target round data
+        const targetRound = matchToEdit.rounds[targetRoundIndex];
+        setMyBagsIn(targetRound.myBagsIn);
+        setMyBagsOn(targetRound.myBagsOn);
+        const oppRawScore = targetRound.opponentBagsIn * 3 + targetRound.opponentBagsOn;
         setOppScore(oppRawScore);
       }
     }
-  }, [matchIdParam, matches, isEditMode]);
+  }, [matchIdParam, roundNumberParam, matches, isEditMode]);
 
   const handleStartMatch = () => {
     if (!opponent.trim()) {
@@ -79,7 +88,22 @@ export default function PersonalMatchLogScreen() {
 
       editRound(editMatchId, roundToEdit.roundNumber, myBagsIn, myBagsOn, oppBagsIn, oppBagsOn);
 
-      // Move to next round or finish
+      // If a specific round was requested, just save and go back
+      if (roundNumberParam) {
+        Alert.alert(
+          "Round Updated",
+          `Round ${roundNumberParam} has been updated successfully.`,
+          [
+            {
+              text: "OK",
+              onPress: () => navigation.goBack(),
+            },
+          ]
+        );
+        return;
+      }
+
+      // Otherwise, continue cycling through rounds (old behavior)
       if (currentEditRoundIndex < matchToEdit.rounds.length - 1) {
         const nextIndex = currentEditRoundIndex + 1;
         setCurrentEditRoundIndex(nextIndex);

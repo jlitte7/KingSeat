@@ -146,13 +146,11 @@ A completely redesigned personal tracking system with enhanced visual appeal and
   - Notable achievements: four-baggers, three-baggers, zero rounds
   - Your PPR vs opponent PPR comparison
   - Full scoring history with raw points per round
-  - **Edit Match Feature**: Fix errors in logged matches using the full match logging interface
-    - Tap "Edit" button on any round to enter edit mode
-    - Opens the same interface used for logging matches, with all your data pre-loaded
-    - Navigate between rounds using "Previous Round" / "Next Round" buttons
-    - See real-time match stats as you make changes
-    - Changes are saved automatically as you navigate between rounds
-    - Exit when done - all rounds and match totals are automatically recalculated
+  - **Edit Round Feature**: Tap the "Edit" button on any specific round to edit just that round
+    - Opens the scoreboard interface with that round's data pre-loaded
+    - Make your corrections and tap "Enter" to save
+    - Returns directly to Match Details when done
+    - Quick and focused editing for fixing individual round errors
 
 - **Quick Log Mode**: Fast bag throw logging for practice
   - Big, colorful buttons for instant logging (In/On/Miss)

@@ -54,7 +54,7 @@ export type RootStackParamList = {
   BestGameChallenge: undefined;
   PressurePractice: undefined;
   PersonalStats: undefined;
-  PersonalMatchLog: { matchId?: string } | undefined;
+  PersonalMatchLog: { matchId?: string; roundNumber?: number } | undefined;
   PersonalSettings: undefined;
   MatchHistory: undefined;
   MatchDetail: { matchId: string };

@@ -285,6 +285,7 @@ export default function MatchDetailScreen() {
                         onPress={() =>
                           navigation.navigate("PersonalMatchLog", {
                             matchId: match.id,
+                            roundNumber: round.roundNumber,
                           })
                         }
                         className="ml-2 bg-purple-600 px-3 py-1 rounded-lg"
