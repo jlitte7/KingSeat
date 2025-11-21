@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, Pressable, ScrollView, TextInput, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../navigation/types";
 import { usePersonalStatsStore } from "../state/personal-stats-store";
@@ -11,25 +11,52 @@ type PersonalMatchLogNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
   "PersonalMatchLog"
 >;
+type PersonalMatchLogRouteProp = RouteProp<RootStackParamList, "PersonalMatchLog">;
 
 export default function PersonalMatchLogScreen() {
   const navigation = useNavigation<PersonalMatchLogNavigationProp>();
+  const route = useRoute<PersonalMatchLogRouteProp>();
+  const matchIdParam = route.params?.matchId;
+
   const currentMatch = usePersonalStatsStore((s) => s.currentMatch);
   const currentRound = usePersonalStatsStore((s) => s.currentRound);
+  const matches = usePersonalStatsStore((s) => s.matches);
   const startMatch = usePersonalStatsStore((s) => s.startMatch);
   const completeRound = usePersonalStatsStore((s) => s.completeRound);
   const startRound = usePersonalStatsStore((s) => s.startRound);
   const endMatch = usePersonalStatsStore((s) => s.endMatch);
   const cancelMatch = usePersonalStatsStore((s) => s.cancelMatch);
+  const editRound = usePersonalStatsStore((s) => s.editRound);
   const settings = usePersonalStatsStore((s) => s.settings);
 
   const [opponent, setOpponent] = useState("");
   const [teammate, setTeammate] = useState("");
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editMatchId, setEditMatchId] = useState<string | null>(null);
+  const [currentEditRoundIndex, setCurrentEditRoundIndex] = useState(0);
 
   // Round bag counts
   const [myBagsIn, setMyBagsIn] = useState(0);
   const [myBagsOn, setMyBagsOn] = useState(0);
   const [oppScore, setOppScore] = useState(0); // Simplified: just opponent's raw score (0-12)
+
+  // Load match for editing if matchId is provided
+  useEffect(() => {
+    if (matchIdParam && !isEditMode) {
+      const matchToEdit = matches.find((m) => m.id === matchIdParam);
+      if (matchToEdit && matchToEdit.rounds.length > 0) {
+        setIsEditMode(true);
+        setEditMatchId(matchIdParam);
+        setCurrentEditRoundIndex(0);
+        // Load first round data
+        const firstRound = matchToEdit.rounds[0];
+        setMyBagsIn(firstRound.myBagsIn);
+        setMyBagsOn(firstRound.myBagsOn);
+        const oppRawScore = firstRound.opponentBagsIn * 3 + firstRound.opponentBagsOn;
+        setOppScore(oppRawScore);
+      }
+    }
+  }, [matchIdParam, matches, isEditMode]);
 
   const handleStartMatch = () => {
     if (!opponent.trim()) {
@@ -41,6 +68,43 @@ export default function PersonalMatchLogScreen() {
   };
 
   const handleCompleteRound = () => {
+    if (isEditMode && editMatchId) {
+      // Save edited round
+      const matchToEdit = matches.find((m) => m.id === editMatchId);
+      if (!matchToEdit) return;
+
+      const roundToEdit = matchToEdit.rounds[currentEditRoundIndex];
+      const oppBagsIn = Math.min(4, Math.floor(oppScore / 3));
+      const oppBagsOn = oppScore - (oppBagsIn * 3);
+
+      editRound(editMatchId, roundToEdit.roundNumber, myBagsIn, myBagsOn, oppBagsIn, oppBagsOn);
+
+      // Move to next round or finish
+      if (currentEditRoundIndex < matchToEdit.rounds.length - 1) {
+        const nextIndex = currentEditRoundIndex + 1;
+        setCurrentEditRoundIndex(nextIndex);
+        const nextRound = matchToEdit.rounds[nextIndex];
+        setMyBagsIn(nextRound.myBagsIn);
+        setMyBagsOn(nextRound.myBagsOn);
+        const oppRawScore = nextRound.opponentBagsIn * 3 + nextRound.opponentBagsOn;
+        setOppScore(oppRawScore);
+      } else {
+        // Finished editing all rounds
+        Alert.alert(
+          "Editing Complete",
+          "All rounds have been updated.",
+          [
+            {
+              text: "OK",
+              onPress: () => navigation.goBack(),
+            },
+          ]
+        );
+      }
+      return;
+    }
+
+    // Original logic for new matches
     // Calculate my raw score from bags
     const myRawScore = myBagsIn * 3 + myBagsOn;
 
@@ -71,11 +135,11 @@ export default function PersonalMatchLogScreen() {
   };
 
   const handleEndMatch = () => {
-    if (!currentMatch) return;
+    if (!activeMatch) return;
 
     Alert.alert(
       "End Match",
-      `Final Score: You ${currentMatch.myScore} - ${currentMatch.opponentScore} ${currentMatch.opponent}\n\nDid you win this match?`,
+      `Final Score: You ${activeMatch.myScore} - ${activeMatch.opponentScore} ${activeMatch.opponent}\n\nDid you win this match?`,
       [
         { text: "Cancel", style: "cancel" },
         {
@@ -98,6 +162,22 @@ export default function PersonalMatchLogScreen() {
   };
 
   const handleCancelMatch = () => {
+    if (isEditMode) {
+      Alert.alert(
+        "Cancel Editing",
+        "Are you sure you want to cancel editing? Unsaved changes will be lost.",
+        [
+          { text: "Keep Editing", style: "cancel" },
+          {
+            text: "Cancel",
+            style: "destructive",
+            onPress: () => navigation.goBack(),
+          },
+        ]
+      );
+      return;
+    }
+
     Alert.alert(
       "Cancel Match",
       "Are you sure you want to cancel this match? Your progress will be lost.",
@@ -115,9 +195,40 @@ export default function PersonalMatchLogScreen() {
     );
   };
 
+  const handleNavigateRound = (direction: "prev" | "next") => {
+    if (!isEditMode || !editMatchId) return;
+
+    const matchToEdit = matches.find((m) => m.id === editMatchId);
+    if (!matchToEdit) return;
+
+    // Save current round first
+    const roundToEdit = matchToEdit.rounds[currentEditRoundIndex];
+    const oppBagsIn = Math.min(4, Math.floor(oppScore / 3));
+    const oppBagsOn = oppScore - (oppBagsIn * 3);
+    editRound(editMatchId, roundToEdit.roundNumber, myBagsIn, myBagsOn, oppBagsIn, oppBagsOn);
+
+    // Navigate to next/prev round
+    const newIndex = direction === "next" ? currentEditRoundIndex + 1 : currentEditRoundIndex - 1;
+    setCurrentEditRoundIndex(newIndex);
+
+    // Load round data - refresh from store to get updated data
+    const updatedMatch = matches.find((m) => m.id === editMatchId);
+    if (updatedMatch) {
+      const targetRound = updatedMatch.rounds[newIndex];
+      setMyBagsIn(targetRound.myBagsIn);
+      setMyBagsOn(targetRound.myBagsOn);
+      const oppRawScore = targetRound.opponentBagsIn * 3 + targetRound.opponentBagsOn;
+      setOppScore(oppRawScore);
+    }
+  };
+
   // Calculate comprehensive real-time stats from current match (must be before early return)
   const matchStats = React.useMemo(() => {
-    if (!currentMatch) {
+    const matchToUse = isEditMode && editMatchId
+      ? matches.find((m) => m.id === editMatchId)
+      : currentMatch;
+
+    if (!matchToUse) {
       return {
         totalBagsIn: 0,
         totalBagsOn: 0,
@@ -141,18 +252,18 @@ export default function PersonalMatchLogScreen() {
 
     let totalBagsIn = 0;
     let totalBagsOn = 0;
-    let totalBagsThrown = currentMatch.rounds.length * 4;
+    let totalBagsThrown = matchToUse.rounds.length * 4;
     let fourBaggers = 0;
     let threeBaggers = 0;
 
-    currentMatch.rounds.forEach((round) => {
+    matchToUse.rounds.forEach((round) => {
       totalBagsIn += round.myBagsIn;
       totalBagsOn += round.myBagsOn;
       if (round.myBagsIn === 4) fourBaggers++;
       if (round.myBagsIn === 3) threeBaggers++;
     });
 
-    const roundsPlayed = currentMatch.rounds.length;
+    const roundsPlayed = matchToUse.rounds.length;
     const totalBagsOff = totalBagsThrown - totalBagsIn - totalBagsOn;
 
     // PPR uses RAW bag values (before cancellation)
@@ -161,15 +272,15 @@ export default function PersonalMatchLogScreen() {
     // For opponent PPR, calculate raw points from their bags
     let oppTotalBagsIn = 0;
     let oppTotalBagsOn = 0;
-    currentMatch.rounds.forEach((round) => {
+    matchToUse.rounds.forEach((round) => {
       oppTotalBagsIn += round.opponentBagsIn;
       oppTotalBagsOn += round.opponentBagsOn;
     });
     const totalOppRawPoints = (oppTotalBagsIn * 3) + (oppTotalBagsOn * 1);
 
     // Game scores are for display only (cumulative game score after cancellation)
-    const totalGamePoints = currentMatch.myScore;
-    const totalOppGamePoints = currentMatch.opponentScore ?? 0;
+    const totalGamePoints = matchToUse.myScore;
+    const totalOppGamePoints = matchToUse.opponentScore ?? 0;
 
     // Percentages
     const inPercent = totalBagsThrown > 0 ? ((totalBagsIn / totalBagsThrown) * 100).toFixed(1) : "0.0";
@@ -206,10 +317,15 @@ export default function PersonalMatchLogScreen() {
       fourBaggerPercent,
       scorePercent,
     };
-  }, [currentMatch]);
+  }, [currentMatch, isEditMode, editMatchId, matches]);
 
-  // Setup screen
-  if (!currentMatch) {
+  // Get the active match (either current or editing)
+  const activeMatch = isEditMode && editMatchId
+    ? matches.find((m) => m.id === editMatchId) ?? null
+    : currentMatch;
+
+  // Setup screen - Skip if in edit mode
+  if (!currentMatch && !isEditMode) {
     return (
       <View className="flex-1 bg-gray-900">
         <SafeAreaView className="flex-1" edges={["top"]}>
@@ -280,7 +396,15 @@ export default function PersonalMatchLogScreen() {
   }
 
   // Active match screen
-  const gameOver = currentMatch.myScore >= 21 || (currentMatch.opponentScore ?? 0) >= 21;
+  if (!activeMatch) return null; // Safety check
+
+  const gameOver = activeMatch.myScore >= 21 || (activeMatch.opponentScore ?? 0) >= 21;
+  const currentRoundToShow = isEditMode
+    ? activeMatch.rounds[currentEditRoundIndex]
+    : currentRound;
+  const roundNumberToShow = isEditMode
+    ? currentEditRoundIndex + 1
+    : activeMatch.rounds.length + 1;
 
   return (
     <View className="flex-1 bg-black">
@@ -288,7 +412,7 @@ export default function PersonalMatchLogScreen() {
         {/* Header */}
         <View className="px-4 py-3 flex-row items-center justify-between">
           <Text className="text-white text-2xl font-bold">
-            Round {currentMatch.rounds.length + 1}
+            {isEditMode ? `Edit Round ${roundNumberToShow}` : `Round ${roundNumberToShow}`}
           </Text>
           <Pressable onPress={handleCancelMatch}>
             <Text className="text-red-500 font-bold text-base">Cancel</Text>
@@ -300,19 +424,19 @@ export default function PersonalMatchLogScreen() {
           <View>
             <Text className="text-gray-400 text-sm">{settings.myName}</Text>
             <Text className="text-white text-5xl font-bold">
-              {currentMatch.myScore}
+              {activeMatch.myScore}
             </Text>
           </View>
           <View className="items-end">
-            <Text className="text-gray-400 text-sm">{currentMatch.opponent}</Text>
+            <Text className="text-gray-400 text-sm">{activeMatch.opponent}</Text>
             <Text className="text-white text-5xl font-bold">
-              {currentMatch.opponentScore ?? 0}
+              {activeMatch.opponentScore ?? 0}
             </Text>
           </View>
         </View>
 
         {/* Compact Real-Time Stats */}
-        {currentMatch.rounds.length > 0 && (
+        {activeMatch.rounds.length > 0 && (
           <View className="px-4 pb-2">
             <View className="bg-gray-900/50 rounded-lg p-2 border border-gray-800">
               <Text className="text-gray-400 text-xs font-bold mb-2 text-center">
@@ -436,8 +560,37 @@ export default function PersonalMatchLogScreen() {
         )}
 
         <ScrollView className="flex-1">
+          {/* Round Navigation (edit mode) */}
+          {isEditMode && (
+            <View className="px-4 pt-2 pb-4">
+              <View className="flex-row justify-between items-center mb-3">
+                <Pressable
+                  onPress={() => handleNavigateRound("prev")}
+                  disabled={currentEditRoundIndex === 0}
+                  className={`flex-1 mr-2 py-3 rounded-lg items-center ${
+                    currentEditRoundIndex === 0 ? "bg-gray-800 opacity-50" : "bg-blue-600"
+                  }`}
+                >
+                  <Text className="text-white font-bold">Previous Round</Text>
+                </Pressable>
+                <Pressable
+                  onPress={() => handleNavigateRound("next")}
+                  disabled={currentEditRoundIndex >= activeMatch.rounds.length - 1}
+                  className={`flex-1 ml-2 py-3 rounded-lg items-center ${
+                    currentEditRoundIndex >= activeMatch.rounds.length - 1 ? "bg-gray-800 opacity-50" : "bg-blue-600"
+                  }`}
+                >
+                  <Text className="text-white font-bold">Next Round</Text>
+                </Pressable>
+              </View>
+              <Text className="text-gray-400 text-center text-sm">
+                Editing Round {currentEditRoundIndex + 1} of {activeMatch.rounds.length}
+              </Text>
+            </View>
+          )}
+
           {/* Start Next Round Button (between rounds, game not over) - Moved above Previous Rounds */}
-          {!gameOver && currentMatch.rounds.length > 0 && !currentRound && (
+          {!gameOver && !isEditMode && activeMatch.rounds.length > 0 && !currentRound && (
             <View className="px-4 pt-2 pb-4">
               <Pressable
                 onPress={() => startRound()}
@@ -459,10 +612,10 @@ export default function PersonalMatchLogScreen() {
           )}
 
           {/* Current Round - Button Interface */}
-          {currentRound && !gameOver && (
+          {(currentRoundToShow || (!isEditMode && currentRound)) && !gameOver && (
             <View className="px-4 pt-2">
               <Text className="text-white text-base font-bold mb-2 text-center">
-                Round {currentRound.roundNumber}
+                {isEditMode ? `Editing Round ${roundNumberToShow}` : `Round ${currentRound?.roundNumber}`}
               </Text>
 
               {/* My Bags - Side by Side Grid Layout */}
@@ -541,7 +694,7 @@ export default function PersonalMatchLogScreen() {
               {/* Opponent Score - Compact Grid */}
               <View className="mb-3">
                 <Text className="text-orange-400 text-sm font-bold text-center mb-2">
-                  {currentMatch.opponent}
+                  {activeMatch.opponent}
                 </Text>
                 <View className="flex-row flex-wrap justify-center">
                   {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12].map((num) => {
@@ -584,16 +737,16 @@ export default function PersonalMatchLogScreen() {
           )}
 
           {/* Previous Rounds */}
-          {currentMatch.rounds.length > 0 && (
+          {activeMatch.rounds.length > 0 && (
             <View className="px-4 py-4">
               <Text className="text-white text-lg font-bold mb-3">
                 Previous Rounds
               </Text>
-              {currentMatch.rounds
+              {activeMatch.rounds
                 .slice()
                 .reverse()
                 .map((round, index) => {
-                  const actualIndex = currentMatch.rounds.length - index;
+                  const actualIndex = activeMatch.rounds.length - index;
                   return (
                     <View
                       key={round.roundNumber}
@@ -622,7 +775,7 @@ export default function PersonalMatchLogScreen() {
                         </View>
                         <View className="flex-1 items-end">
                           <Text className="text-gray-400 text-xs mb-1">
-                            {currentMatch.opponent}
+                            {activeMatch.opponent}
                           </Text>
                           <Text className="text-white text-sm">
                             {round.opponentBagsIn} in, {round.opponentBagsOn} on
@@ -636,14 +789,14 @@ export default function PersonalMatchLogScreen() {
           )}
 
           {/* End Match Button (game over) */}
-          {gameOver && (
+          {gameOver && !isEditMode && (
             <View className="px-4 pb-8">
               <View className="bg-purple-600/20 border border-purple-600 rounded-lg p-4 mb-4">
                 <Text className="text-purple-400 font-bold text-center text-lg">
                   Game Over!
                 </Text>
                 <Text className="text-white text-center mt-1">
-                  {currentMatch.myScore > (currentMatch.opponentScore ?? 0)
+                  {activeMatch.myScore > (activeMatch.opponentScore ?? 0)
                     ? "You Win!"
                     : "You Lose"}
                 </Text>
