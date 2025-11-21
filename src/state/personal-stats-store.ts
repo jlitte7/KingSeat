@@ -37,6 +37,14 @@ interface PersonalStatsState {
     oppBagsIn: number,
     oppBagsOn: number
   ) => void;
+  editRound: (
+    matchId: string,
+    roundNumber: number,
+    myBagsIn: number,
+    myBagsOn: number,
+    oppBagsIn: number,
+    oppBagsOn: number
+  ) => void;
 
   // Stats actions
   recalculateStats: () => void;
@@ -251,6 +259,67 @@ export const usePersonalStatsStore = create<PersonalStatsState>()(
           currentMatch: updatedMatch,
           currentRound: null,
         });
+      },
+
+      editRound: (
+        matchId: string,
+        roundNumber: number,
+        myBagsIn: number,
+        myBagsOn: number,
+        oppBagsIn: number,
+        oppBagsOn: number
+      ) => {
+        const { matches } = get();
+        const matchIndex = matches.findIndex((m) => m.id === matchId);
+        if (matchIndex === -1) return;
+
+        const match = matches[matchIndex];
+        const roundIndex = match.rounds.findIndex((r) => r.roundNumber === roundNumber);
+        if (roundIndex === -1) return;
+
+        // Calculate new scores using cancellation scoring
+        const myRawScore = myBagsIn * 3 + myBagsOn;
+        const oppRawScore = oppBagsIn * 3 + oppBagsOn;
+        const myScore = Math.max(0, myRawScore - oppRawScore);
+        const oppScore = Math.max(0, oppRawScore - myRawScore);
+
+        // Get old round scores to adjust match totals
+        const oldRound = match.rounds[roundIndex];
+        const oldMyScore = oldRound.myScore;
+        const oldOppScore = oldRound.opponentScore;
+
+        // Update the round
+        const updatedRound: PersonalRound = {
+          ...oldRound,
+          myBagsIn,
+          myBagsOn,
+          opponentBagsIn: oppBagsIn,
+          opponentBagsOn: oppBagsOn,
+          myScore,
+          opponentScore: oppScore,
+        };
+
+        // Update the rounds array
+        const updatedRounds = [...match.rounds];
+        updatedRounds[roundIndex] = updatedRound;
+
+        // Recalculate match totals by removing old round scores and adding new ones
+        const updatedMatch = {
+          ...match,
+          rounds: updatedRounds,
+          myScore: match.myScore - oldMyScore + myScore,
+          opponentScore: (match.opponentScore ?? 0) - oldOppScore + oppScore,
+        };
+
+        // Update the matches array
+        const updatedMatches = [...matches];
+        updatedMatches[matchIndex] = updatedMatch;
+
+        set({ matches: updatedMatches });
+
+        // Recalculate all stats
+        get().recalculateStats();
+        get().recalculateLeagueStats();
       },
 
       // Recalculate all stats from completed matches (like team system)

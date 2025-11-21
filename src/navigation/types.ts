@@ -58,5 +58,6 @@ export type RootStackParamList = {
   PersonalSettings: undefined;
   MatchHistory: undefined;
   MatchDetail: { matchId: string };
+  EditRound: { matchId: string; roundNumber: number };
   Profile: undefined;
 };

@@ -272,13 +272,26 @@ export default function MatchDetailScreen() {
                       Round {round.roundNumber}
                     </Text>
                     <View className="flex-row items-center gap-3">
-                      <Text className="text-white font-bold text-xl">
-                        {round.myScore}
-                      </Text>
-                      <Text className="text-gray-500 font-bold">-</Text>
-                      <Text className="text-white font-bold text-xl">
-                        {round.opponentScore}
-                      </Text>
+                      <View className="flex-row items-center gap-2">
+                        <Text className="text-white font-bold text-xl">
+                          {round.myScore}
+                        </Text>
+                        <Text className="text-gray-500 font-bold">-</Text>
+                        <Text className="text-white font-bold text-xl">
+                          {round.opponentScore}
+                        </Text>
+                      </View>
+                      <Pressable
+                        onPress={() =>
+                          navigation.navigate("EditRound", {
+                            matchId: match.id,
+                            roundNumber: round.roundNumber,
+                          })
+                        }
+                        className="ml-2 bg-purple-600 px-3 py-1 rounded-lg"
+                      >
+                        <Text className="text-white text-xs font-bold">Edit</Text>
+                      </Pressable>
                     </View>
                   </View>
 
