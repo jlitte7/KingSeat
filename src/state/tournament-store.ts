@@ -47,6 +47,20 @@ interface TournamentState {
 
   // Switcholio
   generateSwitcholioRound: (tournamentId: string, roundNumber: number) => void;
+  recordSwitcholioResult: (
+    tournamentId: string,
+    gameNumber: number,
+    team1Score: number,
+    team2Score: number
+  ) => void;
+  getSwitcholioLeaderboard: (tournamentId: string) => Array<{
+    player: TournamentPlayer;
+    wins: number;
+    losses: number;
+    pointsFor: number;
+    pointsAgainst: number;
+    gamesPlayed: number;
+  }>;
 
   // Round Robin
   generateRoundRobinSchedule: (tournamentId: string) => void;
@@ -366,7 +380,7 @@ export const useTournamentStore = create<TournamentState>()(
         // Create games with 4 players each
         for (let i = 0; i < shuffled.length - 3; i += 4) {
           games.push({
-            gameNumber: games.length + 1,
+            gameNumber: tournament.switcholioGames.length + games.length + 1,
             team1Player1: shuffled[i],
             team1Player2: shuffled[i + 1],
             team2Player1: shuffled[i + 2],
@@ -378,10 +392,112 @@ export const useTournamentStore = create<TournamentState>()(
         set((state) => ({
           tournaments: state.tournaments.map((t) =>
             t.id === tournamentId
-              ? { ...t, switcholioGames: [...t.switcholioGames, ...games] }
+              ? { ...t, switcholioGames: [...t.switcholioGames, ...games], status: "round-robin" }
               : t
           ),
         }));
+      },
+
+      recordSwitcholioResult: (tournamentId, gameNumber, team1Score, team2Score) => {
+        set((state) => ({
+          tournaments: state.tournaments.map((t) => {
+            if (t.id !== tournamentId) return t;
+
+            const updatedGames = t.switcholioGames.map((g) => {
+              if (g.gameNumber !== gameNumber) return g;
+
+              // Determine winning team players
+              const winningPlayerIds = team1Score > team2Score
+                ? [g.team1Player1.id, g.team1Player2.id]
+                : [g.team2Player1.id, g.team2Player2.id];
+
+              return {
+                ...g,
+                team1Score,
+                team2Score,
+                winnerId: winningPlayerIds.join(","),
+                completed: true,
+                endTime: new Date().toISOString(),
+              };
+            });
+
+            return { ...t, switcholioGames: updatedGames };
+          }),
+        }));
+      },
+
+      getSwitcholioLeaderboard: (tournamentId) => {
+        const tournament = get().getTournament(tournamentId);
+        if (!tournament) return [];
+
+        const playerStats = new Map<string, {
+          player: TournamentPlayer;
+          wins: number;
+          losses: number;
+          pointsFor: number;
+          pointsAgainst: number;
+          gamesPlayed: number;
+        }>();
+
+        // Initialize stats for all players
+        tournament.players.forEach((player) => {
+          playerStats.set(player.id, {
+            player,
+            wins: 0,
+            losses: 0,
+            pointsFor: 0,
+            pointsAgainst: 0,
+            gamesPlayed: 0,
+          });
+        });
+
+        // Calculate stats from completed games
+        tournament.switcholioGames.forEach((game) => {
+          if (!game.completed || game.team1Score === undefined || game.team2Score === undefined) return;
+
+          const team1Won = game.team1Score > game.team2Score;
+          const t1Score = game.team1Score;
+          const t2Score = game.team2Score;
+
+          // Update team 1 players
+          [game.team1Player1, game.team1Player2].forEach((player) => {
+            const stats = playerStats.get(player.id);
+            if (stats) {
+              stats.gamesPlayed += 1;
+              stats.pointsFor += t1Score;
+              stats.pointsAgainst += t2Score;
+              if (team1Won) {
+                stats.wins += 1;
+              } else {
+                stats.losses += 1;
+              }
+            }
+          });
+
+          // Update team 2 players
+          [game.team2Player1, game.team2Player2].forEach((player) => {
+            const stats = playerStats.get(player.id);
+            if (stats) {
+              stats.gamesPlayed += 1;
+              stats.pointsFor += t2Score;
+              stats.pointsAgainst += t1Score;
+              if (!team1Won) {
+                stats.wins += 1;
+              } else {
+                stats.losses += 1;
+              }
+            }
+          });
+        });
+
+        // Convert to array and sort by wins, then point differential
+        return Array.from(playerStats.values())
+          .filter((stats) => stats.gamesPlayed > 0)
+          .sort((a, b) => {
+            const winDiff = b.wins - a.wins;
+            if (winDiff !== 0) return winDiff;
+            return (b.pointsFor - b.pointsAgainst) - (a.pointsFor - a.pointsAgainst);
+          });
       },
 
       // ROUND ROBIN - Generate full schedule
@@ -489,19 +605,292 @@ export const useTournamentStore = create<TournamentState>()(
         const numTeams = seededTeams.length;
         const rounds = Math.ceil(Math.log2(numTeams));
 
-        // Generate first round matchups
-        let matchNumber = 1;
-        for (let i = 0; i < numTeams; i += 2) {
-          if (i + 1 < numTeams) {
-            matches.push({
-              id: uuidv4(),
-              roundNumber: rounds,
-              matchNumber: matchNumber++,
-              team1: seededTeams[i],
-              team2: seededTeams[i + 1],
-              completed: false,
-            });
+        // Calculate next power of 2 for bracket size
+        const bracketSize = Math.pow(2, rounds);
+        const numByes = bracketSize - numTeams;
+
+        if (eliminationType === "single") {
+          // Generate ALL rounds of the bracket
+          for (let round = rounds; round >= 1; round--) {
+            const matchesInRound = Math.pow(2, round - 1);
+
+            for (let matchNum = 1; matchNum <= matchesInRound; matchNum++) {
+              const matchId = uuidv4();
+              const match: BracketMatch = {
+                id: matchId,
+                roundNumber: round,
+                matchNumber: matchNum,
+                completed: false,
+              };
+
+              // Only assign teams to first round
+              if (round === rounds) {
+                const team1Index = (matchNum - 1) * 2;
+                const team2Index = team1Index + 1;
+
+                // Assign teams or TBD (for byes)
+                if (team1Index < numTeams) {
+                  match.team1 = seededTeams[team1Index];
+                } else {
+                  match.team1 = "TBD";
+                }
+
+                if (team2Index < numTeams) {
+                  match.team2 = seededTeams[team2Index];
+                } else {
+                  match.team2 = "TBD";
+                }
+
+                // Auto-complete bye matches
+                if (match.team1 === "TBD" || match.team2 === "TBD") {
+                  match.completed = true;
+                  if (match.team1 !== "TBD") {
+                    match.winnerId = match.team1.id;
+                    match.team1Score = 0;
+                    match.team2Score = 0;
+                  } else if (match.team2 !== "TBD") {
+                    match.winnerId = match.team2.id;
+                    match.team1Score = 0;
+                    match.team2Score = 0;
+                  }
+                }
+              } else {
+                match.team1 = "TBD";
+                match.team2 = "TBD";
+              }
+
+              // Link to next round match
+              if (round > 1) {
+                const nextMatchNumber = Math.ceil(matchNum / 2);
+                match.nextMatchId = `R${round - 1}M${nextMatchNumber}`;
+              }
+
+              matches.push(match);
+            }
           }
+
+          // Replace temporary IDs with actual match IDs
+          matches.forEach((match) => {
+            if (match.nextMatchId) {
+              const [, roundStr, matchStr] = match.nextMatchId.match(/R(\d+)M(\d+)/) || [];
+              if (roundStr && matchStr) {
+                const nextMatch = matches.find(
+                  (m) => m.roundNumber === parseInt(roundStr) && m.matchNumber === parseInt(matchStr)
+                );
+                if (nextMatch) {
+                  match.nextMatchId = nextMatch.id;
+                }
+              }
+            }
+          });
+
+          // Auto-advance bye winners to next round
+          matches.forEach((match) => {
+            if (match.completed && match.winnerId && match.nextMatchId) {
+              const nextMatch = matches.find((m) => m.id === match.nextMatchId);
+              if (nextMatch) {
+                const winningTeam = seededTeams.find((t) => t.id === match.winnerId);
+                if (winningTeam) {
+                  if (nextMatch.team1 === "TBD") {
+                    nextMatch.team1 = winningTeam;
+                  } else if (nextMatch.team2 === "TBD") {
+                    nextMatch.team2 = winningTeam;
+                  }
+                }
+              }
+            }
+          });
+        } else {
+          // DOUBLE ELIMINATION
+          // Winners bracket
+          const winnersBracketMatches: BracketMatch[] = [];
+          const losersBracketMatches: BracketMatch[] = [];
+
+          // Generate winners bracket (same as single elimination)
+          for (let round = rounds; round >= 1; round--) {
+            const matchesInRound = Math.pow(2, round - 1);
+
+            for (let matchNum = 1; matchNum <= matchesInRound; matchNum++) {
+              const matchId = uuidv4();
+              const match: BracketMatch = {
+                id: matchId,
+                roundNumber: round,
+                matchNumber: matchNum,
+                completed: false,
+              };
+
+              if (round === rounds) {
+                const team1Index = (matchNum - 1) * 2;
+                const team2Index = team1Index + 1;
+
+                if (team1Index < numTeams) {
+                  match.team1 = seededTeams[team1Index];
+                } else {
+                  match.team1 = "TBD";
+                }
+
+                if (team2Index < numTeams) {
+                  match.team2 = seededTeams[team2Index];
+                } else {
+                  match.team2 = "TBD";
+                }
+
+                if (match.team1 === "TBD" || match.team2 === "TBD") {
+                  match.completed = true;
+                  if (match.team1 !== "TBD") {
+                    match.winnerId = match.team1.id;
+                    match.team1Score = 0;
+                    match.team2Score = 0;
+                  } else if (match.team2 !== "TBD") {
+                    match.winnerId = match.team2.id;
+                    match.team1Score = 0;
+                    match.team2Score = 0;
+                  }
+                }
+              } else {
+                match.team1 = "TBD";
+                match.team2 = "TBD";
+              }
+
+              if (round > 1) {
+                const nextMatchNumber = Math.ceil(matchNum / 2);
+                match.nextMatchId = `WR${round - 1}M${nextMatchNumber}`;
+                match.loserNextMatchId = `LR${round}M${matchNum}`;
+              } else {
+                // Winners bracket champion goes to grand finals
+                match.nextMatchId = "GRAND_FINALS";
+              }
+
+              winnersBracketMatches.push(match);
+            }
+          }
+
+          // Generate losers bracket
+          // Losers bracket has 2x rounds - 1 (one less than double the winners rounds)
+          const loserRounds = rounds * 2 - 1;
+
+          for (let round = loserRounds; round >= 1; round--) {
+            // Losers bracket structure alternates between:
+            // - Rounds where new losers from winners bracket join
+            // - Rounds where losers bracket players face each other
+
+            let matchesInRound: number;
+
+            if (round % 2 === loserRounds % 2) {
+              // New losers joining from winners bracket
+              matchesInRound = Math.pow(2, Math.floor((loserRounds - round) / 2));
+            } else {
+              // Losers bracket internal matches
+              matchesInRound = Math.pow(2, Math.floor((loserRounds - round) / 2));
+            }
+
+            for (let matchNum = 1; matchNum <= matchesInRound; matchNum++) {
+              const matchId = uuidv4();
+              const match: BracketMatch = {
+                id: matchId,
+                roundNumber: round + 100, // Offset to distinguish from winners bracket
+                matchNumber: matchNum,
+                team1: "TBD",
+                team2: "TBD",
+                completed: false,
+              };
+
+              if (round > 1) {
+                const nextMatchNumber = Math.ceil(matchNum / 2);
+                match.nextMatchId = `LR${round - 1}M${nextMatchNumber}`;
+              } else {
+                // Losers bracket champion goes to grand finals
+                match.nextMatchId = "GRAND_FINALS";
+              }
+
+              losersBracketMatches.push(match);
+            }
+          }
+
+          // Create grand finals match
+          const grandFinalsMatch: BracketMatch = {
+            id: uuidv4(),
+            roundNumber: 0, // Special round number for grand finals
+            matchNumber: 1,
+            team1: "TBD", // Winner of winners bracket
+            team2: "TBD", // Winner of losers bracket
+            completed: false,
+          };
+
+          const allMatches = [...winnersBracketMatches, ...losersBracketMatches, grandFinalsMatch];
+
+          // Replace temporary IDs with actual match IDs
+          allMatches.forEach((match) => {
+            if (match.nextMatchId && match.nextMatchId !== "GRAND_FINALS") {
+              const [, bracketType, roundStr, matchStr] =
+                match.nextMatchId.match(/([WL])R(\d+)M(\d+)/) || [];
+
+              if (roundStr && matchStr) {
+                const targetRound =
+                  bracketType === "L"
+                    ? parseInt(roundStr) + 100
+                    : parseInt(roundStr);
+
+                const nextMatch = allMatches.find(
+                  (m) =>
+                    m.roundNumber === targetRound &&
+                    m.matchNumber === parseInt(matchStr)
+                );
+
+                if (nextMatch) {
+                  match.nextMatchId = nextMatch.id;
+                }
+              }
+            } else if (match.nextMatchId === "GRAND_FINALS") {
+              match.nextMatchId = grandFinalsMatch.id;
+            }
+
+            if (match.loserNextMatchId) {
+              const [, , roundStr, matchStr] =
+                match.loserNextMatchId.match(/([WL])R(\d+)M(\d+)/) || [];
+
+              if (roundStr && matchStr) {
+                const targetRound = parseInt(roundStr) + 100;
+
+                const nextMatch = allMatches.find(
+                  (m) =>
+                    m.roundNumber === targetRound &&
+                    m.matchNumber === parseInt(matchStr)
+                );
+
+                if (nextMatch) {
+                  match.loserNextMatchId = nextMatch.id;
+                }
+              }
+            }
+          });
+
+          // Auto-advance bye winners
+          allMatches.forEach((match) => {
+            if (match.completed && match.winnerId && match.nextMatchId) {
+              const nextMatch = allMatches.find((m) => m.id === match.nextMatchId);
+              if (nextMatch) {
+                const winningTeam = seededTeams.find((t) => t.id === match.winnerId);
+                if (winningTeam) {
+                  if (nextMatch.team1 === "TBD") {
+                    nextMatch.team1 = winningTeam;
+                  } else if (nextMatch.team2 === "TBD") {
+                    nextMatch.team2 = winningTeam;
+                  }
+                }
+              }
+            }
+          });
+
+          set((state) => ({
+            tournaments: state.tournaments.map((t) =>
+              t.id === tournamentId
+                ? { ...t, bracketMatches: allMatches, teams: seededTeams, status: "bracket" }
+                : t
+            ),
+          }));
+
+          return;
         }
 
         set((state) => ({
@@ -514,34 +903,102 @@ export const useTournamentStore = create<TournamentState>()(
       },
 
       recordBracketResult: (tournamentId, matchId, team1Score, team2Score) => {
-        // Similar to round robin but advances winner to next match
-        // Implementation would handle bracket progression
         set((state) => ({
           tournaments: state.tournaments.map((t) => {
             if (t.id !== tournamentId) return t;
 
-            const updatedMatches = t.bracketMatches.map((m) => {
-              if (m.id !== matchId) return m;
+            const updatedMatches = [...t.bracketMatches];
+            const matchIndex = updatedMatches.findIndex((m) => m.id === matchId);
 
-              const winnerId = team1Score > team2Score
-                ? (m.team1 && m.team1 !== "TBD" ? m.team1.id : undefined)
-                : (m.team2 && m.team2 !== "TBD" ? m.team2.id : undefined);
-              const loserId = team1Score < team2Score
-                ? (m.team1 && m.team1 !== "TBD" ? m.team1.id : undefined)
-                : (m.team2 && m.team2 !== "TBD" ? m.team2.id : undefined);
+            if (matchIndex === -1) return t;
 
-              return {
-                ...m,
-                team1Score,
-                team2Score,
-                winnerId,
-                loserId,
-                completed: true,
-                endTime: new Date().toISOString(),
-              };
-            });
+            const match = updatedMatches[matchIndex];
 
-            return { ...t, bracketMatches: updatedMatches };
+            // Determine winner and loser
+            const winnerId = team1Score > team2Score
+              ? (match.team1 && match.team1 !== "TBD" ? match.team1.id : undefined)
+              : (match.team2 && match.team2 !== "TBD" ? match.team2.id : undefined);
+
+            const loserId = team1Score < team2Score
+              ? (match.team1 && match.team1 !== "TBD" ? match.team1.id : undefined)
+              : (match.team2 && match.team2 !== "TBD" ? match.team2.id : undefined);
+
+            const winningTeam = team1Score > team2Score ? match.team1 : match.team2;
+            const losingTeam = team1Score < team2Score ? match.team1 : match.team2;
+
+            // Update the current match
+            updatedMatches[matchIndex] = {
+              ...match,
+              team1Score,
+              team2Score,
+              winnerId,
+              loserId,
+              completed: true,
+              endTime: new Date().toISOString(),
+            };
+
+            // Advance winner to next match if there is one
+            if (match.nextMatchId && winningTeam && winningTeam !== "TBD") {
+              const nextMatchIndex = updatedMatches.findIndex((m) => m.id === match.nextMatchId);
+
+              if (nextMatchIndex !== -1) {
+                const nextMatch = updatedMatches[nextMatchIndex];
+
+                // Determine if winner goes to team1 or team2 slot
+                // Even match numbers go to team1, odd go to team2
+                if (match.matchNumber % 2 === 1) {
+                  updatedMatches[nextMatchIndex] = {
+                    ...nextMatch,
+                    team1: winningTeam,
+                  };
+                } else {
+                  updatedMatches[nextMatchIndex] = {
+                    ...nextMatch,
+                    team2: winningTeam,
+                  };
+                }
+              }
+            }
+
+            // Send loser to losers bracket (double elimination only)
+            if (match.loserNextMatchId && losingTeam && losingTeam !== "TBD") {
+              const loserNextMatchIndex = updatedMatches.findIndex(
+                (m) => m.id === match.loserNextMatchId
+              );
+
+              if (loserNextMatchIndex !== -1) {
+                const loserNextMatch = updatedMatches[loserNextMatchIndex];
+
+                // Place losing team in next available slot
+                if (loserNextMatch.team1 === "TBD") {
+                  updatedMatches[loserNextMatchIndex] = {
+                    ...loserNextMatch,
+                    team1: losingTeam,
+                  };
+                } else if (loserNextMatch.team2 === "TBD") {
+                  updatedMatches[loserNextMatchIndex] = {
+                    ...loserNextMatch,
+                    team2: losingTeam,
+                  };
+                }
+              }
+            }
+
+            // Check if tournament is complete
+            // For single elim: finals match (round 1) completed
+            // For double elim: grand finals (round 0) completed
+            const finalsMatch = updatedMatches.find((m) => m.roundNumber === 1 || m.roundNumber === 0);
+            const tournamentComplete = finalsMatch?.roundNumber === 0
+              ? finalsMatch?.completed // Double elim: grand finals
+              : updatedMatches.every((m) => m.roundNumber !== 0) && finalsMatch?.completed; // Single elim: no round 0 exists
+
+            return {
+              ...t,
+              bracketMatches: updatedMatches,
+              status: tournamentComplete ? "completed" : t.status,
+              winnerId: tournamentComplete ? finalsMatch?.winnerId : t.winnerId,
+              completedAt: tournamentComplete ? new Date().toISOString() : t.completedAt,
+            };
           }),
         }));
       },

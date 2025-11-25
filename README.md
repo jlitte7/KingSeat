@@ -359,6 +359,7 @@ Professional tournament management system with blind draw functionality, Switcho
   - Enter button to complete rounds
   - Undo functionality for last round
   - Landscape mode support
+  - **Dual Match Type Support**: Works seamlessly for both round-robin and bracket matches
 
 #### Bracket Visualization
 - **Dedicated Bracket Screen**: Full-screen bracket view with enhanced visibility
@@ -394,14 +395,26 @@ Professional tournament management system with blind draw functionality, Switcho
   - Smart pairing algorithm: pairs A with C first, then A with B, then B with C
   - Ghost player handling for odd numbers
   - Manual pairing override available
+  - Proceeds through round-robin phase before bracket play
 - **Switcholio**: Rotating partners each game for individual rankings
   - Track partner history to prevent repeats
-  - Individual leaderboards
+  - **Individual Leaderboards**: Full leaderboard with wins, losses, PPR, and accuracy
+  - **Complete Scoring System**: Record match results and track individual performance
+  - Does NOT lead to bracket play (individual competition only)
 - **Round Robin**: Every team plays every other team
   - Automatic scheduling
   - Track standings and point differential
+  - Proceeds to bracket phase after completion
 - **Single Elimination**: Traditional bracket tournament
+  - **Full Bracket Pre-Generation**: All rounds created upfront for complete visibility
+  - **Automatic Advancement**: Winners automatically move to next round
+  - **Bye Handling**: Non-power-of-2 team counts handled with automatic byes
+  - **Real-Time Updates**: Bracket updates immediately when matches complete
 - **Double Elimination**: Second chance bracket for losers
+  - **Winners Bracket + Losers Bracket**: Complete double elimination structure
+  - **Automatic Loser Routing**: Losing teams automatically enter losers bracket
+  - **Grand Finals**: Winners of both brackets meet in final match
+  - **Full Implementation**: True double elimination with all bracket logic
 
 #### ACL Compliance
 - Minimum team requirements (default 6 teams)

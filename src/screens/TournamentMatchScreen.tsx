@@ -43,8 +43,15 @@ export default function TournamentMatchScreen() {
   const recordRoundRobinResult = useTournamentStore(
     (s) => s.recordRoundRobinResult
   );
+  const recordBracketResult = useTournamentStore(
+    (s) => s.recordBracketResult
+  );
 
-  const match = tournament?.roundRobinMatches.find((m) => m.id === matchId);
+  // Try to find match in either round robin or bracket matches
+  const roundRobinMatch = tournament?.roundRobinMatches.find((m) => m.id === matchId);
+  const bracketMatch = tournament?.bracketMatches.find((m) => m.id === matchId);
+  const match = roundRobinMatch || bracketMatch;
+  const isBracketMatch = !!bracketMatch;
 
   const [isLandscape, setIsLandscape] = useState(false);
   const [currentRound, setCurrentRound] = useState(1);
@@ -100,6 +107,19 @@ export default function TournamentMatchScreen() {
     return (
       <View className="flex-1 bg-black items-center justify-center">
         <Text className="text-white">Match not found</Text>
+      </View>
+    );
+  }
+
+  // Type guard to check if team is valid (not TBD or undefined)
+  const isValidTeam = (team: any): team is { player1: any; player2: any } => {
+    return team && team !== "TBD" && team.player1 && team.player2;
+  };
+
+  if (!isValidTeam(match.team1) || !isValidTeam(match.team2)) {
+    return (
+      <View className="flex-1 bg-black items-center justify-center">
+        <Text className="text-white">Teams not ready</Text>
       </View>
     );
   }
@@ -171,12 +191,21 @@ export default function TournamentMatchScreen() {
   };
 
   const handleFinishGame = () => {
-    recordRoundRobinResult(
-      tournamentId,
-      matchId,
-      displayTeam1Score,
-      displayTeam2Score
-    );
+    if (isBracketMatch) {
+      recordBracketResult(
+        tournamentId,
+        matchId,
+        displayTeam1Score,
+        displayTeam2Score
+      );
+    } else {
+      recordRoundRobinResult(
+        tournamentId,
+        matchId,
+        displayTeam1Score,
+        displayTeam2Score
+      );
+    }
     navigation.goBack();
   };
 
