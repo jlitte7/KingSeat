@@ -104,6 +104,16 @@ export default function MatchDetailScreen() {
         <ScrollView className="flex-1 px-4 pt-4">
           {/* Match Info Card */}
           <View className="bg-gray-800 rounded-2xl p-5 mb-4 border-2 border-gray-700">
+            {gameCompleted && (
+              <View className="mb-4 bg-blue-600/20 border border-blue-500 rounded-lg p-3">
+                <View className="flex-row items-center">
+                  <Ionicons name="lock-closed" size={18} color="#60a5fa" />
+                  <Text className="text-blue-400 font-bold text-sm ml-2">
+                    Game Complete - Editing Locked
+                  </Text>
+                </View>
+              </View>
+            )}
             <View className="flex-row justify-between items-start mb-4">
               <View className="flex-1">
                 <Text className="text-white font-bold text-xl mb-1">
@@ -255,9 +265,19 @@ export default function MatchDetailScreen() {
 
           {/* Round by Round */}
           <View className="bg-gray-800 rounded-2xl p-5 mb-4 border-2 border-gray-700">
-            <Text className="text-white text-xl font-bold mb-4">
-              Round by Round
-            </Text>
+            <View className="flex-row items-center justify-between mb-4">
+              <Text className="text-white text-xl font-bold">
+                Round by Round
+              </Text>
+              {gameCompleted && (
+                <View className="flex-row items-center bg-gray-700 rounded-lg px-3 py-1">
+                  <Ionicons name="lock-closed" size={14} color="#60a5fa" />
+                  <Text className="text-blue-400 text-xs font-bold ml-1">
+                    Locked
+                  </Text>
+                </View>
+              )}
+            </View>
 
             {match.rounds.map((round, index) => {
               const roundRawPoints = round.myBagsIn * 3 + round.myBagsOn * 1;

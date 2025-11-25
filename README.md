@@ -139,12 +139,15 @@ A completely redesigned personal tracking system with enhanced visual appeal and
   - View every match you've played with scores, dates, and results
   - See match stats: rounds played, PPR, and accuracy
   - Tap any match to view detailed breakdown
+  - **Edit Protection**: Completed games (reached 21 points) are locked to preserve stat integrity
 
 - **Match Details**: Deep dive into individual game performance
   - Complete round-by-round breakdown showing your throws and opponent's performance
   - Match summary stats: total bags in/on/missed, accuracy percentages
   - Notable achievements: four-baggers, three-baggers, zero rounds
   - Your PPR vs opponent PPR comparison
+  - **Round Editing**: Edit individual rounds for in-progress games only (locked when game reaches 21)
+  - **Lock Indicators**: Clear visual badges show when a game is complete and editing is disabled
   - Full scoring history with raw points per round
   - **Edit Round Feature**: Tap the "Edit" button on any specific round to edit just that round
     - Opens the scoreboard interface with that round's data pre-loaded

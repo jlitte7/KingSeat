@@ -50,16 +50,9 @@ export default function PersonalMatchLogScreen() {
         const gameCompleted = matchToEdit.myScore >= 21 || (matchToEdit.opponentScore ?? 0) >= 21;
 
         if (gameCompleted) {
-          Alert.alert(
-            "Game Completed",
-            "This game has already finished. Editing is not allowed for completed games to maintain accurate stats.",
-            [
-              {
-                text: "OK",
-                onPress: () => navigation.goBack(),
-              },
-            ]
-          );
+          // Cannot edit completed games (games where either player reached 21)
+          // Silently navigate back - the UI should prevent this, but this is a safety check
+          setTimeout(() => navigation.goBack(), 100);
           return;
         }
 
