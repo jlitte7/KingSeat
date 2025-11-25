@@ -29,13 +29,19 @@ export function BracketView({ matches, eliminationType, onMatchPress }: BracketV
     .map(Number)
     .sort((a, b) => a - b); // Start from finals (1) to earlier rounds
 
-  // Calculate round names
+  // Calculate round names - clearer progression from first round
   const getRoundName = (roundNumber: number, totalRounds: number): string => {
     if (roundNumber === 1) return "Finals";
     if (roundNumber === 2) return "Semi-Finals";
     if (roundNumber === 3) return "Quarter-Finals";
-    const matchesInRound = Math.pow(2, roundNumber - 1);
-    return `Round of ${matchesInRound * 2}`;
+    // Calculate teams in this round (e.g., Round of 16, Round of 32)
+    const teamsInRound = Math.pow(2, roundNumber);
+    return `Round of ${teamsInRound}`;
+  };
+
+  const getTeamSeed = (team: TournamentTeam | "TBD" | undefined): number | null => {
+    if (!team || team === "TBD" || typeof team !== "object") return null;
+    return team.seed ?? null;
   };
 
   const getTeamDisplay = (team: TournamentTeam | "TBD" | undefined): string => {
@@ -117,9 +123,16 @@ export function BracketView({ matches, eliminationType, onMatchPress }: BracketV
                         }`}
                       >
                         <View className="flex-row items-center justify-between">
-                          <View className="flex-1 mr-2">
+                          <View className="flex-row items-center flex-1 mr-2">
+                            {getTeamSeed(match.team1) && (
+                              <View className="bg-purple-600/30 rounded px-1.5 py-0.5 mr-1.5">
+                                <Text className="text-purple-300 text-xs font-bold">
+                                  {getTeamSeed(match.team1)}
+                                </Text>
+                              </View>
+                            )}
                             <Text
-                              className={`text-xs font-bold ${
+                              className={`text-xs font-bold flex-1 ${
                                 hasWinner && match.team1 && match.team1 !== "TBD" && match.winnerId === match.team1.id
                                   ? "text-green-400"
                                   : "text-white"
@@ -157,9 +170,16 @@ export function BracketView({ matches, eliminationType, onMatchPress }: BracketV
                         }`}
                       >
                         <View className="flex-row items-center justify-between">
-                          <View className="flex-1 mr-2">
+                          <View className="flex-row items-center flex-1 mr-2">
+                            {getTeamSeed(match.team2) && (
+                              <View className="bg-purple-600/30 rounded px-1.5 py-0.5 mr-1.5">
+                                <Text className="text-purple-300 text-xs font-bold">
+                                  {getTeamSeed(match.team2)}
+                                </Text>
+                              </View>
+                            )}
                             <Text
-                              className={`text-xs font-bold ${
+                              className={`text-xs font-bold flex-1 ${
                                 hasWinner && match.team2 && match.team2 !== "TBD" && match.winnerId === match.team2.id
                                   ? "text-green-400"
                                   : "text-white"

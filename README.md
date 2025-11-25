@@ -361,15 +361,22 @@ Professional tournament management system with blind draw functionality, Switcho
   - Landscape mode support
 
 #### Bracket Visualization
+- **Dedicated Bracket Screen**: Full-screen bracket view with enhanced visibility
+  - **Quick Access Button**: Prominent "View Tournament Bracket" button on tournament detail page
+  - **Coming Up Section**: Shows next 3 ready-to-play matches at the top for easy reference
+  - **Match Statistics**: Display completed vs upcoming matches with progress tracking
+  - **Always Available**: Bracket button visible as soon as bracket is generated
 - **Visual Bracket Trees**: Beautiful, interactive tournament brackets
   - Horizontal scrolling bracket display
   - Color-coded winner highlighting (green for winners)
-  - Round-by-round progression from finals to earlier rounds
+  - **Seed Numbers**: Purple badges showing team seeds (1, 2, 3, etc.) for proper tournament structure
+  - **Improved Round Labels**: Clear progression (Round of 16, Quarter-Finals, Semi-Finals, Finals)
   - Team name abbreviations for compact display
   - Tap any match to enter scores
   - Support for both single and double elimination
   - Automatic spacing and visual connections between rounds
   - Real-time bracket updates as matches complete
+- **Bracket Preview**: Info badge during team generation showing teams ready for bracket creation
 
 #### Search & Filter
 - **Team Search**: Find teams or players quickly in Teams List

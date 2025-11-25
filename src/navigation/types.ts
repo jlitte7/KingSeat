@@ -20,6 +20,7 @@ export type RootStackParamList = {
   TossOff: undefined;
   CreateTournament: undefined;
   TournamentDetail: { tournamentId: string };
+  TournamentBracket: { tournamentId: string };
   TournamentMatch: {
     tournamentId: string;
     matchId: string;

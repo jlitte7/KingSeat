@@ -205,6 +205,48 @@ export default function TournamentDetailScreen() {
               </View>
             </View>
 
+            {/* View Bracket Button - Always visible when bracket exists */}
+            {tournament.bracketMatches.length > 0 && (
+              <View className="px-6 py-2">
+                <Pressable
+                  onPress={() => navigation.navigate("TournamentBracket", { tournamentId })}
+                  className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl p-4 flex-row items-center justify-between"
+                >
+                  <View className="flex-row items-center flex-1">
+                    <View className="bg-white/20 rounded-full p-2 mr-3">
+                      <Ionicons name="git-branch" size={24} color="#fff" />
+                    </View>
+                    <View className="flex-1">
+                      <Text className="text-white font-bold text-lg">View Tournament Bracket</Text>
+                      <Text className="text-white/80 text-xs mt-1">
+                        {tournament.bracketMatches.filter(m => m.completed).length} of {tournament.bracketMatches.length} matches complete
+                      </Text>
+                    </View>
+                  </View>
+                  <Ionicons name="chevron-forward" size={24} color="#fff" />
+                </Pressable>
+              </View>
+            )}
+
+            {/* Bracket Preview Teaser - Show during team generation */}
+            {tournament.bracketMatches.length === 0 && tournament.teams.length >= 2 && (
+              <View className="px-6 py-2">
+                <View className="bg-blue-900/20 border border-blue-600/50 rounded-xl p-4">
+                  <View className="flex-row items-start">
+                    <Ionicons name="information-circle" size={20} color="#60a5fa" style={{ marginRight: 8, marginTop: 2 }} />
+                    <View className="flex-1">
+                      <Text className="text-blue-400 font-bold text-sm mb-1">
+                        Bracket Ready to Generate
+                      </Text>
+                      <Text className="text-blue-300 text-xs leading-5">
+                        {tournament.teams.length} teams are ready. Generate the bracket to start the tournament and view matchups.
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              </View>
+            )}
+
             {/* Action Buttons */}
             <View className="px-6 py-4">
               {tournament.status === "setup" && (
