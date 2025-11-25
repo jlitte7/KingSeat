@@ -46,6 +46,23 @@ export default function PersonalMatchLogScreen() {
     if (matchIdParam && !isEditMode) {
       const matchToEdit = matches.find((m) => m.id === matchIdParam);
       if (matchToEdit && matchToEdit.rounds.length > 0) {
+        // Check if game is completed (either player reached 21)
+        const gameCompleted = matchToEdit.myScore >= 21 || (matchToEdit.opponentScore ?? 0) >= 21;
+
+        if (gameCompleted) {
+          Alert.alert(
+            "Game Completed",
+            "This game has already finished. Editing is not allowed for completed games to maintain accurate stats.",
+            [
+              {
+                text: "OK",
+                onPress: () => navigation.goBack(),
+              },
+            ]
+          );
+          return;
+        }
+
         setIsEditMode(true);
         setEditMatchId(matchIdParam);
 

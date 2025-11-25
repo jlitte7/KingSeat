@@ -151,6 +151,11 @@ A completely redesigned personal tracking system with enhanced visual appeal and
     - Make your corrections and tap "Enter" to save
     - Returns directly to Match Details when done
     - Quick and focused editing for fixing individual round errors
+  - **Game Completion Lock**: Once a game reaches 21 points, editing is locked
+    - Maintains accurate historical stats by preventing retroactive changes
+    - Edit buttons show "Locked" for completed games
+    - Prevents editing after final score is recorded
+    - Info badge explains why completed games cannot be edited
 
 - **Quick Log Mode**: Fast bag throw logging for practice
   - Big, colorful buttons for instant logging (In/On/Miss)

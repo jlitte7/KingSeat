@@ -80,6 +80,9 @@ export default function MatchDetailScreen() {
   const threeBaggers = match.rounds.filter((r) => r.myBagsIn === 3).length;
   const zeroBagRounds = match.rounds.filter((r) => r.myBagsIn === 0 && r.myBagsOn === 0).length;
 
+  // Check if game is completed (either player reached 21)
+  const gameCompleted = match.myScore >= 21 || (match.opponentScore ?? 0) >= 21;
+
   return (
     <View className="flex-1 bg-gray-900">
       <SafeAreaView className="flex-1" edges={["top"]}>
@@ -282,15 +285,22 @@ export default function MatchDetailScreen() {
                         </Text>
                       </View>
                       <Pressable
-                        onPress={() =>
-                          navigation.navigate("PersonalMatchLog", {
-                            matchId: match.id,
-                            roundNumber: round.roundNumber,
-                          })
-                        }
-                        className="ml-2 bg-purple-600 px-3 py-1 rounded-lg"
+                        onPress={() => {
+                          if (!gameCompleted) {
+                            navigation.navigate("PersonalMatchLog", {
+                              matchId: match.id,
+                              roundNumber: round.roundNumber,
+                            });
+                          }
+                        }}
+                        disabled={gameCompleted}
+                        className={`ml-2 px-3 py-1 rounded-lg ${
+                          gameCompleted ? "bg-gray-600 opacity-50" : "bg-purple-600"
+                        }`}
                       >
-                        <Text className="text-white text-xs font-bold">Edit</Text>
+                        <Text className="text-white text-xs font-bold">
+                          {gameCompleted ? "Locked" : "Edit"}
+                        </Text>
                       </Pressable>
                     </View>
                   </View>
@@ -366,6 +376,23 @@ export default function MatchDetailScreen() {
               );
             })}
           </View>
+
+          {/* Locked Game Info */}
+          {gameCompleted && (
+            <View className="bg-blue-900/30 rounded-lg p-4 mb-4 border border-blue-700/50">
+              <View className="flex-row items-start">
+                <Ionicons name="lock-closed" size={20} color="#60a5fa" style={{ marginRight: 8, marginTop: 2 }} />
+                <View className="flex-1">
+                  <Text className="text-blue-400 font-bold text-sm mb-2">
+                    Editing Locked
+                  </Text>
+                  <Text className="text-blue-300 text-sm leading-6">
+                    This game has reached 21 points and is now complete. Rounds cannot be edited to maintain accurate historical stats.
+                  </Text>
+                </View>
+              </View>
+            </View>
+          )}
 
           <View className="h-6" />
         </ScrollView>
