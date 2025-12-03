@@ -5,7 +5,6 @@ import {
   Pressable,
   ScrollView,
   TextInput,
-  Alert,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
@@ -16,6 +15,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useTournamentStore } from "../state/tournament-store";
 import { SkillTier } from "../types/tournament";
 import { BracketView } from "../components/BracketView";
+import { AlertModal } from "../components/AlertModal";
 
 type TournamentDetailScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -53,6 +53,15 @@ export default function TournamentDetailScreen() {
   const [playerName, setPlayerName] = useState("");
   const [showAddPlayer, setShowAddPlayer] = useState(false);
 
+  const [showNameRequiredAlert, setShowNameRequiredAlert] = useState(false);
+  const [showNotEnoughPlayersAlert, setShowNotEnoughPlayersAlert] = useState(false);
+  const [showTeamsGeneratedAlert, setShowTeamsGeneratedAlert] = useState(false);
+  const [showNotEnoughTeamsAlert, setShowNotEnoughTeamsAlert] = useState(false);
+  const [showScheduleCreatedAlert, setShowScheduleCreatedAlert] = useState(false);
+  const [showNotEnoughTeamsBracketAlert, setShowNotEnoughTeamsBracketAlert] = useState(false);
+  const [showBracketCreatedAlert, setShowBracketCreatedAlert] = useState(false);
+  const [bracketType, setBracketType] = useState<"single" | "double">("single");
+
   if (!tournament) {
     return (
       <View className="flex-1 bg-black items-center justify-center">
@@ -63,7 +72,7 @@ export default function TournamentDetailScreen() {
 
   const handleAddPlayer = () => {
     if (!playerName.trim()) {
-      Alert.alert("Name Required", "Please enter a player name");
+      setShowNameRequiredAlert(true);
       return;
     }
 
@@ -74,42 +83,34 @@ export default function TournamentDetailScreen() {
 
   const handleGenerateTeams = () => {
     if (tournament.players.filter((p) => p.checkedIn).length < 4) {
-      Alert.alert(
-        "Not Enough Players",
-        "You need at least 4 checked-in players to generate teams"
-      );
+      setShowNotEnoughPlayersAlert(true);
       return;
     }
 
     generateBlindDrawTeams(tournamentId);
-    Alert.alert("Teams Generated!", "Teams have been created successfully");
+    setShowTeamsGeneratedAlert(true);
   };
 
   const handleStartRoundRobin = () => {
     if (tournament.teams.length < tournament.minTeamsRequired) {
-      Alert.alert(
-        "Not Enough Teams",
-        `You need at least ${tournament.minTeamsRequired} teams to start (ACL compliance)`
-      );
+      setShowNotEnoughTeamsAlert(true);
       return;
     }
 
     generateRoundRobinSchedule(tournamentId);
-    Alert.alert("Schedule Created!", "Round robin matches have been scheduled");
+    setShowScheduleCreatedAlert(true);
   };
 
   const handleGenerateBracket = (eliminationType: "single" | "double") => {
     if (tournament.teams.length < 2) {
-      Alert.alert("Not Enough Teams", "You need at least 2 teams to create a bracket");
+      setShowNotEnoughTeamsBracketAlert(true);
       return;
     }
 
     generateBracket(tournamentId, eliminationType);
     updateTournamentStatus(tournamentId, "bracket");
-    Alert.alert(
-      "Bracket Created!",
-      `${eliminationType === "single" ? "Single" : "Double"} elimination bracket has been generated`
-    );
+    setBracketType(eliminationType);
+    setShowBracketCreatedAlert(true);
   };
 
   const handleMatchPress = (matchId: string, team1Score?: number, team2Score?: number) => {
@@ -568,6 +569,56 @@ export default function TournamentDetailScreen() {
           </ScrollView>
         </SafeAreaView>
       </LinearGradient>
+
+      {/* Modals */}
+      <AlertModal
+        visible={showNameRequiredAlert}
+        title="Name Required"
+        message="Please enter a player name"
+        onClose={() => setShowNameRequiredAlert(false)}
+      />
+
+      <AlertModal
+        visible={showNotEnoughPlayersAlert}
+        title="Not Enough Players"
+        message="You need at least 4 checked-in players to generate teams"
+        onClose={() => setShowNotEnoughPlayersAlert(false)}
+      />
+
+      <AlertModal
+        visible={showTeamsGeneratedAlert}
+        title="Teams Generated!"
+        message="Teams have been created successfully"
+        onClose={() => setShowTeamsGeneratedAlert(false)}
+      />
+
+      <AlertModal
+        visible={showNotEnoughTeamsAlert}
+        title="Not Enough Teams"
+        message={`You need at least ${tournament.minTeamsRequired} teams to start (ACL compliance)`}
+        onClose={() => setShowNotEnoughTeamsAlert(false)}
+      />
+
+      <AlertModal
+        visible={showScheduleCreatedAlert}
+        title="Schedule Created!"
+        message="Round robin matches have been scheduled"
+        onClose={() => setShowScheduleCreatedAlert(false)}
+      />
+
+      <AlertModal
+        visible={showNotEnoughTeamsBracketAlert}
+        title="Not Enough Teams"
+        message="You need at least 2 teams to create a bracket"
+        onClose={() => setShowNotEnoughTeamsBracketAlert(false)}
+      />
+
+      <AlertModal
+        visible={showBracketCreatedAlert}
+        title="Bracket Created!"
+        message={`${bracketType === "single" ? "Single" : "Double"} elimination bracket has been generated`}
+        onClose={() => setShowBracketCreatedAlert(false)}
+      />
     </View>
   );
 }

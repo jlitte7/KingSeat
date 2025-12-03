@@ -11,6 +11,15 @@ import { isACLCompliant } from "../types/tournament";
 
 const { width } = Dimensions.get("window");
 
+const TOURNAMENT_FEATURES = [
+  { icon: "shuffle" as const, title: "Blind Draw Doubles", desc: "Auto-generate balanced teams with skill tiers" },
+  { icon: "repeat" as const, title: "Switcholio", desc: "Rotate partners each game for individual rankings" },
+  { icon: "grid" as const, title: "Round Robin", desc: "Everyone plays everyone with automatic scheduling" },
+  { icon: "git-branch" as const, title: "Brackets", desc: "Single or double elimination tournaments" },
+  { icon: "ribbon" as const, title: "ACL Compliant", desc: "Follows American Cornhole League standards" },
+  { icon: "calendar" as const, title: "Season Tracking", desc: "Track multiple events and cumulative stats" },
+];
+
 type TossOffScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
   "TossOff"
@@ -184,20 +193,13 @@ export default function TossOffScreen() {
                 {/* Feature List */}
                 <View className="mt-6 space-y-3">
                   <Text className="text-white text-lg font-bold mb-2">Features</Text>
-                  {[
-                    { icon: "shuffle", title: "Blind Draw Doubles", desc: "Auto-generate balanced teams with skill tiers" },
-                    { icon: "repeat", title: "Switcholio", desc: "Rotate partners each game for individual rankings" },
-                    { icon: "grid", title: "Round Robin", desc: "Everyone plays everyone with automatic scheduling" },
-                    { icon: "git-branch", title: "Brackets", desc: "Single or double elimination tournaments" },
-                    { icon: "ribbon", title: "ACL Compliant", desc: "Follows American Cornhole League standards" },
-                    { icon: "calendar", title: "Season Tracking", desc: "Track multiple events and cumulative stats" },
-                  ].map((feature, index) => (
+                  {TOURNAMENT_FEATURES.map((feature, index) => (
                     <View
                       key={index}
                       className="bg-white/5 rounded-xl p-4 border border-white/10 flex-row items-center"
                     >
                       <View className="bg-purple-600/20 rounded-full p-3 mr-4">
-                        <Ionicons name={feature.icon as any} size={20} color="#a78bfa" />
+                        <Ionicons name={feature.icon} size={20} color="#a78bfa" />
                       </View>
                       <View className="flex-1">
                         <Text className="text-white font-semibold mb-1">

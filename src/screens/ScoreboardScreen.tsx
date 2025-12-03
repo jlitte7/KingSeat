@@ -116,7 +116,7 @@ export default function ScoreboardScreen() {
         scoreAudio.play();
       }
     } catch (error) {
-      console.log('Error playing sound:', error);
+      // Sound playback failed silently
     }
   };
 

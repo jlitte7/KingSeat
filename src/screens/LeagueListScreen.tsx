@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, Pressable, ScrollView, Alert, TextInput, Modal } from "react-native";
+import { View, Text, Pressable, ScrollView, TextInput, Modal } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -7,6 +7,8 @@ import { RootStackParamList } from "../navigation/types";
 import { useTossSeriesStore } from "../state/toss-series-store";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
+import { ConfirmModal } from "../components/ConfirmModal";
+import { AlertModal } from "../components/AlertModal";
 
 type LeagueListNavigationProp = NativeStackNavigationProp<RootStackParamList, "LeagueList">;
 
@@ -21,21 +23,14 @@ export default function LeagueListScreen() {
   const [editName, setEditName] = useState("");
   const [editWeeks, setEditWeeks] = useState("");
 
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [leagueToDelete, setLeagueToDelete] = useState<{ id: string; name: string } | null>(null);
+  const [showEditErrorAlert, setShowEditErrorAlert] = useState(false);
+  const [editErrorMessage, setEditErrorMessage] = useState("");
+
   const handleDeleteLeague = (leagueId: string, leagueName: string) => {
-    Alert.alert(
-      "Delete League",
-      `Are you sure you want to delete "${leagueName}"? This will permanently delete all matches, games, and scores.`,
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: () => {
-            deleteLeague(leagueId);
-          },
-        },
-      ]
-    );
+    setLeagueToDelete({ id: leagueId, name: leagueName });
+    setShowDeleteConfirm(true);
   };
 
   const handleEditLeague = (leagueId: string) => {
@@ -55,12 +50,14 @@ export default function LeagueListScreen() {
     const weeks = parseInt(editWeeks, 10);
 
     if (!trimmedName) {
-      Alert.alert("Error", "League name cannot be empty");
+      setEditErrorMessage("League name cannot be empty");
+      setShowEditErrorAlert(true);
       return;
     }
 
     if (isNaN(weeks) || weeks < 1 || weeks > 52) {
-      Alert.alert("Error", "Please enter a valid number of weeks (1-52)");
+      setEditErrorMessage("Please enter a valid number of weeks (1-52)");
+      setShowEditErrorAlert(true);
       return;
     }
 
@@ -265,6 +262,34 @@ export default function LeagueListScreen() {
           </View>
         </View>
       </Modal>
+
+      {/* Modals */}
+      <ConfirmModal
+        visible={showDeleteConfirm}
+        title="Delete League"
+        message={`Are you sure you want to delete "${leagueToDelete?.name}"? This will permanently delete all matches, games, and scores.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        confirmDestructive={true}
+        onConfirm={() => {
+          if (leagueToDelete) {
+            deleteLeague(leagueToDelete.id);
+          }
+          setShowDeleteConfirm(false);
+          setLeagueToDelete(null);
+        }}
+        onCancel={() => {
+          setShowDeleteConfirm(false);
+          setLeagueToDelete(null);
+        }}
+      />
+
+      <AlertModal
+        visible={showEditErrorAlert}
+        title="Error"
+        message={editErrorMessage}
+        onClose={() => setShowEditErrorAlert(false)}
+      />
     </SafeAreaView>
   );
 }

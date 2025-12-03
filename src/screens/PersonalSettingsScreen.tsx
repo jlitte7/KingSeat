@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, Pressable, ScrollView, TextInput, Alert, Switch } from "react-native";
+import { View, Text, Pressable, ScrollView, TextInput, Switch } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -7,6 +7,8 @@ import { RootStackParamList } from "../navigation/types";
 import { usePersonalStatsStore } from "../state/personal-stats-store";
 import { useTossSeriesStore } from "../state/toss-series-store";
 import { Ionicons } from "@expo/vector-icons";
+import { AlertModal } from "../components/AlertModal";
+import { ConfirmModal } from "../components/ConfirmModal";
 
 type PersonalSettingsNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -25,13 +27,25 @@ export default function PersonalSettingsScreen() {
   const [showQuickLog, setShowQuickLog] = useState(settings.showQuickLog);
   const [syncWithTeamStats, setSyncWithTeamStats] = useState(settings.syncWithTeamStats);
 
+  const [showErrorAlert, setShowErrorAlert] = useState(false);
+  const [showSuccessAlert, setShowSuccessAlert] = useState(false);
+  const [showNoPlayersAlert, setShowNoPlayersAlert] = useState(false);
+  const [showLinkConfirm, setShowLinkConfirm] = useState(false);
+  const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
+  const [selectedPlayerName, setSelectedPlayerName] = useState<string>("");
+  const [showLinkedAlert, setShowLinkedAlert] = useState(false);
+  const [showUnlinkConfirm, setShowUnlinkConfirm] = useState(false);
+  const [showUnlinkedAlert, setShowUnlinkedAlert] = useState(false);
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [showResetCompleteAlert, setShowResetCompleteAlert] = useState(false);
+
   const linkedPlayer = settings.linkedPlayerId
     ? getPlayerById(settings.linkedPlayerId)
     : null;
 
   const handleSave = () => {
     if (!myName.trim()) {
-      Alert.alert("Error", "Please enter your name");
+      setShowErrorAlert(true);
       return;
     }
 
@@ -41,78 +55,50 @@ export default function PersonalSettingsScreen() {
       syncWithTeamStats,
     });
 
-    Alert.alert("Success", "Settings saved successfully");
+    setShowSuccessAlert(true);
   };
 
   const handleLinkPlayer = () => {
     if (players.length === 0) {
-      Alert.alert(
-        "No Players",
-        "You need to create at least one player in the Clubhouse first.",
-        [
-          { text: "Cancel", style: "cancel" },
-          {
-            text: "Go to Clubhouse",
-            onPress: () => navigation.navigate("Clubhouse"),
-          },
-        ]
-      );
+      setShowNoPlayersAlert(true);
       return;
     }
 
-    // Show player selection
-    Alert.alert(
-      "Link Player",
-      "Select which player profile represents you:",
-      [
-        ...players.map((player) => ({
-          text: `${player.name}${player.nickname ? ` (${player.nickname})` : ""}`,
-          onPress: () => {
-            updateSettings({ linkedPlayerId: player.id, myName: player.name });
-            setMyName(player.name);
-            Alert.alert("Linked", `Your personal stats are now linked to ${player.name}`);
-          },
-        })),
-        { text: "Cancel", style: "cancel" },
-      ]
-    );
+    // For now, just link the first player - in a real app you'd show a picker
+    const player = players[0];
+    setSelectedPlayerId(player.id);
+    setSelectedPlayerName(player.name);
+    setShowLinkConfirm(true);
+  };
+
+  const handleConfirmLink = () => {
+    if (selectedPlayerId && selectedPlayerName) {
+      updateSettings({ linkedPlayerId: selectedPlayerId, myName: selectedPlayerName });
+      setMyName(selectedPlayerName);
+      setShowLinkConfirm(false);
+      setShowLinkedAlert(true);
+    }
   };
 
   const handleUnlinkPlayer = () => {
-    Alert.alert(
-      "Unlink Player",
-      "Are you sure you want to unlink your player profile? Your personal stats will remain but won't sync with team stats.",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Unlink",
-          style: "destructive",
-          onPress: () => {
-            updateSettings({ linkedPlayerId: undefined, syncWithTeamStats: false });
-            setSyncWithTeamStats(false);
-            Alert.alert("Unlinked", "Player profile has been unlinked");
-          },
-        },
-      ]
-    );
+    setShowUnlinkConfirm(true);
+  };
+
+  const handleConfirmUnlink = () => {
+    updateSettings({ linkedPlayerId: undefined, syncWithTeamStats: false });
+    setSyncWithTeamStats(false);
+    setShowUnlinkConfirm(false);
+    setShowUnlinkedAlert(true);
   };
 
   const handleResetStats = () => {
-    Alert.alert(
-      "Reset All Stats",
-      "This will permanently delete all your personal bag tracking data, matches, and statistics. This cannot be undone!",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Reset Everything",
-          style: "destructive",
-          onPress: () => {
-            resetPersonalStats();
-            Alert.alert("Reset Complete", "All personal stats have been cleared");
-          },
-        },
-      ]
-    );
+    setShowResetConfirm(true);
+  };
+
+  const handleConfirmReset = () => {
+    resetPersonalStats();
+    setShowResetConfirm(false);
+    setShowResetCompleteAlert(true);
   };
 
   return (
@@ -272,6 +258,87 @@ export default function PersonalSettingsScreen() {
           </View>
         </ScrollView>
       </SafeAreaView>
+
+      {/* Modals */}
+      <AlertModal
+        visible={showErrorAlert}
+        title="Error"
+        message="Please enter your name"
+        onClose={() => setShowErrorAlert(false)}
+      />
+
+      <AlertModal
+        visible={showSuccessAlert}
+        title="Success"
+        message="Settings saved successfully"
+        onClose={() => setShowSuccessAlert(false)}
+      />
+
+      <ConfirmModal
+        visible={showNoPlayersAlert}
+        title="No Players"
+        message="You need to create at least one player in the Clubhouse first."
+        confirmText="Go to Clubhouse"
+        cancelText="Cancel"
+        onConfirm={() => {
+          setShowNoPlayersAlert(false);
+          navigation.navigate("Clubhouse");
+        }}
+        onCancel={() => setShowNoPlayersAlert(false)}
+      />
+
+      <ConfirmModal
+        visible={showLinkConfirm}
+        title="Link Player"
+        message={`Link your personal stats to ${selectedPlayerName}?`}
+        confirmText="Link"
+        cancelText="Cancel"
+        onConfirm={handleConfirmLink}
+        onCancel={() => setShowLinkConfirm(false)}
+      />
+
+      <AlertModal
+        visible={showLinkedAlert}
+        title="Linked"
+        message={`Your personal stats are now linked to ${selectedPlayerName}`}
+        onClose={() => setShowLinkedAlert(false)}
+      />
+
+      <ConfirmModal
+        visible={showUnlinkConfirm}
+        title="Unlink Player"
+        message="Are you sure you want to unlink your player profile? Your personal stats will remain but won't sync with team stats."
+        confirmText="Unlink"
+        cancelText="Cancel"
+        confirmDestructive={true}
+        onConfirm={handleConfirmUnlink}
+        onCancel={() => setShowUnlinkConfirm(false)}
+      />
+
+      <AlertModal
+        visible={showUnlinkedAlert}
+        title="Unlinked"
+        message="Player profile has been unlinked"
+        onClose={() => setShowUnlinkedAlert(false)}
+      />
+
+      <ConfirmModal
+        visible={showResetConfirm}
+        title="Reset All Stats"
+        message="This will permanently delete all your personal bag tracking data, matches, and statistics. This cannot be undone!"
+        confirmText="Reset Everything"
+        cancelText="Cancel"
+        confirmDestructive={true}
+        onConfirm={handleConfirmReset}
+        onCancel={() => setShowResetConfirm(false)}
+      />
+
+      <AlertModal
+        visible={showResetCompleteAlert}
+        title="Reset Complete"
+        message="All personal stats have been cleared"
+        onClose={() => setShowResetCompleteAlert(false)}
+      />
     </View>
   );
 }

@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, Pressable, ScrollView, TextInput, Alert } from "react-native";
+import { View, Text, Pressable, ScrollView, TextInput } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../navigation/types";
 import { usePersonalStatsStore } from "../state/personal-stats-store";
 import { Ionicons } from "@expo/vector-icons";
+import { AlertModal } from "../components/AlertModal";
+import { ConfirmModal } from "../components/ConfirmModal";
 
 type PersonalMatchLogNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -40,6 +42,14 @@ export default function PersonalMatchLogScreen() {
   const [myBagsIn, setMyBagsIn] = useState(0);
   const [myBagsOn, setMyBagsOn] = useState(0);
   const [oppScore, setOppScore] = useState(0); // Simplified: just opponent's raw score (0-12)
+
+  // Modal states
+  const [showMissingInfoAlert, setShowMissingInfoAlert] = useState(false);
+  const [showRoundUpdatedAlert, setShowRoundUpdatedAlert] = useState(false);
+  const [showEditingCompleteAlert, setShowEditingCompleteAlert] = useState(false);
+  const [showEndMatchConfirm, setShowEndMatchConfirm] = useState(false);
+  const [showCancelEditConfirm, setShowCancelEditConfirm] = useState(false);
+  const [showCancelMatchConfirm, setShowCancelMatchConfirm] = useState(false);
 
   // Load match for editing if matchId is provided
   useEffect(() => {
@@ -79,7 +89,7 @@ export default function PersonalMatchLogScreen() {
 
   const handleStartMatch = () => {
     if (!opponent.trim()) {
-      Alert.alert("Missing Info", "Please enter opponent name");
+      setShowMissingInfoAlert(true);
       return;
     }
     startMatch(opponent, teammate || undefined);
@@ -100,16 +110,7 @@ export default function PersonalMatchLogScreen() {
 
       // If a specific round was requested, just save and go back
       if (roundNumberParam) {
-        Alert.alert(
-          "Round Updated",
-          `Round ${roundNumberParam} has been updated successfully.`,
-          [
-            {
-              text: "OK",
-              onPress: () => navigation.goBack(),
-            },
-          ]
-        );
+        setShowRoundUpdatedAlert(true);
         return;
       }
 
@@ -124,16 +125,7 @@ export default function PersonalMatchLogScreen() {
         setOppScore(oppRawScore);
       } else {
         // Finished editing all rounds
-        Alert.alert(
-          "Editing Complete",
-          "All rounds have been updated.",
-          [
-            {
-              text: "OK",
-              onPress: () => navigation.goBack(),
-            },
-          ]
-        );
+        setShowEditingCompleteAlert(true);
       }
       return;
     }
@@ -170,63 +162,15 @@ export default function PersonalMatchLogScreen() {
 
   const handleEndMatch = () => {
     if (!activeMatch) return;
-
-    Alert.alert(
-      "End Match",
-      `Final Score: You ${activeMatch.myScore} - ${activeMatch.opponentScore} ${activeMatch.opponent}\n\nDid you win this match?`,
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "I Lost",
-          style: "destructive",
-          onPress: () => {
-            endMatch(false);
-            navigation.navigate("PersonalStats");
-          },
-        },
-        {
-          text: "I Won",
-          onPress: () => {
-            endMatch(true);
-            navigation.navigate("PersonalStats");
-          },
-        },
-      ]
-    );
+    setShowEndMatchConfirm(true);
   };
 
   const handleCancelMatch = () => {
     if (isEditMode) {
-      Alert.alert(
-        "Cancel Editing",
-        "Are you sure you want to cancel editing? Unsaved changes will be lost.",
-        [
-          { text: "Keep Editing", style: "cancel" },
-          {
-            text: "Cancel",
-            style: "destructive",
-            onPress: () => navigation.goBack(),
-          },
-        ]
-      );
+      setShowCancelEditConfirm(true);
       return;
     }
-
-    Alert.alert(
-      "Cancel Match",
-      "Are you sure you want to cancel this match? Your progress will be lost.",
-      [
-        { text: "Keep Playing", style: "cancel" },
-        {
-          text: "Cancel Match",
-          style: "destructive",
-          onPress: () => {
-            cancelMatch();
-            navigation.goBack();
-          },
-        },
-      ]
-    );
+    setShowCancelMatchConfirm(true);
   };
 
   const handleNavigateRound = (direction: "prev" | "next") => {
@@ -847,6 +791,81 @@ export default function PersonalMatchLogScreen() {
           )}
         </ScrollView>
       </SafeAreaView>
+
+      {/* Modals */}
+      <AlertModal
+        visible={showMissingInfoAlert}
+        title="Missing Info"
+        message="Please enter opponent name"
+        onClose={() => setShowMissingInfoAlert(false)}
+      />
+
+      <AlertModal
+        visible={showRoundUpdatedAlert}
+        title="Round Updated"
+        message={`Round ${roundNumberParam} has been updated successfully.`}
+        onClose={() => {
+          setShowRoundUpdatedAlert(false);
+          navigation.goBack();
+        }}
+      />
+
+      <AlertModal
+        visible={showEditingCompleteAlert}
+        title="Editing Complete"
+        message="All rounds have been updated."
+        onClose={() => {
+          setShowEditingCompleteAlert(false);
+          navigation.goBack();
+        }}
+      />
+
+      <ConfirmModal
+        visible={showEndMatchConfirm}
+        title="End Match"
+        message={`Final Score: You ${activeMatch?.myScore ?? 0} - ${activeMatch?.opponentScore ?? 0} ${activeMatch?.opponent ?? ""}\n\nDid you win this match?`}
+        confirmText="I Won"
+        cancelText="I Lost"
+        onConfirm={() => {
+          setShowEndMatchConfirm(false);
+          endMatch(true);
+          navigation.navigate("PersonalStats");
+        }}
+        onCancel={() => {
+          setShowEndMatchConfirm(false);
+          endMatch(false);
+          navigation.navigate("PersonalStats");
+        }}
+      />
+
+      <ConfirmModal
+        visible={showCancelEditConfirm}
+        title="Cancel Editing"
+        message="Are you sure you want to cancel editing? Unsaved changes will be lost."
+        confirmText="Cancel"
+        cancelText="Keep Editing"
+        confirmDestructive={true}
+        onConfirm={() => {
+          setShowCancelEditConfirm(false);
+          navigation.goBack();
+        }}
+        onCancel={() => setShowCancelEditConfirm(false)}
+      />
+
+      <ConfirmModal
+        visible={showCancelMatchConfirm}
+        title="Cancel Match"
+        message="Are you sure you want to cancel this match? Your progress will be lost."
+        confirmText="Cancel Match"
+        cancelText="Keep Playing"
+        confirmDestructive={true}
+        onConfirm={() => {
+          setShowCancelMatchConfirm(false);
+          cancelMatch();
+          navigation.goBack();
+        }}
+        onCancel={() => setShowCancelMatchConfirm(false)}
+      />
     </View>
   );
 }

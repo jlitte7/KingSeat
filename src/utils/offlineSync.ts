@@ -27,8 +27,8 @@ export const useOfflineSync = (
       clearPendingActions();
       updateLastSync();
     } catch (error) {
-      console.error('Sync failed:', error);
       // Actions remain in queue for next sync attempt
+      // Error is silently caught to allow retry on next connection
     }
   }, [isInternetReachable, pendingActions, syncHandler, clearPendingActions, updateLastSync]);
 

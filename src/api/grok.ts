@@ -13,7 +13,7 @@ import OpenAI from "openai";
 export const getGrokClient = () => {
   const apiKey = process.env.EXPO_PUBLIC_VIBECODE_GROK_API_KEY;
   if (!apiKey) {
-    console.warn("Grok API key not found in environment variables");
+    throw new Error("Grok API key not found in environment variables");
   }
   return new OpenAI({
     apiKey: apiKey,

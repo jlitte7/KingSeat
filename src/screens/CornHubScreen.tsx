@@ -353,7 +353,7 @@ export default function CornHubScreen() {
               .map((mode, index) => (
                 <Pressable
                   key={index}
-                  onPress={() => navigation.navigate(mode.route as any)}
+                  onPress={() => (navigation.navigate as (route: keyof RootStackParamList) => void)(mode.route)}
                   className="mb-3"
                 >
                   <LinearGradient
@@ -397,7 +397,7 @@ export default function CornHubScreen() {
               .map((mode, index) => (
                 <Pressable
                   key={index}
-                  onPress={() => navigation.navigate(mode.route as any)}
+                  onPress={() => (navigation.navigate as (route: keyof RootStackParamList) => void)(mode.route)}
                   className="mb-3"
                 >
                   <LinearGradient
@@ -441,7 +441,7 @@ export default function CornHubScreen() {
               .map((mode, index) => (
                 <Pressable
                   key={index}
-                  onPress={() => navigation.navigate(mode.route as any)}
+                  onPress={() => (navigation.navigate as (route: keyof RootStackParamList) => void)(mode.route)}
                   className="mb-3"
                 >
                   <LinearGradient

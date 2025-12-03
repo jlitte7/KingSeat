@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, Pressable, ScrollView, Alert, TextInput } from "react-native";
+import { View, Text, Pressable, ScrollView, TextInput } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -7,6 +7,8 @@ import { RootStackParamList } from "../navigation/types";
 import { useTossSeriesStore } from "../state/toss-series-store";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
+import { ConfirmModal } from "../components/ConfirmModal";
+import { AlertModal } from "../components/AlertModal";
 
 type TeamsListNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -22,6 +24,11 @@ export default function TeamsListScreen() {
 
   const [viewMode, setViewMode] = useState<"all" | "visible" | "hidden">("visible");
   const [searchQuery, setSearchQuery] = useState("");
+
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [teamToDelete, setTeamToDelete] = useState<{ id: string; name: string } | null>(null);
+  const [showGenerateConfirm, setShowGenerateConfirm] = useState(false);
+  const [showSampleDataSuccess, setShowSampleDataSuccess] = useState(false);
 
   // Filter teams based on view mode and search query
   const filteredTeams = teams.filter((team) => {
@@ -46,35 +53,12 @@ export default function TeamsListScreen() {
   const hiddenTeamsCount = teams.filter((t) => t.isHidden).length;
 
   const handleDeleteTeam = (teamId: string, teamName: string) => {
-    Alert.alert(
-      "Delete Team",
-      `Are you sure you want to delete ${teamName}? This will also delete all players on this team.`,
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: () => deleteTeam(teamId),
-        },
-      ]
-    );
+    setTeamToDelete({ id: teamId, name: teamName });
+    setShowDeleteConfirm(true);
   };
 
   const handleGenerateSampleData = () => {
-    Alert.alert(
-      "Generate Sample Data",
-      "This will create 6 teams with 10 players each for testing. Continue?",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Generate",
-          onPress: () => {
-            generateSampleData();
-            Alert.alert("Success", "Sample data has been generated! 6 teams with 10 players each have been created.");
-          },
-        },
-      ]
-    );
+    setShowGenerateConfirm(true);
   };
 
   return (
@@ -300,6 +284,48 @@ export default function TeamsListScreen() {
           </ScrollView>
         )}
       </View>
+
+      {/* Modals */}
+      <ConfirmModal
+        visible={showDeleteConfirm}
+        title="Delete Team"
+        message={`Are you sure you want to delete ${teamToDelete?.name}? This will also delete all players on this team.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        confirmDestructive={true}
+        onConfirm={() => {
+          if (teamToDelete) {
+            deleteTeam(teamToDelete.id);
+          }
+          setShowDeleteConfirm(false);
+          setTeamToDelete(null);
+        }}
+        onCancel={() => {
+          setShowDeleteConfirm(false);
+          setTeamToDelete(null);
+        }}
+      />
+
+      <ConfirmModal
+        visible={showGenerateConfirm}
+        title="Generate Sample Data"
+        message="This will create 6 teams with 10 players each for testing. Continue?"
+        confirmText="Generate"
+        cancelText="Cancel"
+        onConfirm={() => {
+          generateSampleData();
+          setShowGenerateConfirm(false);
+          setShowSampleDataSuccess(true);
+        }}
+        onCancel={() => setShowGenerateConfirm(false)}
+      />
+
+      <AlertModal
+        visible={showSampleDataSuccess}
+        title="Success"
+        message="Sample data has been generated! 6 teams with 10 players each have been created."
+        onClose={() => setShowSampleDataSuccess(false)}
+      />
     </SafeAreaView>
   );
 }

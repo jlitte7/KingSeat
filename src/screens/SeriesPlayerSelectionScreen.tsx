@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, Pressable, ScrollView, Alert } from "react-native";
+import { View, Text, Pressable, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -7,6 +7,7 @@ import { RootStackParamList } from "../navigation/types";
 import { useTossSeriesStore } from "../state/toss-series-store";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
+import { AlertModal } from "../components/AlertModal";
 
 type SeriesPlayerSelectionRouteProp = RouteProp<RootStackParamList, "SeriesPlayerSelection">;
 type SeriesPlayerSelectionNavigationProp = NativeStackNavigationProp<
@@ -23,6 +24,8 @@ export default function SeriesPlayerSelectionScreen() {
   const players = useTossSeriesStore((s) => s.players);
 
   const [selectedPlayers, setSelectedPlayers] = useState<Array<{ playerId: string; playerName: string }>>([]);
+  const [showMaxPlayersAlert, setShowMaxPlayersAlert] = useState(false);
+  const [showNotEnoughPlayersAlert, setShowNotEnoughPlayersAlert] = useState(false);
 
   if (!series) {
     return (
@@ -45,7 +48,7 @@ export default function SeriesPlayerSelectionScreen() {
       setSelectedPlayers(selectedPlayers.filter((p) => p.playerId !== playerId));
     } else {
       if (selectedPlayers.length >= 8) {
-        Alert.alert("Maximum Players", "You can select a maximum of 8 players for the series.");
+        setShowMaxPlayersAlert(true);
         return;
       }
       setSelectedPlayers([...selectedPlayers, { playerId, playerName }]);
@@ -54,7 +57,7 @@ export default function SeriesPlayerSelectionScreen() {
 
   const handleConfirmSelection = () => {
     if (selectedPlayers.length < 8) {
-      Alert.alert("Not Enough Players", "You must select at least 8 players for the series.");
+      setShowNotEnoughPlayersAlert(true);
       return;
     }
 
@@ -162,6 +165,21 @@ export default function SeriesPlayerSelectionScreen() {
           </Pressable>
         </View>
       </View>
+
+      {/* Modals */}
+      <AlertModal
+        visible={showMaxPlayersAlert}
+        title="Maximum Players"
+        message="You can select a maximum of 8 players for the series."
+        onClose={() => setShowMaxPlayersAlert(false)}
+      />
+
+      <AlertModal
+        visible={showNotEnoughPlayersAlert}
+        title="Not Enough Players"
+        message="You must select at least 8 players for the series."
+        onClose={() => setShowNotEnoughPlayersAlert(false)}
+      />
     </SafeAreaView>
   );
 }

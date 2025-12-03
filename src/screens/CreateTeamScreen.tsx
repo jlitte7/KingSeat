@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Pressable, ScrollView, KeyboardAvoidingView, Platform, Alert } from 'react-native';
+import { View, Text, TextInput, Pressable, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
 import { useTossSeriesStore } from '../state/toss-series-store';
 import { Ionicons } from '@expo/vector-icons';
+import { AlertModal } from '../components/AlertModal';
 
 type CreateTeamNavigationProp = NativeStackNavigationProp<RootStackParamList, 'CreateTeam'>;
 
@@ -15,11 +16,15 @@ export default function CreateTeamScreen() {
   const teams = useTossSeriesStore((s) => s.teams);
   const [teamName, setTeamName] = useState('');
 
+  const [showErrorAlert, setShowErrorAlert] = useState(false);
+  const [showDuplicateAlert, setShowDuplicateAlert] = useState(false);
+  const [duplicateName, setDuplicateName] = useState('');
+
   const handleCreate = () => {
     const trimmedName = teamName.trim();
 
     if (!trimmedName) {
-      Alert.alert("Error", "Please enter a team name");
+      setShowErrorAlert(true);
       return;
     }
 
@@ -29,11 +34,8 @@ export default function CreateTeamScreen() {
     );
 
     if (existingTeam) {
-      Alert.alert(
-        "Duplicate Name",
-        `A team named "${existingTeam.name}" already exists. Please use a different name.`,
-        [{ text: "OK" }]
-      );
+      setDuplicateName(existingTeam.name);
+      setShowDuplicateAlert(true);
       return;
     }
 
@@ -85,6 +87,21 @@ export default function CreateTeamScreen() {
           </View>
         </View>
       </KeyboardAvoidingView>
+
+      {/* Modals */}
+      <AlertModal
+        visible={showErrorAlert}
+        title="Error"
+        message="Please enter a team name"
+        onClose={() => setShowErrorAlert(false)}
+      />
+
+      <AlertModal
+        visible={showDuplicateAlert}
+        title="Duplicate Name"
+        message={`A team named "${duplicateName}" already exists. Please use a different name.`}
+        onClose={() => setShowDuplicateAlert(false)}
+      />
     </SafeAreaView>
   );
 }

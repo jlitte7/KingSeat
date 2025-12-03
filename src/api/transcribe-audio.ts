@@ -43,7 +43,6 @@ export const transcribeAudio = async (localAudioUri: string) => {
     const result = await response.json();
     return result.text;
   } catch (error) {
-    console.error("Transcription error:", error);
-    throw error;
+    throw new Error(`Transcription error: ${error instanceof Error ? error.message : "Unknown error"}`);
   }
 };

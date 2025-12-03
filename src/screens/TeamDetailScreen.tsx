@@ -1,11 +1,12 @@
-import React from 'react';
-import { View, Text, Pressable, ScrollView, Alert } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, Pressable, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
 import { useTossSeriesStore } from '../state/toss-series-store';
 import { Ionicons } from '@expo/vector-icons';
+import { ConfirmModal } from '../components/ConfirmModal';
 
 type TeamDetailNavigationProp = NativeStackNavigationProp<RootStackParamList, 'TeamDetail'>;
 type TeamDetailRouteProp = RouteProp<RootStackParamList, 'TeamDetail'>;
@@ -18,6 +19,9 @@ export default function TeamDetailScreen() {
 
   const team = getTeamById(teamId);
 
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [playerToDelete, setPlayerToDelete] = useState<{ id: string; name: string } | null>(null);
+
   if (!team) {
     return (
       <SafeAreaView className="flex-1 bg-gray-900">
@@ -29,18 +33,8 @@ export default function TeamDetailScreen() {
   }
 
   const handleDeletePlayer = (playerId: string, playerName: string) => {
-    Alert.alert(
-      'Delete Player',
-      `Are you sure you want to delete ${playerName}?`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: () => deletePlayer(playerId),
-        },
-      ]
-    );
+    setPlayerToDelete({ id: playerId, name: playerName });
+    setShowDeleteConfirm(true);
   };
 
   return (
@@ -148,6 +142,27 @@ export default function TeamDetailScreen() {
           </ScrollView>
         )}
       </View>
+
+      {/* Modals */}
+      <ConfirmModal
+        visible={showDeleteConfirm}
+        title="Delete Player"
+        message={`Are you sure you want to delete ${playerToDelete?.name}?`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        confirmDestructive={true}
+        onConfirm={() => {
+          if (playerToDelete) {
+            deletePlayer(playerToDelete.id);
+          }
+          setShowDeleteConfirm(false);
+          setPlayerToDelete(null);
+        }}
+        onCancel={() => {
+          setShowDeleteConfirm(false);
+          setPlayerToDelete(null);
+        }}
+      />
     </SafeAreaView>
   );
 }

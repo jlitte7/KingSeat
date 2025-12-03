@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Pressable, ScrollView, KeyboardAvoidingView, Platform, Alert } from 'react-native';
+import { View, Text, TextInput, Pressable, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
 import { useTossSeriesStore } from '../state/toss-series-store';
 import { Ionicons } from '@expo/vector-icons';
+import { AlertModal } from '../components/AlertModal';
 
 type AddPlayerNavigationProp = NativeStackNavigationProp<RootStackParamList, 'AddPlayer'>;
 type AddPlayerRouteProp = RouteProp<RootStackParamList, 'AddPlayer'>;
@@ -19,11 +20,15 @@ export default function AddPlayerScreen() {
   const [playerName, setPlayerName] = useState('');
   const [nickname, setNickname] = useState('');
 
+  const [showErrorAlert, setShowErrorAlert] = useState(false);
+  const [showDuplicateAlert, setShowDuplicateAlert] = useState(false);
+  const [duplicateName, setDuplicateName] = useState('');
+
   const handleCreate = () => {
     const trimmedName = playerName.trim();
 
     if (!trimmedName) {
-      Alert.alert("Error", "Please enter a player name");
+      setShowErrorAlert(true);
       return;
     }
 
@@ -33,11 +38,8 @@ export default function AddPlayerScreen() {
     );
 
     if (existingPlayer) {
-      Alert.alert(
-        "Duplicate Name",
-        `A player named "${existingPlayer.name}" already exists. Please use a different name or add a nickname to differentiate.`,
-        [{ text: "OK" }]
-      );
+      setDuplicateName(existingPlayer.name);
+      setShowDuplicateAlert(true);
       return;
     }
 
@@ -97,6 +99,21 @@ export default function AddPlayerScreen() {
           </View>
         </View>
       </KeyboardAvoidingView>
+
+      {/* Modals */}
+      <AlertModal
+        visible={showErrorAlert}
+        title="Error"
+        message="Please enter a player name"
+        onClose={() => setShowErrorAlert(false)}
+      />
+
+      <AlertModal
+        visible={showDuplicateAlert}
+        title="Duplicate Name"
+        message={`A player named "${duplicateName}" already exists. Please use a different name or add a nickname to differentiate.`}
+        onClose={() => setShowDuplicateAlert(false)}
+      />
     </SafeAreaView>
   );
 }

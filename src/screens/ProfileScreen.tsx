@@ -5,7 +5,6 @@ import {
   Pressable,
   ScrollView,
   TextInput,
-  Alert,
   Dimensions,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
@@ -17,6 +16,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useProfileStore } from "../state/profile-store";
 import { usePersonalStatsStore } from "../state/personal-stats-store";
 import { AVATAR_OPTIONS, COLOR_PRESETS } from "../types/profile";
+import { AlertModal } from "../components/AlertModal";
 
 const { width } = Dimensions.get("window");
 
@@ -41,9 +41,11 @@ export default function ProfileScreen() {
   const [showAvatarPicker, setShowAvatarPicker] = useState(false);
   const [showColorPicker, setShowColorPicker] = useState(false);
 
+  const [showNameRequiredAlert, setShowNameRequiredAlert] = useState(false);
+
   const handleSave = () => {
     if (!editName.trim()) {
-      Alert.alert("Name Required", "Please enter your name");
+      setShowNameRequiredAlert(true);
       return;
     }
 
@@ -428,6 +430,14 @@ export default function ProfileScreen() {
           </ScrollView>
         </SafeAreaView>
       </LinearGradient>
+
+      {/* Modals */}
+      <AlertModal
+        visible={showNameRequiredAlert}
+        title="Name Required"
+        message="Please enter your name"
+        onClose={() => setShowNameRequiredAlert(false)}
+      />
     </View>
   );
 }

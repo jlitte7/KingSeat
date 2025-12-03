@@ -5,7 +5,6 @@ import {
   Pressable,
   ScrollView,
   TextInput,
-  Alert,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation } from "@react-navigation/native";
@@ -15,6 +14,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useTournamentStore } from "../state/tournament-store";
 import { TournamentFormat, TournamentType } from "../types/tournament";
+import { AlertModal } from "../components/AlertModal";
 
 type CreateTournamentScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -32,7 +32,9 @@ export default function CreateTournamentScreen() {
   const [minTeams, setMinTeams] = useState("6");
   const [pointsToWin, setPointsToWin] = useState("21");
 
-  const formats: { value: TournamentFormat; label: string; desc: string; icon: string }[] = [
+  const [showNameRequiredAlert, setShowNameRequiredAlert] = useState(false);
+
+  const formats: { value: TournamentFormat; label: string; desc: string; icon: keyof typeof Ionicons.glyphMap }[] = [
     {
       value: "blind-draw-doubles",
       label: "Blind Draw Doubles",
@@ -73,7 +75,7 @@ export default function CreateTournamentScreen() {
 
   const handleCreate = () => {
     if (!name.trim()) {
-      Alert.alert("Name Required", "Please enter a tournament name");
+      setShowNameRequiredAlert(true);
       return;
     }
 
@@ -157,7 +159,7 @@ export default function CreateTournamentScreen() {
                         }`}
                       >
                         <Ionicons
-                          name={f.icon as any}
+                          name={f.icon}
                           size={20}
                           color={format === f.value ? "#fff" : "#a78bfa"}
                         />
@@ -311,6 +313,14 @@ export default function CreateTournamentScreen() {
           </ScrollView>
         </SafeAreaView>
       </LinearGradient>
+
+      {/* Modals */}
+      <AlertModal
+        visible={showNameRequiredAlert}
+        title="Name Required"
+        message="Please enter a tournament name"
+        onClose={() => setShowNameRequiredAlert(false)}
+      />
     </View>
   );
 }

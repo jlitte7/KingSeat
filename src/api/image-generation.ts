@@ -46,23 +46,19 @@ export async function generateImage(
 
     if (!response.ok) {
       const errorData = await response.json();
-      console.error("[AssetGenerationService] Error response:", errorData);
       throw new Error(`Image generation API error: ${response.status} ${JSON.stringify(errorData)}`);
     }
 
     const result = await response.json();
-    console.log("[AssetGenerationService] Image generated successfully");
 
     // Return the image data from the response
     if (result.success && result.data) {
       return result.data.imageUrl as string;
     } else {
-      console.error("[AssetGenerationService] Invalid response format:", result);
       throw new Error("Invalid response format from API");
     }
   } catch (error) {
-    console.error("Image Generation Error:", error);
-    throw error;
+    throw new Error(`Image Generation Error: ${error instanceof Error ? error.message : "Unknown error"}`);
   }
 }
 

@@ -1026,8 +1026,6 @@ export const useTossSeriesStore = create<TossSeriesState>()(
 
       // Sample data generator for testing
       generateSampleData: () => {
-        console.log("Starting sample data generation...");
-
         const teamNames = [
           "Bag Bandits",
           "Cornhole Crushers",
@@ -1070,7 +1068,6 @@ export const useTossSeriesStore = create<TossSeriesState>()(
         let playersCreated = 0;
 
         teamNames.forEach((teamName, teamIndex) => {
-          console.log(`Creating team: ${teamName}`);
           const team = store.createTeam(teamName);
           teamsCreated++;
 
@@ -1083,15 +1080,10 @@ export const useTossSeriesStore = create<TossSeriesState>()(
             // 40% chance to have a nickname
             const nicknameValue = Math.random() > 0.6 ? nicknames[Math.floor(Math.random() * nicknames.length)] : undefined;
 
-            console.log(`  Creating player ${i + 1}: ${playerName}${nicknameValue ? ` (${nicknameValue})` : ""}`);
             store.createPlayer(team.id, playerName, nicknameValue);
             playersCreated++;
           }
         });
-
-        console.log(`Sample data generation complete! Created ${teamsCreated} teams with ${playersCreated} players total.`);
-        console.log(`Current teams in store:`, store.teams.length);
-        console.log(`Current players in store:`, store.players.length);
       },
     }),
     {

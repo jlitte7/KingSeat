@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, Pressable, ScrollView, TextInput, Alert } from "react-native";
+import { View, Text, Pressable, ScrollView, TextInput } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -7,6 +7,8 @@ import { RootStackParamList } from "../navigation/types";
 import { useTossSeriesStore } from "../state/toss-series-store";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
+import { AlertModal } from "../components/AlertModal";
+import { ConfirmModal } from "../components/ConfirmModal";
 
 type CreateLeagueNavigationProp = NativeStackNavigationProp<RootStackParamList, "CreateLeague">;
 
@@ -20,6 +22,14 @@ export default function CreateLeagueScreen() {
   const [numberOfWeeks, setNumberOfWeeks] = useState("8");
   const [selectedTeamIds, setSelectedTeamIds] = useState<string[]>([]);
 
+  const [showNameRequiredAlert, setShowNameRequiredAlert] = useState(false);
+  const [showNotEnoughTeamsAlert, setShowNotEnoughTeamsAlert] = useState(false);
+  const [showInvalidWeeksAlert, setShowInvalidWeeksAlert] = useState(false);
+  const [showLeagueCreatedConfirm, setShowLeagueCreatedConfirm] = useState(false);
+  const [createdLeagueId, setCreatedLeagueId] = useState<string | null>(null);
+  const [showErrorAlert, setShowErrorAlert] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+
   const handleTeamToggle = (teamId: string) => {
     if (selectedTeamIds.includes(teamId)) {
       setSelectedTeamIds(selectedTeamIds.filter((id) => id !== teamId));
@@ -30,37 +40,29 @@ export default function CreateLeagueScreen() {
 
   const handleCreateLeague = () => {
     if (!leagueName.trim()) {
-      Alert.alert("League Name Required", "Please enter a name for your league");
+      setShowNameRequiredAlert(true);
       return;
     }
 
     if (selectedTeamIds.length < 2) {
-      Alert.alert("Not Enough Teams", "You need at least 2 teams to create a league");
+      setShowNotEnoughTeamsAlert(true);
       return;
     }
 
     const weeks = parseInt(numberOfWeeks, 10);
     if (isNaN(weeks) || weeks < 1) {
-      Alert.alert("Invalid Weeks", "Please enter a valid number of weeks (minimum 1)");
+      setShowInvalidWeeksAlert(true);
       return;
     }
 
     try {
       const league = createLeague(leagueName.trim(), selectedTeamIds, weeks);
       setCurrentLeague(league);
-
-      Alert.alert(
-        "League Created!",
-        `${leagueName} has been created with ${selectedTeamIds.length} teams for ${weeks} weeks.`,
-        [
-          {
-            text: "View Schedule",
-            onPress: () => navigation.navigate("LeagueSchedule", { leagueId: league.id }),
-          },
-        ]
-      );
+      setCreatedLeagueId(league.id);
+      setShowLeagueCreatedConfirm(true);
     } catch (error) {
-      Alert.alert("Error", error instanceof Error ? error.message : "Failed to create league");
+      setErrorMessage(error instanceof Error ? error.message : "Failed to create league");
+      setShowErrorAlert(true);
     }
   };
 
@@ -184,6 +186,53 @@ export default function CreateLeagueScreen() {
           </Pressable>
         </View>
       </View>
+
+      {/* Modals */}
+      <AlertModal
+        visible={showNameRequiredAlert}
+        title="League Name Required"
+        message="Please enter a name for your league"
+        onClose={() => setShowNameRequiredAlert(false)}
+      />
+
+      <AlertModal
+        visible={showNotEnoughTeamsAlert}
+        title="Not Enough Teams"
+        message="You need at least 2 teams to create a league"
+        onClose={() => setShowNotEnoughTeamsAlert(false)}
+      />
+
+      <AlertModal
+        visible={showInvalidWeeksAlert}
+        title="Invalid Weeks"
+        message="Please enter a valid number of weeks (minimum 1)"
+        onClose={() => setShowInvalidWeeksAlert(false)}
+      />
+
+      <ConfirmModal
+        visible={showLeagueCreatedConfirm}
+        title="League Created!"
+        message={`${leagueName} has been created with ${selectedTeamIds.length} teams for ${numberOfWeeks} weeks.`}
+        confirmText="View Schedule"
+        cancelText="Close"
+        onConfirm={() => {
+          setShowLeagueCreatedConfirm(false);
+          if (createdLeagueId) {
+            navigation.navigate("LeagueSchedule", { leagueId: createdLeagueId });
+          }
+        }}
+        onCancel={() => {
+          setShowLeagueCreatedConfirm(false);
+          navigation.goBack();
+        }}
+      />
+
+      <AlertModal
+        visible={showErrorAlert}
+        title="Error"
+        message={errorMessage}
+        onClose={() => setShowErrorAlert(false)}
+      />
     </SafeAreaView>
   );
 }

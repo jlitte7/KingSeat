@@ -49,8 +49,7 @@ export const getAnthropicTextResponse = async (
       },
     };
   } catch (error) {
-    console.error("Anthropic API Error:", error);
-    throw error;
+    throw new Error(`Anthropic API Error: ${error instanceof Error ? error.message : "Unknown error"}`);
   }
 };
 
@@ -90,8 +89,7 @@ export const getOpenAITextResponse = async (messages: AIMessage[], options?: AIR
       },
     };
   } catch (error) {
-    console.error("OpenAI API Error:", error);
-    throw error;
+    throw new Error(`OpenAI API Error: ${error instanceof Error ? error.message : "Unknown error"}`);
   }
 };
 
@@ -131,8 +129,7 @@ export const getGrokTextResponse = async (messages: AIMessage[], options?: AIReq
       },
     };
   } catch (error) {
-    console.error("Grok API Error:", error);
-    throw error;
+    throw new Error(`Grok API Error: ${error instanceof Error ? error.message : "Unknown error"}`);
   }
 };
 
