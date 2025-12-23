@@ -28,35 +28,44 @@ const difficultySettings: Record<Difficulty, DifficultyConfig> = {
   easy: {
     name: "Ghost Easy (1-3)",
     description: "New to cornhole",
-    avgBagsIn: 0.5,   // ~1.5 pts from ins
-    avgBagsOn: 1.0,   // ~1 pt from ons = ~2.5 PPR avg
+    avgBagsIn: 0.5,
+    avgBagsOn: 1.0,
     color1: "#34d399",
     color2: "#10b981",
   },
   medium: {
     name: "Ghost Medium (4-6)",
     description: "Average player",
-    avgBagsIn: 1.2,   // ~3.6 pts from ins
-    avgBagsOn: 1.5,   // ~1.5 pts from ons = ~5 PPR avg
+    avgBagsIn: 1.2,
+    avgBagsOn: 1.5,
     color1: "#fbbf24",
     color2: "#f59e0b",
   },
   hard: {
     name: "Ghost Hard (7-9)",
     description: "Strong player",
-    avgBagsIn: 2.2,   // ~6.6 pts from ins
-    avgBagsOn: 1.5,   // ~1.5 pts from ons = ~8 PPR avg
+    avgBagsIn: 2.2,
+    avgBagsOn: 1.5,
     color1: "#f97316",
     color2: "#ea580c",
   },
   pro: {
     name: "Ghost Expert (10-12)",
     description: "Expert level",
-    avgBagsIn: 3.2,   // ~9.6 pts from ins
-    avgBagsOn: 0.8,   // ~0.8 pts from ons + remaining = ~11 PPR avg
+    avgBagsIn: 3.2,
+    avgBagsOn: 0.8,
     color1: "#dc2626",
     color2: "#b91c1c",
   },
+};
+
+// Ghost scores only the exact values listed in the difficulty name
+// e.g., "10-12" means only 10 or 12 (not 11)
+const ghostScoreOptions: Record<Difficulty, number[]> = {
+  easy: [1, 2, 3],
+  medium: [4, 5, 6],
+  hard: [7, 8, 9],
+  pro: [10, 12], // Only 10 or 12, no 11
 };
 
 export default function GhostPlayerScreen() {
@@ -103,35 +112,45 @@ export default function GhostPlayerScreen() {
   const generateGhostThrow = (): { bagsIn: number; bagsOn: number } => {
     if (!difficulty) return { bagsIn: 0, bagsOn: 0 };
 
-    const config = difficultySettings[difficulty];
+    // Pick a random score from the allowed values for this difficulty
+    const allowedScores = ghostScoreOptions[difficulty];
+    const targetScore = allowedScores[Math.floor(Math.random() * allowedScores.length)];
 
-    // Target average raw points per round based on difficulty:
-    // easy: 1-3 PPR, medium: 4-6 PPR, hard: 7-9 PPR, pro: 10-12 PPR
-    // Use weighted random to achieve target averages
+    // Find valid bag combinations that produce exactly this score
+    // Score = bagsIn * 3 + bagsOn * 1, with bagsIn + bagsOn <= 4
+    const validCombinations: { bagsIn: number; bagsOn: number }[] = [];
 
-    let bagsIn = 0;
-    let bagsOn = 0;
-
-    // Simulate 4 bags with probabilities tuned to hit target PPR ranges
-    for (let i = 0; i < 4; i++) {
-      const remainingBags = 4 - bagsIn - bagsOn;
-      if (remainingBags <= 0) break;
-
-      const roll = Math.random();
-      // inChance: probability of this bag going in the hole
-      // onChance: probability of this bag landing on the board
-      const inChance = config.avgBagsIn / 4;
-      const onChance = config.avgBagsOn / 4;
-
-      if (roll < inChance) {
-        bagsIn++;
-      } else if (roll < inChance + onChance) {
-        bagsOn++;
+    for (let bagsIn = 0; bagsIn <= 4; bagsIn++) {
+      for (let bagsOn = 0; bagsOn <= 4 - bagsIn; bagsOn++) {
+        const score = bagsIn * 3 + bagsOn;
+        if (score === targetScore) {
+          validCombinations.push({ bagsIn, bagsOn });
+        }
       }
-      // else: bag misses
     }
 
-    return { bagsIn, bagsOn };
+    // Pick a random valid combination (if any exist)
+    if (validCombinations.length > 0) {
+      return validCombinations[Math.floor(Math.random() * validCombinations.length)];
+    }
+
+    // Fallback: get as close as possible to target score
+    // This handles cases like score=11 which is impossible with 4 bags
+    let bestCombo = { bagsIn: 0, bagsOn: 0 };
+    let bestDiff = Infinity;
+
+    for (let bagsIn = 0; bagsIn <= 4; bagsIn++) {
+      for (let bagsOn = 0; bagsOn <= 4 - bagsIn; bagsOn++) {
+        const score = bagsIn * 3 + bagsOn;
+        const diff = Math.abs(score - targetScore);
+        if (diff < bestDiff) {
+          bestDiff = diff;
+          bestCombo = { bagsIn, bagsOn };
+        }
+      }
+    }
+
+    return bestCombo;
   };
 
   const setBagCount = (type: 'in' | 'on', value: number) => {
