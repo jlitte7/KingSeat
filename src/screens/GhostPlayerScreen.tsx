@@ -28,32 +28,32 @@ const difficultySettings: Record<Difficulty, DifficultyConfig> = {
   easy: {
     name: "Ghost Easy (1-3)",
     description: "New to cornhole",
-    avgBagsIn: 0.3,
-    avgBagsOn: 1.5,
+    avgBagsIn: 0.5,   // ~1.5 pts from ins
+    avgBagsOn: 1.0,   // ~1 pt from ons = ~2.5 PPR avg
     color1: "#34d399",
     color2: "#10b981",
   },
   medium: {
     name: "Ghost Medium (4-6)",
     description: "Average player",
-    avgBagsIn: 0.8,
-    avgBagsOn: 1.0,
+    avgBagsIn: 1.2,   // ~3.6 pts from ins
+    avgBagsOn: 1.5,   // ~1.5 pts from ons = ~5 PPR avg
     color1: "#fbbf24",
     color2: "#f59e0b",
   },
   hard: {
     name: "Ghost Hard (7-9)",
     description: "Strong player",
-    avgBagsIn: 1.3,
-    avgBagsOn: 0.9,
+    avgBagsIn: 2.2,   // ~6.6 pts from ins
+    avgBagsOn: 1.5,   // ~1.5 pts from ons = ~8 PPR avg
     color1: "#f97316",
     color2: "#ea580c",
   },
   pro: {
     name: "Ghost Expert (10-12)",
     description: "Expert level",
-    avgBagsIn: 2.0,
-    avgBagsOn: 0.5,
+    avgBagsIn: 3.2,   // ~9.6 pts from ins
+    avgBagsOn: 0.8,   // ~0.8 pts from ons + remaining = ~11 PPR avg
     color1: "#dc2626",
     color2: "#b91c1c",
   },
@@ -80,6 +80,10 @@ export default function GhostPlayerScreen() {
   const [playerIn, setPlayerIn] = useState(0);
   const [playerOn, setPlayerOn] = useState(0);
 
+  // Track raw points for PPR calculation (before cancellation)
+  const [playerRawPoints, setPlayerRawPoints] = useState(0);
+  const [ghostRawPoints, setGhostRawPoints] = useState(0);
+
   const startGame = (selectedDifficulty: Difficulty) => {
     const game = createGame(selectedDifficulty);
     setGameId(game.id);
@@ -87,6 +91,8 @@ export default function GhostPlayerScreen() {
     setGameStarted(true);
     setPlayerScore(0);
     setGhostScore(0);
+    setPlayerRawPoints(0);
+    setGhostRawPoints(0);
     setCurrentRound(1);
   };
 
@@ -94,20 +100,31 @@ export default function GhostPlayerScreen() {
     if (!difficulty) return { bagsIn: 0, bagsOn: 0 };
 
     const config = difficultySettings[difficulty];
+
+    // Target average raw points per round based on difficulty:
+    // easy: 1-3 PPR, medium: 4-6 PPR, hard: 7-9 PPR, pro: 10-12 PPR
+    // Use weighted random to achieve target averages
+
     let bagsIn = 0;
     let bagsOn = 0;
 
-    // Simulate 4 bags with some randomness
+    // Simulate 4 bags with probabilities tuned to hit target PPR ranges
     for (let i = 0; i < 4; i++) {
+      const remainingBags = 4 - bagsIn - bagsOn;
+      if (remainingBags <= 0) break;
+
+      const roll = Math.random();
+      // inChance: probability of this bag going in the hole
+      // onChance: probability of this bag landing on the board
       const inChance = config.avgBagsIn / 4;
       const onChance = config.avgBagsOn / 4;
 
-      const roll = Math.random();
       if (roll < inChance) {
         bagsIn++;
       } else if (roll < inChance + onChance) {
         bagsOn++;
       }
+      // else: bag misses
     }
 
     return { bagsIn, bagsOn };
@@ -126,11 +143,13 @@ export default function GhostPlayerScreen() {
 
     const ghost = generateGhostThrow();
 
-    // Calculate cancellation scoring
-    const playerPoints = playerIn * 3 + playerOn * 1;
-    const ghostPoints = ghost.bagsIn * 3 + ghost.bagsOn * 1;
-    const pScore = Math.max(0, playerPoints - ghostPoints);
-    const gScore = Math.max(0, ghostPoints - playerPoints);
+    // Calculate raw points (before cancellation) for PPR
+    const playerRawPts = playerIn * 3 + playerOn * 1;
+    const ghostRawPts = ghost.bagsIn * 3 + ghost.bagsOn * 1;
+
+    // Calculate cancellation scoring for game score
+    const pScore = Math.max(0, playerRawPts - ghostRawPts);
+    const gScore = Math.max(0, ghostRawPts - playerRawPts);
 
     const round: GhostRound = {
       roundNumber: currentRound,
@@ -146,9 +165,13 @@ export default function GhostPlayerScreen() {
 
     const newPlayerScore = playerScore + pScore;
     const newGhostScore = ghostScore + gScore;
+    const newPlayerRawPoints = playerRawPoints + playerRawPts;
+    const newGhostRawPoints = ghostRawPoints + ghostRawPts;
 
     setPlayerScore(newPlayerScore);
     setGhostScore(newGhostScore);
+    setPlayerRawPoints(newPlayerRawPoints);
+    setGhostRawPoints(newGhostRawPoints);
     setLastGhostThrow(ghost);
     setLastRoundResult({ playerPoints: pScore, ghostPoints: gScore });
 
@@ -184,10 +207,11 @@ export default function GhostPlayerScreen() {
     setDifficulty(null);
   };
 
-  const playerPPR =
-    currentRound > 1 ? (playerScore / (currentRound - 1)).toFixed(1) : "0.0";
-  const ghostPPR =
-    currentRound > 1 ? (ghostScore / (currentRound - 1)).toFixed(1) : "0.0";
+  // PPR = raw points per round (before cancellation scoring)
+  // Number of completed rounds = currentRound - 1 (since currentRound is the upcoming round)
+  const completedRounds = currentRound - 1;
+  const playerPPR = completedRounds > 0 ? (playerRawPoints / completedRounds).toFixed(1) : "0.0";
+  const ghostPPR = completedRounds > 0 ? (ghostRawPoints / completedRounds).toFixed(1) : "0.0";
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
