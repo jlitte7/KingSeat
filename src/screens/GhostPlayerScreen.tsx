@@ -84,6 +84,9 @@ export default function GhostPlayerScreen() {
   const [playerRawPoints, setPlayerRawPoints] = useState(0);
   const [ghostRawPoints, setGhostRawPoints] = useState(0);
 
+  // Track rounds for display
+  const [roundHistory, setRoundHistory] = useState<GhostRound[]>([]);
+
   const startGame = (selectedDifficulty: Difficulty) => {
     const game = createGame(selectedDifficulty);
     setGameId(game.id);
@@ -93,6 +96,7 @@ export default function GhostPlayerScreen() {
     setGhostScore(0);
     setPlayerRawPoints(0);
     setGhostRawPoints(0);
+    setRoundHistory([]);
     setCurrentRound(1);
   };
 
@@ -162,6 +166,7 @@ export default function GhostPlayerScreen() {
     };
 
     addRound(gameId, round);
+    setRoundHistory((prev) => [...prev, round]);
 
     const newPlayerScore = playerScore + pScore;
     const newGhostScore = ghostScore + gScore;
@@ -422,11 +427,99 @@ export default function GhostPlayerScreen() {
 
                 {/* Info */}
                 {!showScoring && !showGhostResult && (
-                  <View className="bg-gray-800/50 rounded-xl p-4">
+                  <View className="bg-gray-800/50 rounded-xl p-4 mb-4">
                     <Text className="text-gray-400 text-sm text-center leading-5">
                       Enter how many bags you got in and on the board. The ghost
                       will automatically play based on the selected difficulty.
                     </Text>
+                  </View>
+                )}
+
+                {/* Round by Round Stats */}
+                {roundHistory.length > 0 && !showScoring && !showGhostResult && (
+                  <View className="bg-gray-800 rounded-2xl p-4">
+                    <Text className="text-white text-lg font-bold mb-3">
+                      Round History
+                    </Text>
+
+                    {/* Header Row */}
+                    <View className="flex-row border-b border-gray-700 pb-2 mb-2">
+                      <Text className="text-gray-400 text-xs font-bold w-10">RND</Text>
+                      <View className="flex-1 flex-row">
+                        <Text className="text-blue-400 text-xs font-bold flex-1 text-center">YOU</Text>
+                        <Text className="text-red-400 text-xs font-bold flex-1 text-center">GHOST</Text>
+                      </View>
+                      <View className="w-16 flex-row">
+                        <Text className="text-gray-400 text-xs font-bold flex-1 text-center">PTS</Text>
+                      </View>
+                    </View>
+
+                    {/* Round Rows */}
+                    {roundHistory.map((round, index) => {
+                      const playerRaw = round.playerIn * 3 + round.playerOn * 1;
+                      const ghostRaw = round.ghostIn * 3 + round.ghostOn * 1;
+                      const playerWonRound = round.playerScore > 0;
+                      const ghostWonRound = round.ghostScore > 0;
+
+                      return (
+                        <View
+                          key={index}
+                          className={`flex-row py-2 ${
+                            index < roundHistory.length - 1 ? "border-b border-gray-700/50" : ""
+                          }`}
+                        >
+                          <Text className="text-gray-500 text-sm font-bold w-10">
+                            {round.roundNumber}
+                          </Text>
+                          <View className="flex-1 flex-row">
+                            {/* Player stats */}
+                            <View className="flex-1 items-center">
+                              <Text className="text-white text-sm">
+                                <Text className="text-blue-400">{round.playerIn}</Text>
+                                <Text className="text-gray-500"> in </Text>
+                                <Text className="text-blue-300">{round.playerOn}</Text>
+                                <Text className="text-gray-500"> on</Text>
+                              </Text>
+                              <Text className="text-gray-500 text-xs">({playerRaw} raw)</Text>
+                            </View>
+                            {/* Ghost stats */}
+                            <View className="flex-1 items-center">
+                              <Text className="text-white text-sm">
+                                <Text className="text-red-400">{round.ghostIn}</Text>
+                                <Text className="text-gray-500"> in </Text>
+                                <Text className="text-red-300">{round.ghostOn}</Text>
+                                <Text className="text-gray-500"> on</Text>
+                              </Text>
+                              <Text className="text-gray-500 text-xs">({ghostRaw} raw)</Text>
+                            </View>
+                          </View>
+                          {/* Round points */}
+                          <View className="w-16 flex-row items-center justify-center">
+                            <Text className={`text-sm font-bold ${playerWonRound ? "text-blue-400" : ghostWonRound ? "text-red-400" : "text-gray-500"}`}>
+                              {playerWonRound ? `+${round.playerScore}` : ghostWonRound ? `-${round.ghostScore}` : "0"}
+                            </Text>
+                          </View>
+                        </View>
+                      );
+                    })}
+
+                    {/* Summary Row */}
+                    <View className="flex-row pt-3 mt-2 border-t border-gray-600">
+                      <Text className="text-gray-400 text-xs font-bold w-10">AVG</Text>
+                      <View className="flex-1 flex-row">
+                        <View className="flex-1 items-center">
+                          <Text className="text-blue-400 text-sm font-bold">{playerPPR} PPR</Text>
+                        </View>
+                        <View className="flex-1 items-center">
+                          <Text className="text-red-400 text-sm font-bold">{ghostPPR} PPR</Text>
+                        </View>
+                      </View>
+                      <View className="w-16 items-center">
+                        <Text className={`text-sm font-bold ${playerScore > ghostScore ? "text-blue-400" : ghostScore > playerScore ? "text-red-400" : "text-gray-400"}`}>
+                          {playerScore}-{ghostScore}
+                        </Text>
+                      </View>
+                    </View>
                   </View>
                 )}
               </View>
