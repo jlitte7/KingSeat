@@ -123,19 +123,32 @@ export default function SituationalGamesScreen() {
     // If player has no stats (PPR = 0), use a default of 5.0
     const basePPR = playerPPR > 0 ? playerPPR : 5.0;
 
-    // Apply difficulty modifier to make opponent easier or harder
-    // easy: opponent PPR is same as player
-    // medium: opponent PPR is player + 0.5
-    // hard: opponent PPR is player + 1.0
-    // pro: opponent PPR is player + 1.5
+    // Apply difficulty modifier - only +1 or -1 from player PPR
+    // easy: opponent PPR is player - 1
+    // medium: opponent PPR is same as player
+    // hard: opponent PPR is player + 1
+    // pro: opponent PPR is player + 1 (same as hard, but harder scenarios)
     const difficultyModifier: Record<string, number> = {
-      easy: 0,
-      medium: 0.5,
-      hard: 1.0,
-      pro: 1.5,
+      easy: -1,
+      medium: 0,
+      hard: 1,
+      pro: 1,
     };
 
-    const targetPPR = basePPR + (difficultyModifier[scenario.difficulty] || 0);
+    let targetPPR = basePPR + (difficultyModifier[scenario.difficulty] || 0);
+
+    // Skip 11 since it's not a valid score (can't make 11 with 4 bags)
+    // Round to nearest valid score
+    const roundedPPR = Math.round(targetPPR);
+    if (roundedPPR === 11) {
+      // Go to 12 instead of 11
+      targetPPR = 12;
+    } else {
+      targetPPR = roundedPPR;
+    }
+
+    // Ensure minimum of 0
+    targetPPR = Math.max(0, targetPPR);
 
     // Convert PPR to bags in/on
     // PPR = (bagsIn * 3 + bagsOn * 1)
@@ -393,8 +406,15 @@ export default function SituationalGamesScreen() {
                 {scenarios.map((scen, index) => {
                   const colors = difficultyColors[scen.difficulty];
                   const basePPR = playerPPR > 0 ? playerPPR : 5.0;
-                  const diffMod: Record<string, number> = { easy: 0, medium: 0.5, hard: 1.0, pro: 1.5 };
-                  const oppPPR = basePPR + (diffMod[scen.difficulty] || 0);
+                  const diffMod: Record<string, number> = { easy: -1, medium: 0, hard: 1, pro: 1 };
+                  let oppPPR = basePPR + (diffMod[scen.difficulty] || 0);
+                  const roundedOppPPR = Math.round(oppPPR);
+                  if (roundedOppPPR === 11) {
+                    oppPPR = 12;
+                  } else {
+                    oppPPR = roundedOppPPR;
+                  }
+                  oppPPR = Math.max(0, oppPPR);
                   return (
                     <Pressable
                       key={index}
@@ -475,8 +495,15 @@ export default function SituationalGamesScreen() {
                         <Text className="text-white font-bold text-center">
                           {(() => {
                             const basePPR = playerPPR > 0 ? playerPPR : 5.0;
-                            const mod: Record<string, number> = { easy: 0, medium: 0.5, hard: 1.0, pro: 1.5 };
-                            return (basePPR + (mod[scenario.difficulty] || 0)).toFixed(1);
+                            const mod: Record<string, number> = { easy: -1, medium: 0, hard: 1, pro: 1 };
+                            let oppPPR = basePPR + (mod[scenario.difficulty] || 0);
+                            const rounded = Math.round(oppPPR);
+                            if (rounded === 11) {
+                              oppPPR = 12;
+                            } else {
+                              oppPPR = rounded;
+                            }
+                            return Math.max(0, oppPPR);
                           })()}
                         </Text>
                       </View>
