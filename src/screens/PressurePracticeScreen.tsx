@@ -53,7 +53,7 @@ const pressureScenarios: PressureScenario[] = [
   },
   {
     name: "Perfect Closer",
-    description: "Hit exactly 21. Need 2 in + 1 on = 7 points",
+    description: "Close out the game. Need at least 2 in + 1 on = 7 points",
     targetBagsIn: 2,
     targetBagsOn: 1,
     mustMake: 7,
