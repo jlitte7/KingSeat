@@ -351,33 +351,27 @@ export default function GhostPlayerScreen() {
                 {showGhostResult && lastGhostThrow && lastRoundResult ? (
                   <View className="bg-gray-800 rounded-2xl p-6 mb-4 border-2 border-red-600">
                     <Text className="text-white text-lg font-bold mb-4 text-center">
-                      Ghost Threw
+                      Ghost Scored
                     </Text>
-                    <View className="flex-row justify-center gap-8 mb-4">
-                      <View className="items-center">
-                        <Text className="text-red-400 text-sm mb-2">IN</Text>
-                        <View className="bg-red-600 rounded-full w-16 h-16 items-center justify-center">
-                          <Text className="text-white text-3xl font-bold">{lastGhostThrow.bagsIn}</Text>
-                        </View>
+                    <View className="items-center mb-4">
+                      <View className="bg-red-600 rounded-full w-24 h-24 items-center justify-center">
+                        <Text className="text-white text-4xl font-bold">
+                          {lastGhostThrow.bagsIn * 3 + lastGhostThrow.bagsOn}
+                        </Text>
                       </View>
-                      <View className="items-center">
-                        <Text className="text-red-400 text-sm mb-2">ON</Text>
-                        <View className="bg-red-600 rounded-full w-16 h-16 items-center justify-center">
-                          <Text className="text-white text-3xl font-bold">{lastGhostThrow.bagsOn}</Text>
-                        </View>
-                      </View>
+                      <Text className="text-red-300 text-sm mt-2">raw points</Text>
                     </View>
                     <View className="border-t border-gray-700 pt-4">
-                      <Text className="text-gray-400 text-sm text-center mb-2">Round Points</Text>
+                      <Text className="text-gray-400 text-sm text-center mb-2">Round Result</Text>
                       <View className="flex-row justify-center gap-6">
                         <View className="items-center">
                           <Text className="text-blue-400 text-xs mb-1">You</Text>
-                          <Text className="text-white text-2xl font-bold">{lastRoundResult.playerPoints}</Text>
+                          <Text className="text-white text-2xl font-bold">+{lastRoundResult.playerPoints}</Text>
                         </View>
                         <Text className="text-gray-600 text-2xl font-bold">-</Text>
                         <View className="items-center">
                           <Text className="text-red-400 text-xs mb-1">Ghost</Text>
-                          <Text className="text-white text-2xl font-bold">{lastRoundResult.ghostPoints}</Text>
+                          <Text className="text-white text-2xl font-bold">+{lastRoundResult.ghostPoints}</Text>
                         </View>
                       </View>
                     </View>
