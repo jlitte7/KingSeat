@@ -150,45 +150,38 @@ export default function SituationalGamesScreen() {
     // Ensure minimum of 0
     targetPPR = Math.max(0, targetPPR);
 
-    // Convert PPR to bags in/on
-    // PPR = (bagsIn * 3 + bagsOn * 1)
-    // On average, we want to hit the target PPR
-    // We'll estimate: prioritize bags in (3 pts) then bags on (1 pt)
-
-    // Calculate expected bags in from target PPR
-    // Assume a typical ratio: most points come from bags in
-    // If targetPPR is 6, that could be 2 bags in (6 pts) or 1 in + 3 on (6 pts)
-    // We'll use a weighted random approach
-
-    let bagsIn = 0;
-    let bagsOn = 0;
-
-    // For each of 4 bags, determine outcome based on target PPR
-    // Target PPR / 4 bags = points per bag needed
-    // Max points per bag = 3 (in), average about 1.5-2 for good players
-    const pointsPerBagTarget = targetPPR / 4;
-
-    for (let i = 0; i < 4; i++) {
-      // Probability of bag in: roughly pointsPerBagTarget / 3 (since in = 3 pts)
-      // But cap probabilities reasonably
-      const inChance = Math.min(0.8, Math.max(0.1, pointsPerBagTarget / 4));
-      // Probability of bag on: fill remaining expected points
-      const onChance = Math.min(0.5, Math.max(0.1, (pointsPerBagTarget - inChance * 3) / 1.5));
-
-      const roll = Math.random();
-      if (roll < inChance && bagsIn < 4) {
-        bagsIn++;
-      } else if (roll < inChance + onChance && bagsIn + bagsOn < 4) {
-        bagsOn++;
+    // Pick a random score within 1 point of target (targetPPR - 1, targetPPR, or targetPPR + 1)
+    const possibleScores: number[] = [];
+    for (let s = targetPPR - 1; s <= targetPPR + 1; s++) {
+      // Skip invalid scores (negative or 11 which is impossible with 4 bags)
+      if (s >= 0 && s !== 11) {
+        possibleScores.push(s);
       }
     }
 
-    // Ensure we don't exceed 4 total bags
-    if (bagsIn + bagsOn > 4) {
-      bagsOn = 4 - bagsIn;
+    // Pick a random score from the valid options
+    const chosenScore = possibleScores[Math.floor(Math.random() * possibleScores.length)];
+
+    // Find valid bag combinations that produce exactly this score
+    // Score = bagsIn * 3 + bagsOn * 1, with bagsIn + bagsOn <= 4
+    const validCombinations: { bagsIn: number; bagsOn: number }[] = [];
+
+    for (let bagsIn = 0; bagsIn <= 4; bagsIn++) {
+      for (let bagsOn = 0; bagsOn <= 4 - bagsIn; bagsOn++) {
+        const score = bagsIn * 3 + bagsOn;
+        if (score === chosenScore) {
+          validCombinations.push({ bagsIn, bagsOn });
+        }
+      }
     }
 
-    return { bagsIn, bagsOn };
+    // Pick a random valid combination
+    if (validCombinations.length > 0) {
+      return validCombinations[Math.floor(Math.random() * validCombinations.length)];
+    }
+
+    // Fallback - should never reach here
+    return { bagsIn: 0, bagsOn: 0 };
   };
 
   const setBagCount = (type: 'in' | 'on', value: number) => {
