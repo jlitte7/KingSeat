@@ -99,12 +99,16 @@ export default function SituationalGamesScreen() {
   const [playerIn, setPlayerIn] = useState(0);
   const [playerOn, setPlayerOn] = useState(0);
   const [roundHistory, setRoundHistory] = useState<GhostRound[]>([]);
+  const [gameComplete, setGameComplete] = useState(false);
+  const [finalResult, setFinalResult] = useState<{ won: boolean; playerScore: number; ghostScore: number } | null>(null);
 
   const startGame = (selectedScenario: GameScenario) => {
     const game = createGame(selectedScenario);
     setGameId(game.id);
     setScenario(selectedScenario);
     setGameStarted(true);
+    setGameComplete(false);
+    setFinalResult(null);
     setPlayerScore(selectedScenario.playerStartScore);
     setGhostScore(selectedScenario.ghostStartScore);
     setCurrentRound(selectedScenario.startingRound);
@@ -214,7 +218,8 @@ export default function SituationalGamesScreen() {
     if (newPlayerScore >= 21 || newGhostScore >= 21) {
       const winner = newPlayerScore >= 21 ? "player" : "ghost";
       completeGame(gameId, winner);
-      setGameStarted(false);
+      setFinalResult({ won: winner === "player", playerScore: newPlayerScore, ghostScore: newGhostScore });
+      setGameComplete(true);
     } else {
       setCurrentRound(currentRound + 1);
     }
@@ -230,6 +235,17 @@ export default function SituationalGamesScreen() {
       completeGame(gameId, winner);
     }
     setGameStarted(false);
+    setGameComplete(false);
+    setFinalResult(null);
+    setGameId(null);
+    setScenario(null);
+    setRoundHistory([]);
+  };
+
+  const playAgain = () => {
+    setGameStarted(false);
+    setGameComplete(false);
+    setFinalResult(null);
     setGameId(null);
     setScenario(null);
     setRoundHistory([]);
@@ -261,7 +277,110 @@ export default function SituationalGamesScreen() {
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ flexGrow: 1 }}
           >
-            {!gameStarted ? (
+            {gameComplete && finalResult ? (
+              /* Game Complete Screen */
+              <View className="flex-1 px-4 py-6 items-center justify-center">
+                <View className={`rounded-full w-32 h-32 items-center justify-center mb-6 ${finalResult.won ? "bg-green-600" : "bg-red-600"}`}>
+                  <Ionicons
+                    name={finalResult.won ? "trophy" : "close-circle"}
+                    size={64}
+                    color="#fff"
+                  />
+                </View>
+
+                <Text className={`text-4xl font-bold mb-2 ${finalResult.won ? "text-green-400" : "text-red-400"}`}>
+                  {finalResult.won ? "You Won!" : "You Lost"}
+                </Text>
+
+                {scenario && (
+                  <Text className="text-gray-400 text-lg mb-6">
+                    {scenario.name}
+                  </Text>
+                )}
+
+                {/* Final Score */}
+                <View className="flex-row gap-4 mb-8">
+                  <View className="bg-blue-600 rounded-2xl px-8 py-4 items-center">
+                    <Text className="text-blue-200 text-sm mb-1">You</Text>
+                    <Text className="text-white text-4xl font-bold">
+                      {finalResult.playerScore}
+                    </Text>
+                  </View>
+                  <View className="bg-red-600 rounded-2xl px-8 py-4 items-center">
+                    <Text className="text-red-200 text-sm mb-1">Opp</Text>
+                    <Text className="text-white text-4xl font-bold">
+                      {finalResult.ghostScore}
+                    </Text>
+                  </View>
+                </View>
+
+                {/* Round History in Complete Screen */}
+                {roundHistory.length > 0 && (
+                  <View className="w-full bg-gray-800 rounded-2xl p-4 mb-6">
+                    <Text className="text-white text-lg font-bold mb-3 text-center">
+                      Round History
+                    </Text>
+                    <View className="flex-row items-center pb-2 mb-2 border-b border-gray-700">
+                      <Text className="text-gray-400 text-xs font-semibold w-10">RND</Text>
+                      <Text className="text-blue-400 text-xs font-semibold flex-1 text-center">YOU</Text>
+                      <Text className="text-red-400 text-xs font-semibold flex-1 text-center">OPP</Text>
+                      <Text className="text-gray-400 text-xs font-semibold w-16 text-right">RESULT</Text>
+                    </View>
+                    {roundHistory.map((round, index) => {
+                      const playerRawPts = round.playerIn * 3 + round.playerOn;
+                      const ghostRawPts = round.ghostIn * 3 + round.ghostOn;
+                      return (
+                        <View
+                          key={index}
+                          className="flex-row items-center py-2 border-b border-gray-700/50"
+                        >
+                          <Text className="text-gray-300 text-sm font-bold w-10">
+                            {round.roundNumber}
+                          </Text>
+                          <View className="flex-1 items-center">
+                            <Text className="text-blue-300 text-sm">
+                              {round.playerIn}in {round.playerOn}on
+                            </Text>
+                            <Text className="text-blue-400 text-xs">
+                              ({playerRawPts} pts)
+                            </Text>
+                          </View>
+                          <View className="flex-1 items-center">
+                            <Text className="text-red-300 text-lg font-bold">
+                              {ghostRawPts}
+                            </Text>
+                            <Text className="text-red-400 text-xs">pts</Text>
+                          </View>
+                          <View className="w-16 items-end">
+                            {round.playerScore > 0 ? (
+                              <Text className="text-green-400 text-sm font-bold">
+                                +{round.playerScore}
+                              </Text>
+                            ) : round.ghostScore > 0 ? (
+                              <Text className="text-red-400 text-sm font-bold">
+                                -{round.ghostScore}
+                              </Text>
+                            ) : (
+                              <Text className="text-gray-400 text-sm font-bold">0</Text>
+                            )}
+                          </View>
+                        </View>
+                      );
+                    })}
+                  </View>
+                )}
+
+                {/* Play Again Button */}
+                <Pressable
+                  onPress={playAgain}
+                  className="bg-purple-600 px-12 py-4 rounded-2xl"
+                >
+                  <Text className="text-white text-xl font-bold">
+                    Play Again
+                  </Text>
+                </Pressable>
+              </View>
+            ) : !gameStarted ? (
               /* Scenario Selection */
               <View className="flex-1 px-4 py-6">
                 <Text className="text-white text-2xl font-bold mb-2">
