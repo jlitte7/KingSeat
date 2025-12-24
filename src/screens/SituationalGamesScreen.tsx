@@ -11,6 +11,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { usePracticeStore, GameScenario, GhostRound } from "../state/practice-store";
+import { usePersonalStatsStore } from "../state/personal-stats-store";
 import { LinearGradient } from "expo-linear-gradient";
 
 const scenarios: GameScenario[] = [
@@ -84,6 +85,9 @@ export default function SituationalGamesScreen() {
   const addRound = usePracticeStore((s) => s.addSituationalRound);
   const completeGame = usePracticeStore((s) => s.completeSituationalGame);
 
+  // Get player's PPR from personal stats to use for opponent scoring
+  const playerPPR = usePersonalStatsStore((s) => s.stats.averagePointsPerRound);
+
   const [gameId, setGameId] = useState<string | null>(null);
   const [scenario, setScenario] = useState<GameScenario | null>(null);
   const [playerScore, setPlayerScore] = useState(0);
@@ -108,20 +112,61 @@ export default function SituationalGamesScreen() {
   const generateGhostThrow = (): { bagsIn: number; bagsOn: number } => {
     if (!scenario) return { bagsIn: 0, bagsOn: 0 };
 
-    const config = difficultySettings[scenario.difficulty];
+    // Use player's PPR to determine opponent strength
+    // Base PPR on player's stats, with difficulty modifier
+    // If player has no stats (PPR = 0), use a default of 5.0
+    const basePPR = playerPPR > 0 ? playerPPR : 5.0;
+
+    // Apply difficulty modifier to make opponent easier or harder
+    // easy: opponent PPR is same as player
+    // medium: opponent PPR is player + 0.5
+    // hard: opponent PPR is player + 1.0
+    // pro: opponent PPR is player + 1.5
+    const difficultyModifier: Record<string, number> = {
+      easy: 0,
+      medium: 0.5,
+      hard: 1.0,
+      pro: 1.5,
+    };
+
+    const targetPPR = basePPR + (difficultyModifier[scenario.difficulty] || 0);
+
+    // Convert PPR to bags in/on
+    // PPR = (bagsIn * 3 + bagsOn * 1)
+    // On average, we want to hit the target PPR
+    // We'll estimate: prioritize bags in (3 pts) then bags on (1 pt)
+
+    // Calculate expected bags in from target PPR
+    // Assume a typical ratio: most points come from bags in
+    // If targetPPR is 6, that could be 2 bags in (6 pts) or 1 in + 3 on (6 pts)
+    // We'll use a weighted random approach
+
     let bagsIn = 0;
     let bagsOn = 0;
 
+    // For each of 4 bags, determine outcome based on target PPR
+    // Target PPR / 4 bags = points per bag needed
+    // Max points per bag = 3 (in), average about 1.5-2 for good players
+    const pointsPerBagTarget = targetPPR / 4;
+
     for (let i = 0; i < 4; i++) {
-      const inChance = config.avgBagsIn / 4;
-      const onChance = config.avgBagsOn / 4;
+      // Probability of bag in: roughly pointsPerBagTarget / 3 (since in = 3 pts)
+      // But cap probabilities reasonably
+      const inChance = Math.min(0.8, Math.max(0.1, pointsPerBagTarget / 4));
+      // Probability of bag on: fill remaining expected points
+      const onChance = Math.min(0.5, Math.max(0.1, (pointsPerBagTarget - inChance * 3) / 1.5));
 
       const roll = Math.random();
-      if (roll < inChance) {
+      if (roll < inChance && bagsIn < 4) {
         bagsIn++;
-      } else if (roll < inChance + onChance) {
+      } else if (roll < inChance + onChance && bagsIn + bagsOn < 4) {
         bagsOn++;
       }
+    }
+
+    // Ensure we don't exceed 4 total bags
+    if (bagsIn + bagsOn > 4) {
+      bagsOn = 4 - bagsIn;
     }
 
     return { bagsIn, bagsOn };
@@ -224,6 +269,9 @@ export default function SituationalGamesScreen() {
 
                 {scenarios.map((scen, index) => {
                   const colors = difficultyColors[scen.difficulty];
+                  const basePPR = playerPPR > 0 ? playerPPR : 5.0;
+                  const diffMod: Record<string, number> = { easy: 0, medium: 0.5, hard: 1.0, pro: 1.5 };
+                  const oppPPR = basePPR + (diffMod[scen.difficulty] || 0);
                   return (
                     <Pressable
                       key={index}
@@ -261,9 +309,14 @@ export default function SituationalGamesScreen() {
                                   Round {scen.startingRound}
                                 </Text>
                               </View>
-                              <View className="bg-white/20 rounded-lg px-3 py-1">
+                              <View className="bg-white/20 rounded-lg px-3 py-1 mr-2">
                                 <Text className="text-white text-xs font-semibold">
                                   {scen.playerStartScore}-{scen.ghostStartScore}
+                                </Text>
+                              </View>
+                              <View className="bg-white/30 rounded-lg px-3 py-1">
+                                <Text className="text-white text-xs font-semibold">
+                                  Opp: {oppPPR.toFixed(1)} PPR
                                 </Text>
                               </View>
                             </View>
@@ -285,12 +338,26 @@ export default function SituationalGamesScreen() {
                 {/* Scenario Info */}
                 {scenario && (
                   <View className="bg-purple-900/30 border border-purple-700/50 rounded-xl p-4 mb-6">
-                    <Text className="text-purple-400 font-bold mb-1">
-                      {scenario.name}
-                    </Text>
-                    <Text className="text-purple-300 text-sm">
-                      {scenario.description}
-                    </Text>
+                    <View className="flex-row justify-between items-start">
+                      <View className="flex-1">
+                        <Text className="text-purple-400 font-bold mb-1">
+                          {scenario.name}
+                        </Text>
+                        <Text className="text-purple-300 text-sm">
+                          {scenario.description}
+                        </Text>
+                      </View>
+                      <View className="bg-purple-800/50 rounded-lg px-3 py-2 ml-3">
+                        <Text className="text-purple-300 text-xs">Opp PPR</Text>
+                        <Text className="text-white font-bold text-center">
+                          {(() => {
+                            const basePPR = playerPPR > 0 ? playerPPR : 5.0;
+                            const mod: Record<string, number> = { easy: 0, medium: 0.5, hard: 1.0, pro: 1.5 };
+                            return (basePPR + (mod[scenario.difficulty] || 0)).toFixed(1);
+                          })()}
+                        </Text>
+                      </View>
+                    </View>
                   </View>
                 )}
 

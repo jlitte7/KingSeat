@@ -338,6 +338,10 @@ Transform your game with a comprehensive, elite-level practice environment desig
 
 **Mental Game:**
 - **Situational Games**: Train for critical game moments and scenarios
+  - Opponent PPR based on YOUR personal stats (from My Stats)
+  - Difficulty modifiers: Easy (same PPR), Medium (+0.5), Hard (+1.0), Pro (+1.5)
+  - Shows opponent PPR before each game so you know what you're facing
+  - If you have no stats, defaults to a 5.0 PPR baseline
 - **Clutch Training**: Master high-pressure shots when it matters most
 
 **Competitive Edge:**
