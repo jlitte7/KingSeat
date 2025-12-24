@@ -98,6 +98,7 @@ export default function SituationalGamesScreen() {
 
   const [playerIn, setPlayerIn] = useState(0);
   const [playerOn, setPlayerOn] = useState(0);
+  const [roundHistory, setRoundHistory] = useState<GhostRound[]>([]);
 
   const startGame = (selectedScenario: GameScenario) => {
     const game = createGame(selectedScenario);
@@ -107,6 +108,7 @@ export default function SituationalGamesScreen() {
     setPlayerScore(selectedScenario.playerStartScore);
     setGhostScore(selectedScenario.ghostStartScore);
     setCurrentRound(selectedScenario.startingRound);
+    setRoundHistory([]);
   };
 
   const generateGhostThrow = (): { bagsIn: number; bagsOn: number } => {
@@ -201,6 +203,7 @@ export default function SituationalGamesScreen() {
     };
 
     addRound(gameId, round);
+    setRoundHistory((prev) => [...prev, round]);
 
     const newPlayerScore = playerScore + pScore;
     const newGhostScore = ghostScore + gScore;
@@ -229,6 +232,7 @@ export default function SituationalGamesScreen() {
     setGameStarted(false);
     setGameId(null);
     setScenario(null);
+    setRoundHistory([]);
   };
 
   return (
@@ -441,6 +445,72 @@ export default function SituationalGamesScreen() {
                         </Text>
                       </Pressable>
                     </View>
+                  </View>
+                )}
+
+                {/* Round History */}
+                {roundHistory.length > 0 && (
+                  <View className="bg-gray-800 rounded-2xl p-4 mb-4">
+                    <Text className="text-white text-lg font-bold mb-3">
+                      Round History
+                    </Text>
+                    {/* Header */}
+                    <View className="flex-row items-center pb-2 mb-2 border-b border-gray-700">
+                      <Text className="text-gray-400 text-xs font-semibold w-10">RND</Text>
+                      <View className="flex-1 flex-row">
+                        <Text className="text-blue-400 text-xs font-semibold flex-1 text-center">YOU</Text>
+                        <Text className="text-red-400 text-xs font-semibold flex-1 text-center">OPP</Text>
+                      </View>
+                      <Text className="text-gray-400 text-xs font-semibold w-16 text-right">SCORE</Text>
+                    </View>
+                    {/* Rounds */}
+                    {roundHistory.map((round, index) => {
+                      const playerRawPts = round.playerIn * 3 + round.playerOn;
+                      const ghostRawPts = round.ghostIn * 3 + round.ghostOn;
+                      return (
+                        <View
+                          key={index}
+                          className="flex-row items-center py-2 border-b border-gray-700/50"
+                        >
+                          <Text className="text-gray-300 text-sm font-bold w-10">
+                            {round.roundNumber}
+                          </Text>
+                          <View className="flex-1 flex-row">
+                            <View className="flex-1 items-center">
+                              <Text className="text-blue-300 text-sm">
+                                {round.playerIn}in {round.playerOn}on
+                              </Text>
+                              <Text className="text-blue-400 text-xs">
+                                ({playerRawPts} pts)
+                              </Text>
+                            </View>
+                            <View className="flex-1 items-center">
+                              <Text className="text-red-300 text-sm">
+                                {round.ghostIn}in {round.ghostOn}on
+                              </Text>
+                              <Text className="text-red-400 text-xs">
+                                ({ghostRawPts} pts)
+                              </Text>
+                            </View>
+                          </View>
+                          <View className="w-16 items-end">
+                            {round.playerScore > 0 ? (
+                              <Text className="text-green-400 text-sm font-bold">
+                                +{round.playerScore}
+                              </Text>
+                            ) : round.ghostScore > 0 ? (
+                              <Text className="text-red-400 text-sm font-bold">
+                                -{round.ghostScore}
+                              </Text>
+                            ) : (
+                              <Text className="text-gray-400 text-sm font-bold">
+                                0
+                              </Text>
+                            )}
+                          </View>
+                        </View>
+                      );
+                    })}
                   </View>
                 )}
               </View>
