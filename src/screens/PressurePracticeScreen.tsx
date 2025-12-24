@@ -72,12 +72,14 @@ export default function PressurePracticeScreen() {
   const [bagsIn, setBagsIn] = useState("");
   const [bagsOn, setBagsOn] = useState("");
   const [sessionStats, setSessionStats] = useState({ attempts: 0, successes: 0 });
+  const [attemptHistory, setAttemptHistory] = useState<{ bagsIn: number; bagsOn: number; success: boolean }[]>([]);
 
   const startPractice = (scenario: PressureScenario) => {
     const practice = createPractice(scenario);
     setPracticeId(practice.id);
     setSelectedScenario(scenario);
     setSessionStats({ attempts: 0, successes: 0 });
+    setAttemptHistory([]);
   };
 
   const submitAttempt = () => {
@@ -101,6 +103,8 @@ export default function PressurePracticeScreen() {
       successes: success ? sessionStats.successes + 1 : sessionStats.successes,
     });
 
+    setAttemptHistory((prev) => [...prev, { bagsIn: pIn, bagsOn: pOn, success }]);
+
     setBagsIn("");
     setBagsOn("");
     setShowInputModal(false);
@@ -111,6 +115,7 @@ export default function PressurePracticeScreen() {
     setPracticeId(null);
     setSelectedScenario(null);
     setSessionStats({ attempts: 0, successes: 0 });
+    setAttemptHistory([]);
   };
 
   const getScenarioStats = (scenario: PressureScenario) => {
@@ -304,6 +309,61 @@ export default function PressurePracticeScreen() {
                     Record Attempt
                   </Text>
                 </Pressable>
+
+                {/* Attempt History */}
+                {attemptHistory.length > 0 && (
+                  <View className="mt-6 bg-gray-800 rounded-2xl p-4">
+                    <Text className="text-white text-lg font-bold mb-3">
+                      Attempt History
+                    </Text>
+                    {/* Header */}
+                    <View className="flex-row items-center pb-2 mb-2 border-b border-gray-700">
+                      <Text className="text-gray-400 text-xs font-semibold w-10">#</Text>
+                      <Text className="text-gray-400 text-xs font-semibold flex-1 text-center">BAGS IN</Text>
+                      <Text className="text-gray-400 text-xs font-semibold flex-1 text-center">BAGS ON</Text>
+                      <Text className="text-gray-400 text-xs font-semibold flex-1 text-center">POINTS</Text>
+                      <Text className="text-gray-400 text-xs font-semibold w-16 text-right">RESULT</Text>
+                    </View>
+                    {/* Attempts */}
+                    {attemptHistory.map((attempt, index) => {
+                      const points = attempt.bagsIn * 3 + attempt.bagsOn;
+                      return (
+                        <View
+                          key={index}
+                          className="flex-row items-center py-2 border-b border-gray-700/50"
+                        >
+                          <Text className="text-gray-300 text-sm font-bold w-10">
+                            {index + 1}
+                          </Text>
+                          <Text className="text-blue-300 text-sm flex-1 text-center">
+                            {attempt.bagsIn}
+                          </Text>
+                          <Text className="text-blue-300 text-sm flex-1 text-center">
+                            {attempt.bagsOn}
+                          </Text>
+                          <Text className="text-gray-300 text-sm flex-1 text-center">
+                            {points}
+                          </Text>
+                          <View className="w-16 items-end">
+                            {attempt.success ? (
+                              <View className="bg-green-600/30 rounded px-2 py-1">
+                                <Text className="text-green-400 text-xs font-bold">
+                                  MADE
+                                </Text>
+                              </View>
+                            ) : (
+                              <View className="bg-red-600/30 rounded px-2 py-1">
+                                <Text className="text-red-400 text-xs font-bold">
+                                  MISS
+                                </Text>
+                              </View>
+                            )}
+                          </View>
+                        </View>
+                      );
+                    })}
+                  </View>
+                )}
 
                 {/* Tips */}
                 <View className="mt-6 bg-blue-900/20 border border-blue-700/30 rounded-xl p-4">
