@@ -46,10 +46,10 @@ const pressureScenarios: PressureScenario[] = [
   },
   {
     name: "No Misses",
-    description: "All 4 bags must at least hit the board",
-    targetBagsIn: 0,
-    targetBagsOn: 4,
-    mustMake: 4,
+    description: "All 4 bags must go in the hole",
+    targetBagsIn: 4,
+    targetBagsOn: 0,
+    mustMake: 12,
   },
   {
     name: "Perfect Closer",
