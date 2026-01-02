@@ -6,6 +6,7 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
 import { RootStackParamList } from "../navigation/types";
 import { usePracticeStore } from "../state/practice-store";
+import { useTrainingStore, ProgramId } from "../state/training-store";
 import { LinearGradient } from "expo-linear-gradient";
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
@@ -26,6 +27,10 @@ export default function CornHubScreen() {
   const ghostGames = usePracticeStore((s) => s.ghostPlayerGames);
   const bagRunSessions = usePracticeStore((s) => s.bagRunSessions);
   const airmailRunSessions = usePracticeStore((s) => s.airmailRunSessions);
+
+  // Training programs from store
+  const programs = useTrainingStore((s) => s.programs);
+  const getProgramProgress = useTrainingStore((s) => s.getProgramProgress);
 
   // Calculate elite stats
   const eliteStats = useMemo(() => {
@@ -64,31 +69,6 @@ export default function CornHubScreen() {
       recentSessions
     };
   }, [practiceStats, ghostGames, bagRunSessions, airmailRunSessions]);
-
-  // Training programs
-  const trainingPrograms = [
-    {
-      title: "Beginner's Foundation",
-      description: "Master the basics with structured drills",
-      progress: 0,
-      icon: "school" as keyof typeof Ionicons.glyphMap,
-      color: "#10b981"
-    },
-    {
-      title: "Consistency Builder",
-      description: "Develop reliable throwing patterns",
-      progress: 0,
-      icon: "bar-chart" as keyof typeof Ionicons.glyphMap,
-      color: "#3b82f6"
-    },
-    {
-      title: "Pro Circuit",
-      description: "Elite-level training for competitors",
-      progress: 0,
-      icon: "trophy" as keyof typeof Ionicons.glyphMap,
-      color: "#f59e0b"
-    }
-  ];
 
   const practiceModes: PracticeModeCard[] = [
     {
@@ -304,38 +284,72 @@ export default function CornHubScreen() {
               <Text className="text-white text-lg font-bold">
                 Training Programs
               </Text>
-              <Text className="text-gray-500 text-xs">Coming Soon</Text>
             </View>
-            {trainingPrograms.map((program, index) => (
-              <View
-                key={index}
-                className="bg-gray-800 rounded-xl p-4 mb-3 border border-gray-700"
-              >
-                <View className="flex-row items-center justify-between mb-2">
-                  <View className="flex-row items-center flex-1">
-                    <View
-                      className="rounded-full p-2 mr-3"
-                      style={{ backgroundColor: `${program.color}20` }}
-                    >
-                      <Ionicons
-                        name={program.icon}
-                        size={20}
-                        color={program.color}
-                      />
+            {programs.map((program) => {
+              const progress = getProgramProgress(program.id);
+              return (
+                <Pressable
+                  key={program.id}
+                  onPress={() => navigation.navigate("TrainingProgram", { programId: program.id })}
+                  className="mb-3"
+                >
+                  <View
+                    className={`bg-gray-800 rounded-xl p-4 border ${
+                      program.started && !program.completed
+                        ? "border-2"
+                        : "border-gray-700"
+                    }`}
+                    style={program.started && !program.completed ? { borderColor: program.color } : undefined}
+                  >
+                    <View className="flex-row items-center justify-between mb-2">
+                      <View className="flex-row items-center flex-1">
+                        <View
+                          className="rounded-full p-2 mr-3"
+                          style={{ backgroundColor: `${program.color}20` }}
+                        >
+                          <Ionicons
+                            name={program.icon as keyof typeof Ionicons.glyphMap}
+                            size={20}
+                            color={program.color}
+                          />
+                        </View>
+                        <View className="flex-1">
+                          <Text className="text-white font-bold">
+                            {program.name}
+                          </Text>
+                          <Text className="text-gray-400 text-xs mt-1">
+                            {program.description}
+                          </Text>
+                        </View>
+                      </View>
+                      {program.completed ? (
+                        <View className="bg-green-600 rounded-full p-1">
+                          <Ionicons name="checkmark" size={16} color="#fff" />
+                        </View>
+                      ) : program.started ? (
+                        <Text className="text-gray-400 text-xs">
+                          Day {program.currentDay}/{program.totalDays}
+                        </Text>
+                      ) : (
+                        <Ionicons name="chevron-forward" size={20} color="#6b7280" />
+                      )}
                     </View>
-                    <View className="flex-1">
-                      <Text className="text-white font-bold">
-                        {program.title}
-                      </Text>
-                      <Text className="text-gray-400 text-xs mt-1">
-                        {program.description}
-                      </Text>
-                    </View>
+                    {/* Progress bar */}
+                    {(program.started || program.completed) && (
+                      <View className="h-1.5 bg-gray-700 rounded-full overflow-hidden mt-2">
+                        <View
+                          className="h-full rounded-full"
+                          style={{
+                            width: `${progress}%`,
+                            backgroundColor: program.completed ? "#22c55e" : program.color,
+                          }}
+                        />
+                      </View>
+                    )}
                   </View>
-                  <Ionicons name="lock-closed" size={20} color="#6b7280" />
-                </View>
-              </View>
-            ))}
+                </Pressable>
+              );
+            })}
           </View>
 
           {/* Practice Modes */}

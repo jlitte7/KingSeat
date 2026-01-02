@@ -60,4 +60,5 @@ export type RootStackParamList = {
   MatchHistory: undefined;
   MatchDetail: { matchId: string };
   Profile: undefined;
+  TrainingProgram: { programId: string };
 };

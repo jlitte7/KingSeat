@@ -49,6 +49,7 @@ import CreateTournamentScreen from "./src/screens/CreateTournamentScreen";
 import TournamentDetailScreen from "./src/screens/TournamentDetailScreen";
 import TournamentBracketScreen from "./src/screens/TournamentBracketScreen";
 import TournamentMatchScreen from "./src/screens/TournamentMatchScreen";
+import TrainingProgramScreen from "./src/screens/TrainingProgramScreen";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -137,6 +138,7 @@ export default function App() {
               <Stack.Screen name="TournamentDetail" component={TournamentDetailScreen} />
               <Stack.Screen name="TournamentBracket" component={TournamentBracketScreen} />
               <Stack.Screen name="TournamentMatch" component={TournamentMatchScreen} />
+              <Stack.Screen name="TrainingProgram" component={TrainingProgramScreen} />
             </Stack.Navigator>
             <StatusBar style="light" />
           </NavigationContainer>
