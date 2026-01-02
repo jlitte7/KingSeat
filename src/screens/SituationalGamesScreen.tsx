@@ -332,7 +332,7 @@ export default function SituationalGamesScreen() {
                       <Text className="text-red-400 text-xs font-semibold flex-1 text-center">OPP</Text>
                       <Text className="text-gray-400 text-xs font-semibold w-16 text-right">RESULT</Text>
                     </View>
-                    {roundHistory.map((round, index) => {
+                    {[...roundHistory].reverse().map((round, index) => {
                       const playerRawPts = round.playerIn * 3 + round.playerOn;
                       const ghostRawPts = round.ghostIn * 3 + round.ghostOn;
                       return (
@@ -601,7 +601,7 @@ export default function SituationalGamesScreen() {
                       <Text className="text-gray-400 text-xs font-semibold w-16 text-right">RESULT</Text>
                     </View>
                     {/* Rounds */}
-                    {roundHistory.map((round, index) => {
+                    {[...roundHistory].reverse().map((round, index) => {
                       const playerRawPts = round.playerIn * 3 + round.playerOn;
                       const ghostRawPts = round.ghostIn * 3 + round.ghostOn;
                       return (
