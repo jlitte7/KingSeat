@@ -271,7 +271,7 @@ export default function SituationalGamesScreen() {
                 Situational Games
               </Text>
             </View>
-            {gameStarted && (
+            {gameStarted && !gameComplete && (
               <Pressable onPress={quitGame}>
                 <Text className="text-red-500 font-semibold">Quit</Text>
               </Pressable>
@@ -379,10 +379,20 @@ export default function SituationalGamesScreen() {
                 {/* Play Again Button */}
                 <Pressable
                   onPress={playAgain}
-                  className="bg-purple-600 px-12 py-4 rounded-2xl"
+                  className="bg-purple-600 px-12 py-4 rounded-2xl mb-3"
                 >
                   <Text className="text-white text-xl font-bold">
                     Play Again
+                  </Text>
+                </Pressable>
+
+                {/* Back to Scenarios Button */}
+                <Pressable
+                  onPress={() => navigation.goBack()}
+                  className="px-12 py-3"
+                >
+                  <Text className="text-gray-400 text-base font-medium">
+                    Back to Home
                   </Text>
                 </Pressable>
               </View>
