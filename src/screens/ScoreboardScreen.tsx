@@ -762,14 +762,15 @@ export default function ScoreboardScreen() {
                 </Pressable>
               </View>
 
-              <ScrollView className="flex-1">
-                {rounds.map((round, index) => {
-                  const roundNum = index + 1;
-                  const p1RunningTotal = rounds.slice(0, index + 1).reduce((sum, r) => sum + r.p1Score, 0);
-                  const p2RunningTotal = rounds.slice(0, index + 1).reduce((sum, r) => sum + r.p2Score, 0);
+              <ScrollView className="flex-1" showsVerticalScrollIndicator={true}>
+                {[...rounds].reverse().map((round, index) => {
+                  const actualIndex = rounds.length - 1 - index;
+                  const roundNum = actualIndex + 1;
+                  const p1RunningTotal = rounds.slice(0, actualIndex + 1).reduce((sum, r) => sum + r.p1Score, 0);
+                  const p2RunningTotal = rounds.slice(0, actualIndex + 1).reduce((sum, r) => sum + r.p2Score, 0);
 
                   return (
-                    <View key={index} className="bg-gray-800 rounded-lg p-4 mb-3">
+                    <View key={actualIndex} className="bg-gray-800 rounded-lg p-4 mb-3">
                       <Text className="text-white text-lg font-bold mb-3 text-center">Round {roundNum}</Text>
 
                       <View className="flex-row justify-between gap-3">

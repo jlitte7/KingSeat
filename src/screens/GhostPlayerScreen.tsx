@@ -450,7 +450,7 @@ export default function GhostPlayerScreen() {
 
                 {/* Round by Round Stats */}
                 {roundHistory.length > 0 && !showScoring && !showGhostResult && (
-                  <View className="bg-gray-800 rounded-2xl p-4">
+                  <View className="bg-gray-800 rounded-2xl p-4" style={{ maxHeight: 300 }}>
                     <Text className="text-white text-lg font-bold mb-3">
                       Round History
                     </Text>
@@ -467,8 +467,9 @@ export default function GhostPlayerScreen() {
                       </View>
                     </View>
 
-                    {/* Round Rows */}
-                    {roundHistory.map((round, index) => {
+                    {/* Round Rows - Scrollable */}
+                    <ScrollView style={{ maxHeight: 180 }} showsVerticalScrollIndicator={true} nestedScrollEnabled={true}>
+                    {[...roundHistory].reverse().map((round, index) => {
                       const playerRaw = round.playerIn * 3 + round.playerOn * 1;
                       const ghostRaw = round.ghostIn * 3 + round.ghostOn * 1;
                       const playerWonRound = round.playerScore > 0;
@@ -476,7 +477,7 @@ export default function GhostPlayerScreen() {
 
                       return (
                         <View
-                          key={index}
+                          key={round.roundNumber}
                           className={`flex-row py-2 ${
                             index < roundHistory.length - 1 ? "border-b border-gray-700/50" : ""
                           }`}
@@ -515,6 +516,7 @@ export default function GhostPlayerScreen() {
                         </View>
                       );
                     })}
+                    </ScrollView>
 
                     {/* Summary Row */}
                     <View className="flex-row pt-3 mt-2 border-t border-gray-600">

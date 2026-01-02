@@ -322,7 +322,7 @@ export default function SituationalGamesScreen() {
 
                 {/* Round History in Complete Screen */}
                 {roundHistory.length > 0 && (
-                  <View className="w-full bg-gray-800 rounded-2xl p-4 mb-6">
+                  <View className="w-full bg-gray-800 rounded-2xl p-4 mb-6" style={{ maxHeight: 300 }}>
                     <Text className="text-white text-lg font-bold mb-3 text-center">
                       Round History
                     </Text>
@@ -332,12 +332,13 @@ export default function SituationalGamesScreen() {
                       <Text className="text-red-400 text-xs font-semibold flex-1 text-center">OPP</Text>
                       <Text className="text-gray-400 text-xs font-semibold w-16 text-right">RESULT</Text>
                     </View>
+                    <ScrollView style={{ maxHeight: 200 }} showsVerticalScrollIndicator={true} nestedScrollEnabled={true}>
                     {[...roundHistory].reverse().map((round, index) => {
                       const playerRawPts = round.playerIn * 3 + round.playerOn;
                       const ghostRawPts = round.ghostIn * 3 + round.ghostOn;
                       return (
                         <View
-                          key={index}
+                          key={round.roundNumber}
                           className="flex-row items-center py-2 border-b border-gray-700/50"
                         >
                           <Text className="text-gray-300 text-sm font-bold w-10">
@@ -373,6 +374,7 @@ export default function SituationalGamesScreen() {
                         </View>
                       );
                     })}
+                    </ScrollView>
                   </View>
                 )}
 
@@ -599,7 +601,7 @@ export default function SituationalGamesScreen() {
 
                 {/* Round History */}
                 {roundHistory.length > 0 && (
-                  <View className="bg-gray-800 rounded-2xl p-4 mb-4">
+                  <View className="bg-gray-800 rounded-2xl p-4 mb-4" style={{ maxHeight: 280 }}>
                     <Text className="text-white text-lg font-bold mb-3">
                       Round History
                     </Text>
@@ -610,13 +612,14 @@ export default function SituationalGamesScreen() {
                       <Text className="text-red-400 text-xs font-semibold flex-1 text-center">OPP</Text>
                       <Text className="text-gray-400 text-xs font-semibold w-16 text-right">RESULT</Text>
                     </View>
-                    {/* Rounds */}
+                    {/* Rounds - Scrollable */}
+                    <ScrollView style={{ maxHeight: 180 }} showsVerticalScrollIndicator={true} nestedScrollEnabled={true}>
                     {[...roundHistory].reverse().map((round, index) => {
                       const playerRawPts = round.playerIn * 3 + round.playerOn;
                       const ghostRawPts = round.ghostIn * 3 + round.ghostOn;
                       return (
                         <View
-                          key={index}
+                          key={round.roundNumber}
                           className="flex-row items-center py-2 border-b border-gray-700/50"
                         >
                           <Text className="text-gray-300 text-sm font-bold w-10">
@@ -656,6 +659,7 @@ export default function SituationalGamesScreen() {
                         </View>
                       );
                     })}
+                    </ScrollView>
                   </View>
                 )}
               </View>
