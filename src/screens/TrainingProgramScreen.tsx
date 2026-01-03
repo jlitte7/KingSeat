@@ -350,35 +350,35 @@ export default function TrainingProgramScreen() {
                   <Text className="text-gray-400 text-sm font-bold mb-3">
                     ACTIVITIES
                   </Text>
-                  {selectedDay?.activities.map((activity, index) => (
-                    <View key={activity.id} className="mb-3">
-                      <LinearGradient
-                        colors={
-                          activity.completed
-                            ? ["#22c55e20", "#22c55e10"]
-                            : [`${activityColors[activity.type]}20`, `${activityColors[activity.type]}10`]
+                  {selectedDay?.activities.map((activity) => (
+                    <View key={activity.id} className="mb-3 flex-row items-center">
+                      <Pressable
+                        onPress={() =>
+                          handleActivityPress(
+                            selectedDay.day,
+                            activity.id,
+                            activity.type,
+                            activity.completed
+                          )
                         }
-                        style={{
-                          borderRadius: 16,
-                          padding: 16,
-                          borderWidth: 1,
-                          borderColor: activity.completed
-                            ? "#22c55e50"
-                            : `${activityColors[activity.type]}30`,
-                        }}
+                        className="flex-1"
                       >
-                        <View className="flex-row items-center">
-                          <Pressable
-                            onPress={() =>
-                              handleActivityPress(
-                                selectedDay.day,
-                                activity.id,
-                                activity.type,
-                                activity.completed
-                              )
-                            }
-                            className="flex-row items-center flex-1"
-                          >
+                        <LinearGradient
+                          colors={
+                            activity.completed
+                              ? ["#22c55e20", "#22c55e10"]
+                              : [`${activityColors[activity.type]}20`, `${activityColors[activity.type]}10`]
+                          }
+                          style={{
+                            borderRadius: 16,
+                            padding: 16,
+                            borderWidth: 1,
+                            borderColor: activity.completed
+                              ? "#22c55e50"
+                              : `${activityColors[activity.type]}30`,
+                          }}
+                        >
+                          <View className="flex-row items-center">
                             <View
                               className={`w-12 h-12 rounded-full items-center justify-center mr-4 ${
                                 activity.completed ? "bg-green-600" : "bg-gray-800"
@@ -427,20 +427,19 @@ export default function TrainingProgramScreen() {
                               size={24}
                               color={activity.completed ? "#22c55e" : "#6b7280"}
                             />
-                          </Pressable>
-                          {activity.completed && (
-                            <Pressable
-                              onPress={() => {
-                                handleResetActivityPress(selectedDay.day, activity.id, activity.name);
-                              }}
-                              className="ml-2 p-2"
-                              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                            >
-                              <Ionicons name="refresh" size={20} color="#9ca3af" />
-                            </Pressable>
-                          )}
-                        </View>
-                      </LinearGradient>
+                          </View>
+                        </LinearGradient>
+                      </Pressable>
+                      {activity.completed && (
+                        <Pressable
+                          onPress={() => {
+                            handleResetActivityPress(selectedDay.day, activity.id, activity.name);
+                          }}
+                          className="ml-2 p-3 bg-gray-800 rounded-xl"
+                        >
+                          <Ionicons name="refresh" size={22} color="#9ca3af" />
+                        </Pressable>
+                      )}
                     </View>
                   ))}
 
