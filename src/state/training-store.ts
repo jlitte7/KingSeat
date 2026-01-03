@@ -67,6 +67,7 @@ interface TrainingState {
   completeActiveChallenge: () => void;
   cancelActiveChallenge: () => void;
   completeActivity: (programId: ProgramId, day: number, activityId: string) => void;
+  resetActivity: (programId: ProgramId, day: number, activityId: string) => void;
   completeDay: (programId: ProgramId, day: number) => void;
   resetDay: (programId: ProgramId, day: number) => void;
   resetProgram: (programId: ProgramId) => void;
@@ -476,6 +477,44 @@ export const useTrainingStore = create<TrainingState>()(
               currentDay: Math.max(p.currentDay, newCurrentDay),
               completed: programComplete,
               completedAt: programComplete ? new Date().toISOString() : undefined,
+            };
+          }),
+        }));
+      },
+
+      resetActivity: (programId: ProgramId, day: number, activityId: string) => {
+        set((state) => ({
+          programs: state.programs.map((p) => {
+            if (p.id !== programId) return p;
+
+            const updatedDays = p.days.map((d) => {
+              if (d.day !== day) return d;
+
+              const updatedActivities = d.activities.map((a) =>
+                a.id === activityId
+                  ? { ...a, completed: false, completedAt: undefined }
+                  : a
+              );
+
+              // Recalculate day completion
+              const allComplete = updatedActivities.every((a) => a.completed);
+
+              return {
+                ...d,
+                activities: updatedActivities,
+                completed: allComplete,
+                completedAt: allComplete ? d.completedAt : undefined,
+              };
+            });
+
+            // Recalculate program completion
+            const programComplete = updatedDays.every((d) => d.completed);
+
+            return {
+              ...p,
+              days: updatedDays,
+              completed: programComplete,
+              completedAt: programComplete ? p.completedAt : undefined,
             };
           }),
         }));

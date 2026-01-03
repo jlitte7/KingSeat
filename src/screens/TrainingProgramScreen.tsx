@@ -52,6 +52,7 @@ export default function TrainingProgramScreen() {
   const startChallenge = useTrainingStore((s) => s.startChallenge);
   const activeChallenge = useTrainingStore((s) => s.activeChallenge);
   const completeActivity = useTrainingStore((s) => s.completeActivity);
+  const resetActivity = useTrainingStore((s) => s.resetActivity);
   const resetDay = useTrainingStore((s) => s.resetDay);
   const resetProgram = useTrainingStore((s) => s.resetProgram);
   const getProgramProgress = useTrainingStore((s) => s.getProgramProgress);
@@ -60,6 +61,8 @@ export default function TrainingProgramScreen() {
   const [showResetModal, setShowResetModal] = useState(false);
   const [showResetDayModal, setShowResetDayModal] = useState(false);
   const [dayToReset, setDayToReset] = useState<number | null>(null);
+  const [showResetActivityModal, setShowResetActivityModal] = useState(false);
+  const [activityToReset, setActivityToReset] = useState<{ day: number; activityId: string; name: string } | null>(null);
 
   if (!program) {
     return (
@@ -114,6 +117,26 @@ export default function TrainingProgramScreen() {
       setShowResetDayModal(false);
       setDayToReset(null);
       setSelectedDay(null);
+    }
+  };
+
+  const handleResetActivityPress = (day: number, activityId: string, name: string) => {
+    setActivityToReset({ day, activityId, name });
+    setShowResetActivityModal(true);
+  };
+
+  const handleResetActivity = () => {
+    if (activityToReset) {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      resetActivity(programId as ProgramId, activityToReset.day, activityToReset.activityId);
+      setShowResetActivityModal(false);
+      setActivityToReset(null);
+      // Refresh selectedDay to show updated state
+      const updatedProgram = useTrainingStore.getState().getProgram(programId as ProgramId);
+      const updatedDay = updatedProgram?.days.find((d) => d.day === activityToReset.day);
+      if (updatedDay) {
+        setSelectedDay(updatedDay);
+      }
     }
   };
 
@@ -399,11 +422,25 @@ export default function TrainingProgramScreen() {
                               </View>
                             )}
                           </View>
-                          <Ionicons
-                            name="chevron-forward"
-                            size={24}
-                            color={activity.completed ? "#22c55e" : "#6b7280"}
-                          />
+                          <View className="flex-row items-center">
+                            {activity.completed && (
+                              <Pressable
+                                onPress={(e) => {
+                                  e.stopPropagation();
+                                  handleResetActivityPress(selectedDay.day, activity.id, activity.name);
+                                }}
+                                className="mr-2 p-2"
+                                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                              >
+                                <Ionicons name="refresh" size={18} color="#9ca3af" />
+                              </Pressable>
+                            )}
+                            <Ionicons
+                              name="chevron-forward"
+                              size={24}
+                              color={activity.completed ? "#22c55e" : "#6b7280"}
+                            />
+                          </View>
                         </View>
                       </LinearGradient>
                     </Pressable>
@@ -464,6 +501,37 @@ export default function TrainingProgramScreen() {
                   className="flex-1 bg-yellow-600 py-3 rounded-xl"
                 >
                   <Text className="text-white text-center font-bold">Reset Day</Text>
+                </Pressable>
+              </View>
+            </View>
+          </View>
+        </Modal>
+
+        {/* Reset Activity Confirmation Modal */}
+        <Modal visible={showResetActivityModal} transparent animationType="fade">
+          <View className="flex-1 bg-black/90 items-center justify-center px-6">
+            <View className="bg-gray-800 rounded-2xl p-6 w-full max-w-sm">
+              <Text className="text-white text-xl font-bold text-center mb-2">
+                Reset Challenge?
+              </Text>
+              <Text className="text-gray-400 text-center mb-6">
+                Reset {activityToReset?.name} so you can redo it.
+              </Text>
+              <View className="flex-row gap-3">
+                <Pressable
+                  onPress={() => {
+                    setShowResetActivityModal(false);
+                    setActivityToReset(null);
+                  }}
+                  className="flex-1 bg-gray-700 py-3 rounded-xl"
+                >
+                  <Text className="text-white text-center font-bold">Cancel</Text>
+                </Pressable>
+                <Pressable
+                  onPress={handleResetActivity}
+                  className="flex-1 bg-yellow-600 py-3 rounded-xl"
+                >
+                  <Text className="text-white text-center font-bold">Reset</Text>
                 </Pressable>
               </View>
             </View>
