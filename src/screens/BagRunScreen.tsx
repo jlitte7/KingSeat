@@ -42,6 +42,7 @@ export default function BagRunScreen() {
   const [madeCount, setMadeCount] = useState(0);
   const [sessionStarted, setSessionStarted] = useState(false);
   const [showChallengeCompleteModal, setShowChallengeCompleteModal] = useState(false);
+  const [showExitConfirmModal, setShowExitConfirmModal] = useState(false);
 
   const scale = useSharedValue(1);
 
@@ -127,16 +128,38 @@ export default function BagRunScreen() {
     }
   };
 
+  const handleEndPress = () => {
+    // If there's an active challenge that isn't complete, show confirmation
+    if (isBagRunChallenge && longestStreak < challengeTarget) {
+      setShowExitConfirmModal(true);
+    } else {
+      endSession();
+    }
+  };
+
   const endSession = () => {
     if (sessionId) {
       completeSession(sessionId);
     }
-    // If there's an active challenge that wasn't completed, cancel it
-    if (isBagRunChallenge && longestStreak < challengeTarget) {
-      cancelActiveChallenge();
-    }
     setSessionStarted(false);
     setSessionId(null);
+  };
+
+  const handleExitAndCancel = () => {
+    cancelActiveChallenge();
+    endSession();
+    setShowExitConfirmModal(false);
+  };
+
+  const handleResetChallenge = () => {
+    // End current session without cancelling challenge
+    if (sessionId) {
+      completeSession(sessionId);
+    }
+    setSessionId(null);
+    setSessionStarted(false);
+    setShowExitConfirmModal(false);
+    // Challenge stays active, user can start fresh
   };
 
   const handleChallengeComplete = () => {
@@ -180,7 +203,7 @@ export default function BagRunScreen() {
               </View>
             </View>
             {sessionStarted && (
-              <Pressable onPress={endSession}>
+              <Pressable onPress={handleEndPress}>
                 <Text className="text-red-500 font-semibold">End</Text>
               </Pressable>
             )}
@@ -390,6 +413,50 @@ export default function BagRunScreen() {
                   className="bg-gray-700 py-4 rounded-xl items-center w-full"
                 >
                   <Text className="text-white font-bold">Continue Practicing</Text>
+                </Pressable>
+              </View>
+            </View>
+          </View>
+        </Modal>
+
+        {/* Exit Challenge Confirmation Modal */}
+        <Modal visible={showExitConfirmModal} transparent animationType="fade">
+          <View className="flex-1 bg-black/90 items-center justify-center px-6">
+            <View className="bg-gray-800 rounded-3xl p-6 w-full max-w-sm">
+              <View className="items-center mb-4">
+                <View className="bg-yellow-600/20 rounded-full w-16 h-16 items-center justify-center mb-4">
+                  <Ionicons name="warning" size={36} color="#eab308" />
+                </View>
+                <Text className="text-white text-xl font-bold text-center">
+                  Challenge Incomplete
+                </Text>
+              </View>
+
+              <Text className="text-gray-400 text-center mb-2">
+                You need {challengeTarget - longestStreak} more to reach your goal of {challengeTarget}+ streak.
+              </Text>
+              <Text className="text-gray-500 text-sm text-center mb-6">
+                Best streak this session: {longestStreak}
+              </Text>
+
+              <View className="gap-3">
+                <Pressable
+                  onPress={handleResetChallenge}
+                  className="bg-yellow-600 py-4 rounded-xl items-center"
+                >
+                  <Text className="text-white font-bold">Reset & Try Again</Text>
+                </Pressable>
+                <Pressable
+                  onPress={handleExitAndCancel}
+                  className="bg-gray-700 py-4 rounded-xl items-center"
+                >
+                  <Text className="text-white font-bold">Exit Challenge</Text>
+                </Pressable>
+                <Pressable
+                  onPress={() => setShowExitConfirmModal(false)}
+                  className="py-3 items-center"
+                >
+                  <Text className="text-gray-400">Keep Practicing</Text>
                 </Pressable>
               </View>
             </View>
