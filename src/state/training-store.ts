@@ -483,18 +483,23 @@ export const useTrainingStore = create<TrainingState>()(
       },
 
       resetActivity: (programId: ProgramId, day: number, activityId: string) => {
-        set((state) => ({
-          programs: state.programs.map((p) => {
+        console.log("[resetActivity] Called with:", { programId, day, activityId });
+        set((state) => {
+          const newPrograms = state.programs.map((p) => {
             if (p.id !== programId) return p;
 
             const updatedDays = p.days.map((d) => {
               if (d.day !== day) return d;
 
-              const updatedActivities = d.activities.map((a) =>
-                a.id === activityId
-                  ? { ...a, completed: false, completedAt: undefined }
-                  : a
-              );
+              console.log("[resetActivity] Found day, activities:", d.activities.map(a => ({ id: a.id, completed: a.completed })));
+
+              const updatedActivities = d.activities.map((a) => {
+                if (a.id === activityId) {
+                  console.log("[resetActivity] Resetting activity:", a.id);
+                  return { ...a, completed: false, completedAt: undefined };
+                }
+                return a;
+              });
 
               // Recalculate day completion
               const allComplete = updatedActivities.every((a) => a.completed);
@@ -516,8 +521,11 @@ export const useTrainingStore = create<TrainingState>()(
               completed: programComplete,
               completedAt: programComplete ? p.completedAt : undefined,
             };
-          }),
-        }));
+          });
+
+          console.log("[resetActivity] New state set");
+          return { programs: newPrograms };
+        });
       },
 
       completeDay: (programId: ProgramId, day: number) => {

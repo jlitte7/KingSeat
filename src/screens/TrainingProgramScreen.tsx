@@ -135,8 +135,10 @@ export default function TrainingProgramScreen() {
 
   const handleResetActivity = () => {
     if (activityToReset) {
+      console.log("[handleResetActivity] Resetting:", activityToReset);
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
       resetActivity(programId as ProgramId, activityToReset.day, activityToReset.activityId);
+      console.log("[handleResetActivity] Called resetActivity, closing modal");
       setShowResetActivityModal(false);
       setActivityToReset(null);
       // No need to manually refresh - selectedDay is derived from store
