@@ -5,12 +5,19 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 export type ProgramId = "beginner" | "consistency" | "pro";
 export type ActivityType = "bagRun" | "airmail" | "ghost" | "situational" | "clutch";
 
+export interface ChallengeGoal {
+  type: "streak" | "wins" | "accuracy" | "count";
+  target: number;
+  current: number;
+}
+
 export interface WorkoutActivity {
   id: string;
   type: ActivityType;
   name: string;
   description: string;
   goal?: string;
+  goalRequirement?: ChallengeGoal; // Numeric goal that must be achieved
   completed: boolean;
   completedAt?: string;
 }
@@ -39,12 +46,26 @@ export interface TrainingProgram {
   completedAt?: string;
 }
 
+export interface ActiveChallenge {
+  programId: ProgramId;
+  day: number;
+  activityId: string;
+  activityType: ActivityType;
+  goalRequirement: ChallengeGoal;
+  startedAt: string;
+}
+
 interface TrainingState {
   programs: TrainingProgram[];
   activeProgram: ProgramId | null;
+  activeChallenge: ActiveChallenge | null;
 
   // Actions
   startProgram: (programId: ProgramId) => void;
+  startChallenge: (programId: ProgramId, day: number, activityId: string) => void;
+  updateChallengeProgress: (progress: number) => void;
+  completeActiveChallenge: () => void;
+  cancelActiveChallenge: () => void;
   completeActivity: (programId: ProgramId, day: number, activityId: string) => void;
   completeDay: (programId: ProgramId, day: number) => void;
   resetProgram: (programId: ProgramId) => void;
@@ -331,6 +352,7 @@ export const useTrainingStore = create<TrainingState>()(
         createProProgram(),
       ],
       activeProgram: null,
+      activeChallenge: null,
 
       startProgram: (programId: ProgramId) => {
         set((state) => ({
@@ -341,6 +363,78 @@ export const useTrainingStore = create<TrainingState>()(
           ),
           activeProgram: programId,
         }));
+      },
+
+      startChallenge: (programId: ProgramId, day: number, activityId: string) => {
+        const program = get().programs.find((p) => p.id === programId);
+        if (!program) return;
+
+        const dayData = program.days.find((d) => d.day === day);
+        if (!dayData) return;
+
+        const activity = dayData.activities.find((a) => a.id === activityId);
+        if (!activity) return;
+
+        // Parse goal string to determine requirement
+        const goalText = activity.goal || "";
+        let goalRequirement: ChallengeGoal = { type: "streak", target: 3, current: 0 };
+
+        // Parse goals like "3+ streak", "6+ streak", "Win", etc.
+        const streakMatch = goalText.match(/(\d+)\+?\s*streak/i);
+        const airmailMatch = goalText.match(/(\d+)\+?\s*airmail/i);
+        const winMatch = goalText.match(/win/i);
+        const accuracyMatch = goalText.match(/(\d+)%/i);
+
+        if (streakMatch) {
+          goalRequirement = { type: "streak", target: parseInt(streakMatch[1]), current: 0 };
+        } else if (airmailMatch) {
+          goalRequirement = { type: "count", target: parseInt(airmailMatch[1]), current: 0 };
+        } else if (winMatch) {
+          goalRequirement = { type: "wins", target: 1, current: 0 };
+        } else if (accuracyMatch) {
+          goalRequirement = { type: "accuracy", target: parseInt(accuracyMatch[1]), current: 0 };
+        }
+
+        set({
+          activeChallenge: {
+            programId,
+            day,
+            activityId,
+            activityType: activity.type,
+            goalRequirement,
+            startedAt: new Date().toISOString(),
+          },
+        });
+      },
+
+      updateChallengeProgress: (progress: number) => {
+        set((state) => {
+          if (!state.activeChallenge) return state;
+          return {
+            activeChallenge: {
+              ...state.activeChallenge,
+              goalRequirement: {
+                ...state.activeChallenge.goalRequirement,
+                current: progress,
+              },
+            },
+          };
+        });
+      },
+
+      completeActiveChallenge: () => {
+        const challenge = get().activeChallenge;
+        if (!challenge) return;
+
+        // Complete the activity
+        get().completeActivity(challenge.programId, challenge.day, challenge.activityId);
+
+        // Clear the active challenge
+        set({ activeChallenge: null });
+      },
+
+      cancelActiveChallenge: () => {
+        set({ activeChallenge: null });
       },
 
       completeActivity: (programId: ProgramId, day: number, activityId: string) => {

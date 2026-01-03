@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -6,23 +6,32 @@ import {
   ScrollView,
   Keyboard,
   TouchableWithoutFeedback,
+  Modal,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { usePracticeStore } from "../state/practice-store";
+import { useTrainingStore } from "../state/training-store";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withSpring,
   withSequence,
 } from "react-native-reanimated";
+import * as Haptics from "expo-haptics";
 
 export default function BagRunScreen() {
   const navigation = useNavigation();
   const createSession = usePracticeStore((s) => s.createBagRunSession);
   const updateSession = usePracticeStore((s) => s.updateBagRunSession);
   const completeSession = usePracticeStore((s) => s.completeBagRunSession);
+
+  // Challenge tracking
+  const activeChallenge = useTrainingStore((s) => s.activeChallenge);
+  const updateChallengeProgress = useTrainingStore((s) => s.updateChallengeProgress);
+  const completeActiveChallenge = useTrainingStore((s) => s.completeActiveChallenge);
+  const cancelActiveChallenge = useTrainingStore((s) => s.cancelActiveChallenge);
 
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [currentRound, setCurrentRound] = useState(0);
@@ -32,12 +41,30 @@ export default function BagRunScreen() {
   const [totalBags, setTotalBags] = useState(0);
   const [madeCount, setMadeCount] = useState(0);
   const [sessionStarted, setSessionStarted] = useState(false);
+  const [showChallengeCompleteModal, setShowChallengeCompleteModal] = useState(false);
 
   const scale = useSharedValue(1);
+
+  // Check if this is a bag run challenge
+  const isBagRunChallenge = activeChallenge?.activityType === "bagRun";
+  const challengeTarget = isBagRunChallenge ? activeChallenge.goalRequirement.target : 0;
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
   }));
+
+  // Update challenge progress when streak changes
+  useEffect(() => {
+    if (isBagRunChallenge && sessionStarted) {
+      updateChallengeProgress(longestStreak);
+
+      // Check if challenge goal is met
+      if (longestStreak >= challengeTarget && challengeTarget > 0) {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        setShowChallengeCompleteModal(true);
+      }
+    }
+  }, [longestStreak, isBagRunChallenge, sessionStarted, challengeTarget]);
 
   const startSession = () => {
     const session = createSession();
@@ -104,8 +131,28 @@ export default function BagRunScreen() {
     if (sessionId) {
       completeSession(sessionId);
     }
+    // If there's an active challenge that wasn't completed, cancel it
+    if (isBagRunChallenge && longestStreak < challengeTarget) {
+      cancelActiveChallenge();
+    }
     setSessionStarted(false);
     setSessionId(null);
+  };
+
+  const handleChallengeComplete = () => {
+    completeActiveChallenge();
+    setShowChallengeCompleteModal(false);
+    if (sessionId) {
+      completeSession(sessionId);
+    }
+    setSessionStarted(false);
+    setSessionId(null);
+    navigation.goBack();
+  };
+
+  const handleContinuePractice = () => {
+    completeActiveChallenge();
+    setShowChallengeCompleteModal(false);
   };
 
   const resetSession = () => {
@@ -153,22 +200,76 @@ export default function BagRunScreen() {
                 <Text className="text-white text-3xl font-bold text-center mb-4">
                   Bag Run Challenge
                 </Text>
-                <Text className="text-gray-400 text-center text-base leading-6 mb-8">
+                <Text className="text-gray-400 text-center text-base leading-6 mb-4">
                   Track how many consecutive bags you can make in a row. Each
                   round consists of 4 bags. Your streak resets if you miss!
                 </Text>
+
+                {/* Active Challenge Goal Banner */}
+                {isBagRunChallenge && (
+                  <View className="bg-yellow-600/20 border border-yellow-500 rounded-xl p-4 mb-6 w-full">
+                    <View className="flex-row items-center justify-center">
+                      <Ionicons name="flag" size={20} color="#eab308" />
+                      <Text className="text-yellow-500 font-bold ml-2 text-lg">
+                        Challenge Goal: {challengeTarget}+ Streak
+                      </Text>
+                    </View>
+                    <Text className="text-yellow-400/80 text-sm text-center mt-2">
+                      Complete a streak of {challengeTarget} bags to complete this challenge
+                    </Text>
+                  </View>
+                )}
+
                 <Pressable
                   onPress={startSession}
                   className="bg-pink-600 px-12 py-4 rounded-full"
                 >
                   <Text className="text-white text-lg font-bold">
-                    Start Practice
+                    {isBagRunChallenge ? "Start Challenge" : "Start Practice"}
                   </Text>
                 </Pressable>
+
+                {isBagRunChallenge && (
+                  <Pressable
+                    onPress={() => {
+                      cancelActiveChallenge();
+                      navigation.goBack();
+                    }}
+                    className="mt-4"
+                  >
+                    <Text className="text-gray-500 text-sm">Cancel Challenge</Text>
+                  </Pressable>
+                )}
               </View>
             ) : (
               /* Active Session */
               <View className="flex-1 px-4 py-6">
+                {/* Challenge Progress Banner */}
+                {isBagRunChallenge && (
+                  <View className="bg-yellow-600/20 border border-yellow-500 rounded-xl p-3 mb-4">
+                    <View className="flex-row items-center justify-between">
+                      <View className="flex-row items-center">
+                        <Ionicons name="flag" size={16} color="#eab308" />
+                        <Text className="text-yellow-500 font-bold ml-2">
+                          Goal: {challengeTarget}+ Streak
+                        </Text>
+                      </View>
+                      <Text className="text-yellow-400">
+                        {longestStreak}/{challengeTarget}
+                      </Text>
+                    </View>
+                    {/* Progress bar */}
+                    <View className="h-2 bg-gray-800 rounded-full mt-2 overflow-hidden">
+                      <View
+                        className="h-full bg-yellow-500 rounded-full"
+                        style={{
+                          width: `${Math.min((longestStreak / challengeTarget) * 100, 100)}%`,
+                        }}
+                      />
+                    </View>
+                  </View>
+                )}
+
                 {/* Current Streak - Big Display */}
                 <Animated.View
                   style={[animatedStyle]}
@@ -259,6 +360,41 @@ export default function BagRunScreen() {
             )}
           </ScrollView>
         </SafeAreaView>
+
+        {/* Challenge Complete Modal */}
+        <Modal visible={showChallengeCompleteModal} transparent animationType="fade">
+          <View className="flex-1 bg-black/90 items-center justify-center px-6">
+            <View className="bg-gray-800 rounded-3xl p-8 w-full max-w-sm items-center">
+              <View className="bg-green-600 rounded-full w-24 h-24 items-center justify-center mb-6">
+                <Ionicons name="checkmark-circle" size={64} color="#fff" />
+              </View>
+              <Text className="text-white text-2xl font-bold text-center mb-2">
+                Challenge Complete!
+              </Text>
+              <Text className="text-gray-400 text-center mb-2">
+                You hit a streak of {longestStreak} bags!
+              </Text>
+              <Text className="text-green-400 text-lg font-bold mb-6">
+                Goal: {challengeTarget}+ Streak
+              </Text>
+
+              <View className="w-full gap-3">
+                <Pressable
+                  onPress={handleChallengeComplete}
+                  className="bg-green-600 py-4 rounded-xl items-center w-full"
+                >
+                  <Text className="text-white font-bold text-lg">Done</Text>
+                </Pressable>
+                <Pressable
+                  onPress={handleContinuePractice}
+                  className="bg-gray-700 py-4 rounded-xl items-center w-full"
+                >
+                  <Text className="text-white font-bold">Continue Practicing</Text>
+                </Pressable>
+              </View>
+            </View>
+          </View>
+        </Modal>
       </View>
     </TouchableWithoutFeedback>
   );

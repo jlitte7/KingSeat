@@ -11,7 +11,7 @@ import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
 import { RootStackParamList } from "../navigation/types";
-import { useTrainingStore, ProgramId, WorkoutDay, ActivityType } from "../state/training-store";
+import { useTrainingStore, ProgramId, WorkoutDay, ActivityType, ActiveChallenge } from "../state/training-store";
 import { LinearGradient } from "expo-linear-gradient";
 import * as Haptics from "expo-haptics";
 
@@ -49,6 +49,8 @@ export default function TrainingProgramScreen() {
 
   const program = useTrainingStore((s) => s.getProgram(programId as ProgramId));
   const startProgram = useTrainingStore((s) => s.startProgram);
+  const startChallenge = useTrainingStore((s) => s.startChallenge);
+  const activeChallenge = useTrainingStore((s) => s.activeChallenge);
   const completeActivity = useTrainingStore((s) => s.completeActivity);
   const resetProgram = useTrainingStore((s) => s.resetProgram);
   const getProgramProgress = useTrainingStore((s) => s.getProgramProgress);
@@ -71,12 +73,22 @@ export default function TrainingProgramScreen() {
     startProgram(programId as ProgramId);
   };
 
-  const handleActivityPress = (day: number, activityId: string, type: ActivityType) => {
+  const handleActivityPress = (day: number, activityId: string, type: ActivityType, isCompleted: boolean) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     // Close the modal first, then navigate
     setSelectedDay(null);
-    // Mark as complete and navigate to the activity
-    completeActivity(programId as ProgramId, day, activityId);
+
+    // If already completed, just navigate to the activity
+    if (isCompleted) {
+      const route = activityRoutes[type];
+      (navigation.navigate as (route: keyof RootStackParamList) => void)(route);
+      return;
+    }
+
+    // Start a challenge - this tracks what goal needs to be met
+    startChallenge(programId as ProgramId, day, activityId);
+
+    // Navigate to the activity
     const route = activityRoutes[type];
     (navigation.navigate as (route: keyof RootStackParamList) => void)(route);
   };
@@ -304,7 +316,8 @@ export default function TrainingProgramScreen() {
                         handleActivityPress(
                           selectedDay.day,
                           activity.id,
-                          activity.type
+                          activity.type,
+                          activity.completed
                         )
                       }
                       className="mb-3"

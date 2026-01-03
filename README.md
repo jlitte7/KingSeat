@@ -325,10 +325,19 @@ Transform your game with a comprehensive, elite-level practice environment desig
   - Clutch Rate - Success rate in high-pressure situations
   - Best Bag Run & Airmail streaks
   - Situational game win rates
-- **Training Programs** (Coming Soon):
-  - Beginner's Foundation - Master the basics
-  - Consistency Builder - Develop reliable patterns
-  - Pro Circuit - Elite-level competitive training
+
+#### Training Programs
+Structured multi-day programs to systematically improve your game:
+- **Beginner's Foundation** (7 days) - Master the basics with structured drills
+- **Consistency Builder** (7 days) - Develop reliable throwing patterns
+- **Pro Circuit** (7 days) - Elite-level competitive training
+
+**Challenge System**: When you select a training activity:
+- The goal is shown (e.g., "3+ Streak", "Win", "6+ airmails")
+- A challenge is started that tracks your progress
+- Challenge is only marked complete when you achieve the goal
+- Progress bar shows how close you are to completing the challenge
+- Cancel anytime if you need to exit early
 
 #### Practice Modes by Category
 
