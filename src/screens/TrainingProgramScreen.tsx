@@ -73,6 +73,8 @@ export default function TrainingProgramScreen() {
 
   const handleActivityPress = (day: number, activityId: string, type: ActivityType) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    // Close the modal first, then navigate
+    setSelectedDay(null);
     // Mark as complete and navigate to the activity
     completeActivity(programId as ProgramId, day, activityId);
     const route = activityRoutes[type];
