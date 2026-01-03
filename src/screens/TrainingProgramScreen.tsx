@@ -58,12 +58,16 @@ export default function TrainingProgramScreen() {
   const resetProgram = useTrainingStore((s) => s.resetProgram);
   const getProgramProgress = useTrainingStore((s) => s.getProgramProgress);
 
-  const [selectedDay, setSelectedDay] = useState<WorkoutDay | null>(null);
+  // Store just the day number, not the whole day object
+  const [selectedDayNum, setSelectedDayNum] = useState<number | null>(null);
   const [showResetModal, setShowResetModal] = useState(false);
   const [showResetDayModal, setShowResetDayModal] = useState(false);
   const [dayToReset, setDayToReset] = useState<number | null>(null);
   const [showResetActivityModal, setShowResetActivityModal] = useState(false);
   const [activityToReset, setActivityToReset] = useState<{ day: number; activityId: string; name: string } | null>(null);
+
+  // Derive selectedDay from program (always fresh from store)
+  const selectedDay = selectedDayNum !== null ? program?.days.find((d) => d.day === selectedDayNum) || null : null;
 
   if (!program) {
     return (
@@ -83,7 +87,7 @@ export default function TrainingProgramScreen() {
   const handleActivityPress = (day: number, activityId: string, type: ActivityType, isCompleted: boolean) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     // Close the modal first, then navigate
-    setSelectedDay(null);
+    setSelectedDayNum(null);
 
     // If already completed, just navigate to the activity
     if (isCompleted) {
@@ -117,7 +121,7 @@ export default function TrainingProgramScreen() {
       resetDay(programId as ProgramId, dayToReset);
       setShowResetDayModal(false);
       setDayToReset(null);
-      setSelectedDay(null);
+      setSelectedDayNum(null);
     }
   };
 
@@ -132,12 +136,7 @@ export default function TrainingProgramScreen() {
       resetActivity(programId as ProgramId, activityToReset.day, activityToReset.activityId);
       setShowResetActivityModal(false);
       setActivityToReset(null);
-      // Refresh selectedDay to show updated state
-      const updatedProgram = useTrainingStore.getState().getProgram(programId as ProgramId);
-      const updatedDay = updatedProgram?.days.find((d) => d.day === activityToReset.day);
-      if (updatedDay) {
-        setSelectedDay(updatedDay);
-      }
+      // No need to manually refresh - selectedDay is derived from store
     }
   };
 
@@ -154,7 +153,7 @@ export default function TrainingProgramScreen() {
         onPress={() => {
           if (!isLocked || program.started) {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-            setSelectedDay(day);
+            setSelectedDayNum(day.day);
           }
         }}
         disabled={isLocked && !program.started}
@@ -342,7 +341,7 @@ export default function TrainingProgramScreen() {
                       {selectedDay?.description}
                     </Text>
                   </View>
-                  <Pressable onPress={() => setSelectedDay(null)}>
+                  <Pressable onPress={() => setSelectedDayNum(null)}>
                     <Ionicons name="close" size={32} color="#fff" />
                   </Pressable>
                 </View>
