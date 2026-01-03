@@ -48,7 +48,10 @@ export default function TrainingProgramScreen() {
   const route = useRoute<TrainingProgramRouteProp>();
   const { programId } = route.params;
 
-  const program = useTrainingStore((s) => s.getProgram(programId as ProgramId));
+  // Select programs array directly so Zustand detects changes
+  const programs = useTrainingStore((s) => s.programs);
+  const program = programs.find((p) => p.id === programId);
+
   const startProgram = useTrainingStore((s) => s.startProgram);
   const startChallenge = useTrainingStore((s) => s.startChallenge);
   const activeChallenge = useTrainingStore((s) => s.activeChallenge);
