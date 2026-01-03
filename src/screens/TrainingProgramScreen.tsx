@@ -5,6 +5,7 @@ import {
   Pressable,
   ScrollView,
   Modal,
+  TouchableOpacity,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
@@ -352,7 +353,7 @@ export default function TrainingProgramScreen() {
                   </Text>
                   {selectedDay?.activities.map((activity) => (
                     <View key={activity.id} className="mb-3 flex-row items-center">
-                      <Pressable
+                      <TouchableOpacity
                         onPress={() =>
                           handleActivityPress(
                             selectedDay.day,
@@ -361,7 +362,8 @@ export default function TrainingProgramScreen() {
                             activity.completed
                           )
                         }
-                        className="flex-1"
+                        activeOpacity={0.7}
+                        style={{ flex: 1 }}
                       >
                         <LinearGradient
                           colors={
@@ -429,16 +431,24 @@ export default function TrainingProgramScreen() {
                             />
                           </View>
                         </LinearGradient>
-                      </Pressable>
+                      </TouchableOpacity>
                       {activity.completed && (
-                        <Pressable
+                        <TouchableOpacity
                           onPress={() => {
+                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                             handleResetActivityPress(selectedDay.day, activity.id, activity.name);
                           }}
-                          className="ml-2 p-3 bg-gray-800 rounded-xl"
+                          activeOpacity={0.5}
+                          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                          style={{
+                            marginLeft: 8,
+                            padding: 12,
+                            backgroundColor: "#1f2937",
+                            borderRadius: 12,
+                          }}
                         >
                           <Ionicons name="refresh" size={22} color="#9ca3af" />
-                        </Pressable>
+                        </TouchableOpacity>
                       )}
                     </View>
                   ))}
@@ -455,9 +465,17 @@ export default function TrainingProgramScreen() {
 
                   {/* Reset Day Button - show if any activity is completed */}
                   {selectedDay && selectedDay.activities.some((a) => a.completed) && (
-                    <Pressable
+                    <TouchableOpacity
                       onPress={() => handleResetDayPress(selectedDay.day)}
-                      className="mt-4 py-3 border border-gray-600 rounded-xl items-center"
+                      activeOpacity={0.6}
+                      style={{
+                        marginTop: 16,
+                        paddingVertical: 12,
+                        borderWidth: 1,
+                        borderColor: "#4b5563",
+                        borderRadius: 12,
+                        alignItems: "center",
+                      }}
                     >
                       <View className="flex-row items-center">
                         <Ionicons name="refresh" size={18} color="#9ca3af" />
@@ -465,7 +483,7 @@ export default function TrainingProgramScreen() {
                           Reset Day {selectedDay.day}
                         </Text>
                       </View>
-                    </Pressable>
+                    </TouchableOpacity>
                   )}
                 </ScrollView>
               </View>
@@ -484,21 +502,33 @@ export default function TrainingProgramScreen() {
                 This will reset all activities for this day. You can redo the challenges.
               </Text>
               <View className="flex-row gap-3">
-                <Pressable
+                <TouchableOpacity
                   onPress={() => {
                     setShowResetDayModal(false);
                     setDayToReset(null);
                   }}
-                  className="flex-1 bg-gray-700 py-3 rounded-xl"
+                  activeOpacity={0.7}
+                  style={{
+                    flex: 1,
+                    backgroundColor: "#374151",
+                    paddingVertical: 12,
+                    borderRadius: 12,
+                  }}
                 >
                   <Text className="text-white text-center font-bold">Cancel</Text>
-                </Pressable>
-                <Pressable
+                </TouchableOpacity>
+                <TouchableOpacity
                   onPress={handleResetDay}
-                  className="flex-1 bg-yellow-600 py-3 rounded-xl"
+                  activeOpacity={0.7}
+                  style={{
+                    flex: 1,
+                    backgroundColor: "#ca8a04",
+                    paddingVertical: 12,
+                    borderRadius: 12,
+                  }}
                 >
                   <Text className="text-white text-center font-bold">Reset Day</Text>
-                </Pressable>
+                </TouchableOpacity>
               </View>
             </View>
           </View>
@@ -515,21 +545,33 @@ export default function TrainingProgramScreen() {
                 Reset {activityToReset?.name} so you can redo it.
               </Text>
               <View className="flex-row gap-3">
-                <Pressable
+                <TouchableOpacity
                   onPress={() => {
                     setShowResetActivityModal(false);
                     setActivityToReset(null);
                   }}
-                  className="flex-1 bg-gray-700 py-3 rounded-xl"
+                  activeOpacity={0.7}
+                  style={{
+                    flex: 1,
+                    backgroundColor: "#374151",
+                    paddingVertical: 12,
+                    borderRadius: 12,
+                  }}
                 >
                   <Text className="text-white text-center font-bold">Cancel</Text>
-                </Pressable>
-                <Pressable
+                </TouchableOpacity>
+                <TouchableOpacity
                   onPress={handleResetActivity}
-                  className="flex-1 bg-yellow-600 py-3 rounded-xl"
+                  activeOpacity={0.7}
+                  style={{
+                    flex: 1,
+                    backgroundColor: "#ca8a04",
+                    paddingVertical: 12,
+                    borderRadius: 12,
+                  }}
                 >
                   <Text className="text-white text-center font-bold">Reset</Text>
-                </Pressable>
+                </TouchableOpacity>
               </View>
             </View>
           </View>
@@ -547,18 +589,30 @@ export default function TrainingProgramScreen() {
                 cannot be undone.
               </Text>
               <View className="flex-row gap-3">
-                <Pressable
+                <TouchableOpacity
                   onPress={() => setShowResetModal(false)}
-                  className="flex-1 bg-gray-700 py-3 rounded-xl"
+                  activeOpacity={0.7}
+                  style={{
+                    flex: 1,
+                    backgroundColor: "#374151",
+                    paddingVertical: 12,
+                    borderRadius: 12,
+                  }}
                 >
                   <Text className="text-white text-center font-bold">Cancel</Text>
-                </Pressable>
-                <Pressable
+                </TouchableOpacity>
+                <TouchableOpacity
                   onPress={handleReset}
-                  className="flex-1 bg-red-600 py-3 rounded-xl"
+                  activeOpacity={0.7}
+                  style={{
+                    flex: 1,
+                    backgroundColor: "#dc2626",
+                    paddingVertical: 12,
+                    borderRadius: 12,
+                  }}
                 >
                   <Text className="text-white text-center font-bold">Reset</Text>
-                </Pressable>
+                </TouchableOpacity>
               </View>
             </View>
           </View>
