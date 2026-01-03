@@ -351,18 +351,7 @@ export default function TrainingProgramScreen() {
                     ACTIVITIES
                   </Text>
                   {selectedDay?.activities.map((activity, index) => (
-                    <Pressable
-                      key={activity.id}
-                      onPress={() =>
-                        handleActivityPress(
-                          selectedDay.day,
-                          activity.id,
-                          activity.type,
-                          activity.completed
-                        )
-                      }
-                      className="mb-3"
-                    >
+                    <View key={activity.id} className="mb-3">
                       <LinearGradient
                         colors={
                           activity.completed
@@ -379,71 +368,80 @@ export default function TrainingProgramScreen() {
                         }}
                       >
                         <View className="flex-row items-center">
-                          <View
-                            className={`w-12 h-12 rounded-full items-center justify-center mr-4 ${
-                              activity.completed ? "bg-green-600" : "bg-gray-800"
-                            }`}
+                          <Pressable
+                            onPress={() =>
+                              handleActivityPress(
+                                selectedDay.day,
+                                activity.id,
+                                activity.type,
+                                activity.completed
+                              )
+                            }
+                            className="flex-row items-center flex-1"
                           >
-                            {activity.completed ? (
-                              <Ionicons name="checkmark" size={24} color="#fff" />
-                            ) : (
-                              <Ionicons
-                                name={activityIcons[activity.type]}
-                                size={24}
-                                color={activityColors[activity.type]}
-                              />
-                            )}
-                          </View>
-                          <View className="flex-1">
-                            <Text
-                              className={`font-bold text-lg ${
-                                activity.completed ? "text-green-400" : "text-white"
+                            <View
+                              className={`w-12 h-12 rounded-full items-center justify-center mr-4 ${
+                                activity.completed ? "bg-green-600" : "bg-gray-800"
                               }`}
                             >
-                              {activity.name}
-                            </Text>
-                            <Text className="text-gray-400 text-sm">
-                              {activity.description}
-                            </Text>
-                            {activity.goal && (
-                              <View className="flex-row items-center mt-1">
+                              {activity.completed ? (
+                                <Ionicons name="checkmark" size={24} color="#fff" />
+                              ) : (
                                 <Ionicons
-                                  name="flag"
-                                  size={12}
-                                  color={activity.completed ? "#22c55e" : "#f59e0b"}
+                                  name={activityIcons[activity.type]}
+                                  size={24}
+                                  color={activityColors[activity.type]}
                                 />
-                                <Text
-                                  className={`text-xs ml-1 ${
-                                    activity.completed ? "text-green-400" : "text-yellow-500"
-                                  }`}
-                                >
-                                  {activity.goal}
-                                </Text>
-                              </View>
-                            )}
-                          </View>
-                          <View className="flex-row items-center">
-                            {activity.completed && (
-                              <Pressable
-                                onPress={(e) => {
-                                  e.stopPropagation();
-                                  handleResetActivityPress(selectedDay.day, activity.id, activity.name);
-                                }}
-                                className="mr-2 p-2"
-                                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                              )}
+                            </View>
+                            <View className="flex-1">
+                              <Text
+                                className={`font-bold text-lg ${
+                                  activity.completed ? "text-green-400" : "text-white"
+                                }`}
                               >
-                                <Ionicons name="refresh" size={18} color="#9ca3af" />
-                              </Pressable>
-                            )}
+                                {activity.name}
+                              </Text>
+                              <Text className="text-gray-400 text-sm">
+                                {activity.description}
+                              </Text>
+                              {activity.goal && (
+                                <View className="flex-row items-center mt-1">
+                                  <Ionicons
+                                    name="flag"
+                                    size={12}
+                                    color={activity.completed ? "#22c55e" : "#f59e0b"}
+                                  />
+                                  <Text
+                                    className={`text-xs ml-1 ${
+                                      activity.completed ? "text-green-400" : "text-yellow-500"
+                                    }`}
+                                  >
+                                    {activity.goal}
+                                  </Text>
+                                </View>
+                              )}
+                            </View>
                             <Ionicons
                               name="chevron-forward"
                               size={24}
                               color={activity.completed ? "#22c55e" : "#6b7280"}
                             />
-                          </View>
+                          </Pressable>
+                          {activity.completed && (
+                            <Pressable
+                              onPress={() => {
+                                handleResetActivityPress(selectedDay.day, activity.id, activity.name);
+                              }}
+                              className="ml-2 p-2"
+                              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                            >
+                              <Ionicons name="refresh" size={20} color="#9ca3af" />
+                            </Pressable>
+                          )}
                         </View>
                       </LinearGradient>
-                    </Pressable>
+                    </View>
                   ))}
 
                   {/* Day completion status */}
