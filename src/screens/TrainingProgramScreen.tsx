@@ -52,11 +52,14 @@ export default function TrainingProgramScreen() {
   const startChallenge = useTrainingStore((s) => s.startChallenge);
   const activeChallenge = useTrainingStore((s) => s.activeChallenge);
   const completeActivity = useTrainingStore((s) => s.completeActivity);
+  const resetDay = useTrainingStore((s) => s.resetDay);
   const resetProgram = useTrainingStore((s) => s.resetProgram);
   const getProgramProgress = useTrainingStore((s) => s.getProgramProgress);
 
   const [selectedDay, setSelectedDay] = useState<WorkoutDay | null>(null);
   const [showResetModal, setShowResetModal] = useState(false);
+  const [showResetDayModal, setShowResetDayModal] = useState(false);
+  const [dayToReset, setDayToReset] = useState<number | null>(null);
 
   if (!program) {
     return (
@@ -97,6 +100,21 @@ export default function TrainingProgramScreen() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
     resetProgram(programId as ProgramId);
     setShowResetModal(false);
+  };
+
+  const handleResetDayPress = (day: number) => {
+    setDayToReset(day);
+    setShowResetDayModal(true);
+  };
+
+  const handleResetDay = () => {
+    if (dayToReset !== null) {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      resetDay(programId as ProgramId, dayToReset);
+      setShowResetDayModal(false);
+      setDayToReset(null);
+      setSelectedDay(null);
+    }
   };
 
   const renderDayCard = (day: WorkoutDay, index: number) => {
@@ -400,9 +418,55 @@ export default function TrainingProgramScreen() {
                       </Text>
                     </View>
                   )}
+
+                  {/* Reset Day Button - show if any activity is completed */}
+                  {selectedDay && selectedDay.activities.some((a) => a.completed) && (
+                    <Pressable
+                      onPress={() => handleResetDayPress(selectedDay.day)}
+                      className="mt-4 py-3 border border-gray-600 rounded-xl items-center"
+                    >
+                      <View className="flex-row items-center">
+                        <Ionicons name="refresh" size={18} color="#9ca3af" />
+                        <Text className="text-gray-400 font-semibold ml-2">
+                          Reset Day {selectedDay.day}
+                        </Text>
+                      </View>
+                    </Pressable>
+                  )}
                 </ScrollView>
               </View>
             </SafeAreaView>
+          </View>
+        </Modal>
+
+        {/* Reset Day Confirmation Modal */}
+        <Modal visible={showResetDayModal} transparent animationType="fade">
+          <View className="flex-1 bg-black/90 items-center justify-center px-6">
+            <View className="bg-gray-800 rounded-2xl p-6 w-full max-w-sm">
+              <Text className="text-white text-xl font-bold text-center mb-2">
+                Reset Day {dayToReset}?
+              </Text>
+              <Text className="text-gray-400 text-center mb-6">
+                This will reset all activities for this day. You can redo the challenges.
+              </Text>
+              <View className="flex-row gap-3">
+                <Pressable
+                  onPress={() => {
+                    setShowResetDayModal(false);
+                    setDayToReset(null);
+                  }}
+                  className="flex-1 bg-gray-700 py-3 rounded-xl"
+                >
+                  <Text className="text-white text-center font-bold">Cancel</Text>
+                </Pressable>
+                <Pressable
+                  onPress={handleResetDay}
+                  className="flex-1 bg-yellow-600 py-3 rounded-xl"
+                >
+                  <Text className="text-white text-center font-bold">Reset Day</Text>
+                </Pressable>
+              </View>
+            </View>
           </View>
         </Modal>
 
