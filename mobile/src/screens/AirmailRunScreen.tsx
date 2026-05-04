@@ -4,8 +4,6 @@ import {
   Text,
   Pressable,
   ScrollView,
-  Keyboard,
-  TouchableWithoutFeedback,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
@@ -17,6 +15,15 @@ import Animated, {
   withSpring,
   withSequence,
 } from "react-native-reanimated";
+import * as Haptics from "expo-haptics";
+
+interface RoundSnapshot {
+  airmail: number;
+  streakBefore: number;
+  longestBefore: number;
+  airmailCountBefore: number;
+  totalBagsBefore: number;
+}
 
 export default function AirmailRunScreen() {
   const navigation = useNavigation();
@@ -25,13 +32,14 @@ export default function AirmailRunScreen() {
   const completeSession = usePracticeStore((s) => s.completeAirmailRunSession);
 
   const [sessionId, setSessionId] = useState<string | null>(null);
-  const [currentRound, setCurrentRound] = useState(0);
-  const [bagsInRound, setBagsInRound] = useState(0);
+  const [currentRound, setCurrentRound] = useState(1);
   const [consecutiveStreak, setConsecutiveStreak] = useState(0);
   const [longestStreak, setLongestStreak] = useState(0);
   const [totalBags, setTotalBags] = useState(0);
   const [airmailCount, setAirmailCount] = useState(0);
   const [sessionStarted, setSessionStarted] = useState(false);
+  const [roundHistory, setRoundHistory] = useState<RoundSnapshot[]>([]);
+  const [roundAirmailHistory, setRoundAirmailHistory] = useState<number[]>([]);
 
   const scale = useSharedValue(1);
 
@@ -44,60 +52,92 @@ export default function AirmailRunScreen() {
     setSessionId(session.id);
     setSessionStarted(true);
     setCurrentRound(1);
-    setBagsInRound(0);
     setConsecutiveStreak(0);
     setLongestStreak(0);
     setTotalBags(0);
     setAirmailCount(0);
+    setRoundHistory([]);
+    setRoundAirmailHistory([]);
   };
 
-  const recordBag = (airmail: boolean) => {
+  const recordRound = (airmail: number) => {
     if (!sessionId) return;
 
-    const newTotalBags = totalBags + 1;
-    const newBagsInRound = bagsInRound + 1;
+    const snapshot: RoundSnapshot = {
+      airmail,
+      streakBefore: consecutiveStreak,
+      longestBefore: longestStreak,
+      airmailCountBefore: airmailCount,
+      totalBagsBefore: totalBags,
+    };
 
-    let newConsecutiveStreak = consecutiveStreak;
-    let newAirmailCount = airmailCount;
+    const newStreak = airmail === 4 ? consecutiveStreak + 4 : 0;
+    const newLongest = Math.max(longestStreak, newStreak);
+    const newAirmail = airmailCount + airmail;
+    const newTotal = totalBags + 4;
+    const newRound = currentRound + 1;
 
-    if (airmail) {
-      newConsecutiveStreak = consecutiveStreak + 1;
-      newAirmailCount = airmailCount + 1;
+    setRoundHistory((prev) => [...prev, snapshot]);
+    setRoundAirmailHistory((prev) => [...prev, airmail]);
+    setConsecutiveStreak(newStreak);
+    setLongestStreak(newLongest);
+    setAirmailCount(newAirmail);
+    setTotalBags(newTotal);
+    setCurrentRound(newRound);
 
-      // Celebration animation
+    if (airmail === 4) {
       scale.value = withSequence(
-        withSpring(1.2, { damping: 10 }),
+        withSpring(1.3, { damping: 8 }),
         withSpring(1, { damping: 10 })
       );
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    } else if (airmail > 0) {
+      scale.value = withSequence(
+        withSpring(1.1, { damping: 10 }),
+        withSpring(1, { damping: 10 })
+      );
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     } else {
-      newConsecutiveStreak = 0;
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
 
-    const newLongestStreak = Math.max(longestStreak, newConsecutiveStreak);
-
-    setTotalBags(newTotalBags);
-    setAirmailCount(newAirmailCount);
-    setConsecutiveStreak(newConsecutiveStreak);
-    setLongestStreak(newLongestStreak);
-    setBagsInRound(newBagsInRound);
-
-    // Update session
     updateSession(sessionId, {
-      totalBags: newTotalBags,
-      airmailCount: newAirmailCount,
-      consecutiveAirmails: newConsecutiveStreak,
-      longestStreak: newLongestStreak,
-      accuracy: (newAirmailCount / newTotalBags) * 100,
+      totalBags: newTotal,
+      airmailCount: newAirmail,
+      consecutiveAirmails: newStreak,
+      longestStreak: newLongest,
+      accuracy: (newAirmail / newTotal) * 100,
+      rounds: newRound,
     });
+  };
 
-    // Check if round is complete (4 bags)
-    if (newBagsInRound === 4) {
-      setCurrentRound(currentRound + 1);
-      setBagsInRound(0);
+  const undoLastRound = () => {
+    if (roundHistory.length === 0) return;
+    const snapshot = roundHistory[roundHistory.length - 1];
+
+    setRoundHistory((prev) => prev.slice(0, -1));
+    setRoundAirmailHistory((prev) => prev.slice(0, -1));
+    setConsecutiveStreak(snapshot.streakBefore);
+    setLongestStreak(snapshot.longestBefore);
+    setAirmailCount(snapshot.airmailCountBefore);
+    setTotalBags(snapshot.totalBagsBefore);
+    setCurrentRound(currentRound - 1);
+
+    if (sessionId) {
       updateSession(sessionId, {
-        rounds: currentRound + 1,
+        totalBags: snapshot.totalBagsBefore,
+        airmailCount: snapshot.airmailCountBefore,
+        consecutiveAirmails: snapshot.streakBefore,
+        longestStreak: snapshot.longestBefore,
+        accuracy:
+          snapshot.totalBagsBefore > 0
+            ? (snapshot.airmailCountBefore / snapshot.totalBagsBefore) * 100
+            : 0,
+        rounds: currentRound - 1,
       });
     }
+
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   };
 
   const endSession = () => {
@@ -116,162 +156,191 @@ export default function AirmailRunScreen() {
   const accuracy =
     totalBags > 0 ? ((airmailCount / totalBags) * 100).toFixed(1) : "0.0";
 
+  const getRoundColor = (airmail: number) => {
+    if (airmail === 4) return "bg-cyan-600";
+    if (airmail === 0) return "bg-red-900/70";
+    return "bg-teal-700/70";
+  };
+
+  const getNumberButtonStyle = (n: number) => {
+    if (n === 4) return "bg-cyan-600 border-2 border-cyan-400";
+    if (n === 3) return "bg-teal-700 border-2 border-teal-500";
+    if (n === 2) return "bg-blue-700 border-2 border-blue-500";
+    if (n === 1) return "bg-indigo-700 border-2 border-indigo-500";
+    return "bg-red-800/80 border-2 border-red-600";
+  };
+
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <View className="flex-1 bg-gray-950">
-        <SafeAreaView edges={["top"]} className="flex-1">
-          {/* Header */}
-          <View className="px-4 py-3 flex-row items-center justify-between border-b border-gray-800">
-            <View className="flex-row items-center">
-              <Pressable onPress={() => navigation.goBack()} className="mr-4">
-                <Ionicons name="arrow-back" size={24} color="#fff" />
-              </Pressable>
-              <View>
-                <Text className="text-white text-xl font-bold">Airmail Run</Text>
-                <Text className="text-gray-400 text-xs">
-                  Clean drops only
-                </Text>
-              </View>
+    <View className="flex-1 bg-gray-950">
+      <SafeAreaView edges={["top"]} className="flex-1">
+        {/* Header */}
+        <View className="px-4 py-3 flex-row items-center justify-between border-b border-gray-800">
+          <View className="flex-row items-center">
+            <Pressable onPress={() => navigation.goBack()} className="mr-4">
+              <Ionicons name="arrow-back" size={24} color="#fff" />
+            </Pressable>
+            <View>
+              <Text className="text-white text-xl font-bold">Airmail Run</Text>
+              <Text className="text-gray-400 text-xs">Enter results per round</Text>
             </View>
-            {sessionStarted && (
+          </View>
+          {sessionStarted && (
+            <View className="flex-row items-center gap-4">
+              {roundHistory.length > 0 && (
+                <Pressable
+                  onPress={undoLastRound}
+                  className="flex-row items-center gap-1"
+                >
+                  <Ionicons name="arrow-undo" size={18} color="#9ca3af" />
+                  <Text className="text-gray-400 text-sm">Undo</Text>
+                </Pressable>
+              )}
               <Pressable onPress={endSession}>
                 <Text className="text-red-500 font-semibold">End</Text>
               </Pressable>
-            )}
-          </View>
+            </View>
+          )}
+        </View>
 
-          <ScrollView
-            className="flex-1"
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ flexGrow: 1 }}
-          >
-            {!sessionStarted ? (
-              /* Start Screen */
-              <View className="flex-1 items-center justify-center px-6">
-                <View className="bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full w-32 h-32 items-center justify-center mb-8">
-                  <Ionicons name="airplane" size={64} color="#fff" />
-                </View>
-                <Text className="text-white text-3xl font-bold text-center mb-4">
-                  Airmail Challenge
-                </Text>
-                <Text className="text-gray-400 text-center text-base leading-6 mb-8">
-                  Track consecutive airmail shots without touching the board.
-                  Each round is 4 bags. Only clean drops count!
-                </Text>
-                <Pressable
-                  onPress={startSession}
-                  className="bg-cyan-600 px-12 py-4 rounded-full"
-                >
-                  <Text className="text-white text-lg font-bold">
-                    Start Practice
-                  </Text>
-                </Pressable>
+        <ScrollView
+          className="flex-1"
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ flexGrow: 1 }}
+        >
+          {!sessionStarted ? (
+            <View className="flex-1 items-center justify-center px-6">
+              <View className="bg-cyan-600/20 rounded-full w-32 h-32 items-center justify-center mb-8">
+                <Ionicons name="airplane" size={64} color="#06b6d4" />
               </View>
-            ) : (
-              /* Active Session */
-              <View className="flex-1 px-4 py-6">
-                {/* Current Streak - Big Display */}
-                <Animated.View
-                  style={[animatedStyle]}
-                  className="items-center mb-8"
-                >
-                  <Text className="text-gray-400 text-lg mb-2">
-                    Current Streak
+              <Text className="text-white text-3xl font-bold text-center mb-4">
+                Airmail Challenge
+              </Text>
+              <Text className="text-gray-400 text-center text-base leading-6 mb-8">
+                Throw all 4 bags, then tap how many were clean airmails. Only 4/4 rounds keep your streak going!
+              </Text>
+              <Pressable
+                onPress={startSession}
+                className="bg-cyan-600 px-12 py-4 rounded-full"
+              >
+                <Text className="text-white text-lg font-bold">
+                  Start Practice
+                </Text>
+              </Pressable>
+            </View>
+          ) : (
+            <View className="flex-1 px-4 py-5">
+              {/* Current Streak Display */}
+              <Animated.View
+                style={[animatedStyle]}
+                className="items-center mb-5"
+              >
+                <Text className="text-gray-400 text-base mb-1">
+                  Current Streak
+                </Text>
+                <Text className="text-cyan-500 text-7xl font-bold">
+                  {consecutiveStreak}
+                </Text>
+                <Text className="text-gray-500 text-sm mt-1">
+                  airmails in a row
+                </Text>
+                {longestStreak > 0 && (
+                  <Text className="text-gray-600 text-xs mt-1">
+                    Best this session: {longestStreak}
                   </Text>
-                  <Text className="text-cyan-500 text-7xl font-bold">
-                    {consecutiveStreak}
-                  </Text>
-                  <Text className="text-gray-500 text-sm mt-2">
-                    airmails in a row
-                  </Text>
-                </Animated.View>
+                )}
+              </Animated.View>
 
-                {/* Stats Grid */}
-                <View className="flex-row flex-wrap gap-3 mb-6">
-                  <View className="bg-gray-800 rounded-xl p-4 flex-1 min-w-[45%]">
-                    <Text className="text-gray-400 text-sm">Round</Text>
-                    <Text className="text-white text-3xl font-bold mt-1">
-                      {currentRound}
-                    </Text>
-                    <Text className="text-gray-500 text-xs mt-1">
-                      Bag {bagsInRound + 1} of 4
-                    </Text>
-                  </View>
-                  <View className="bg-gray-800 rounded-xl p-4 flex-1 min-w-[45%]">
-                    <Text className="text-gray-400 text-sm">Best Streak</Text>
-                    <Text className="text-white text-3xl font-bold mt-1">
-                      {longestStreak}
-                    </Text>
-                    <Text className="text-gray-500 text-xs mt-1">
-                      personal best
-                    </Text>
-                  </View>
-                  <View className="bg-gray-800 rounded-xl p-4 flex-1 min-w-[45%]">
-                    <Text className="text-gray-400 text-sm">Total Airmails</Text>
-                    <Text className="text-white text-3xl font-bold mt-1">
-                      {airmailCount}/{totalBags}
-                    </Text>
-                    <Text className="text-gray-500 text-xs mt-1">bags</Text>
-                  </View>
-                  <View className="bg-gray-800 rounded-xl p-4 flex-1 min-w-[45%]">
-                    <Text className="text-gray-400 text-sm">Accuracy</Text>
-                    <Text className="text-white text-3xl font-bold mt-1">
-                      {accuracy}%
-                    </Text>
-                    <Text className="text-gray-500 text-xs mt-1">overall</Text>
-                  </View>
+              {/* Round Entry */}
+              <View className="bg-gray-900 rounded-2xl p-5 mb-4">
+                <Text className="text-gray-400 text-sm text-center mb-1">
+                  Round {currentRound}
+                </Text>
+                <Text className="text-white text-center font-semibold mb-4">
+                  How many were airmail?
+                </Text>
+                <View className="flex-row gap-2">
+                  {[0, 1, 2, 3, 4].map((n) => (
+                    <Pressable
+                      key={n}
+                      onPress={() => recordRound(n)}
+                      className={`flex-1 py-5 rounded-xl items-center justify-center ${getNumberButtonStyle(n)}`}
+                    >
+                      <Text className="text-white text-2xl font-bold">{n}</Text>
+                    </Pressable>
+                  ))}
                 </View>
+                <Text className="text-gray-600 text-xs text-center mt-3">
+                  Only 4/4 airmail rounds continue your streak
+                </Text>
+              </View>
 
-                {/* Action Buttons */}
-                <View className="gap-3">
-                  <Pressable
-                    onPress={() => recordBag(true)}
-                    className="bg-cyan-600 py-6 rounded-2xl items-center"
-                  >
-                    <Ionicons name="airplane" size={48} color="#fff" />
-                    <Text className="text-white text-2xl font-bold mt-2">
-                      Airmail! 🎯
-                    </Text>
-                    <Text className="text-cyan-200 text-sm mt-1">
-                      Clean drop in the hole
-                    </Text>
-                  </Pressable>
-                  <Pressable
-                    onPress={() => recordBag(false)}
-                    className="bg-orange-600 py-6 rounded-2xl items-center"
-                  >
-                    <Ionicons name="close-circle" size={48} color="#fff" />
-                    <Text className="text-white text-2xl font-bold mt-2">
-                      Touched Board
-                    </Text>
-                    <Text className="text-orange-200 text-sm mt-1">
-                      Hit the board or missed
-                    </Text>
-                  </Pressable>
-                </View>
-
-                {/* Reset Button */}
-                <Pressable
-                  onPress={resetSession}
-                  className="mt-6 py-3 border border-gray-700 rounded-xl items-center"
-                >
-                  <Text className="text-gray-400 font-semibold">
-                    Reset Session
+              {/* Round History */}
+              {roundAirmailHistory.length > 0 && (
+                <View className="mb-4">
+                  <Text className="text-gray-500 text-xs text-center mb-2">
+                    Round History ({roundAirmailHistory.length} rounds)
                   </Text>
-                </Pressable>
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={{ paddingHorizontal: 2, gap: 6 }}
+                  >
+                    {roundAirmailHistory.map((airmail, idx) => (
+                      <View
+                        key={idx}
+                        className={`w-12 h-12 rounded-lg items-center justify-center ${getRoundColor(airmail)}`}
+                      >
+                        <Text className="text-white text-xs font-bold">
+                          {airmail}/4
+                        </Text>
+                      </View>
+                    ))}
+                  </ScrollView>
+                </View>
+              )}
 
-                {/* Info */}
-                <View className="mt-6 bg-blue-900/20 border border-blue-700/30 rounded-xl p-4">
-                  <Text className="text-blue-400 text-sm text-center leading-5">
-                    Airmail = bag goes directly into the hole without touching
-                    the board. This is the ultimate accuracy challenge!
+              {/* Stats Row */}
+              <View className="flex-row gap-3 mb-4">
+                <View className="bg-gray-800 rounded-xl p-4 flex-1">
+                  <Text className="text-gray-400 text-xs">Airmails / Total</Text>
+                  <Text className="text-white text-xl font-bold mt-1">
+                    {airmailCount}/{totalBags}
+                  </Text>
+                </View>
+                <View className="bg-gray-800 rounded-xl p-4 flex-1">
+                  <Text className="text-gray-400 text-xs">Accuracy</Text>
+                  <Text className="text-white text-xl font-bold mt-1">
+                    {accuracy}%
+                  </Text>
+                </View>
+                <View className="bg-gray-800 rounded-xl p-4 flex-1">
+                  <Text className="text-gray-400 text-xs">Best Streak</Text>
+                  <Text className="text-white text-xl font-bold mt-1">
+                    {longestStreak}
                   </Text>
                 </View>
               </View>
-            )}
-          </ScrollView>
-        </SafeAreaView>
-      </View>
-    </TouchableWithoutFeedback>
+
+              {/* Reset Button */}
+              <Pressable
+                onPress={resetSession}
+                className="py-3 border border-gray-700 rounded-xl items-center"
+              >
+                <Text className="text-gray-400 font-semibold">
+                  Reset Session
+                </Text>
+              </Pressable>
+
+              {/* Info */}
+              <View className="mt-4 bg-blue-900/20 border border-blue-700/30 rounded-xl p-4">
+                <Text className="text-blue-400 text-sm text-center leading-5">
+                  Airmail = bag goes directly into the hole without touching the board.
+                </Text>
+              </View>
+            </View>
+          )}
+        </ScrollView>
+      </SafeAreaView>
+    </View>
   );
 }
