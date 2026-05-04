@@ -5,13 +5,15 @@
     "scheme": "kingseat",
     "version": "1.0.0",
     "orientation": "default",
-    "icon": "./assets/icon.png",
+    "icon": "./icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true,
+      "supportsTablet": false,
       "icon": "./assets/icon.png",
-      "bundleIdentifier": "com.anonymous.kingseat"
+      "bundleIdentifier": "com.vibecode.kingseat-kownpq",
+      "buildNumber": "1",
+      "infoPlist": {}
     },
     "android": {
       "edgeToEdgeEnabled": true,
