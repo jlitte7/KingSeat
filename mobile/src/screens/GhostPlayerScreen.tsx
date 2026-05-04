@@ -130,12 +130,12 @@ export default function GhostPlayerScreen() {
     const allowedScores = ghostScoreOptions[difficulty];
     const targetScore = allowedScores[Math.floor(Math.random() * allowedScores.length)];
 
-    // Find valid bag combinations that produce exactly this score
-    // Score = bagsIn * 3 + bagsOn * 1, with bagsIn + bagsOn <= 4
+    // Ghost is virtual so allow up to 6 bags to reach scores like 11 (3in+2on)
+    const maxBags = 6;
     const validCombinations: { bagsIn: number; bagsOn: number }[] = [];
 
-    for (let bagsIn = 0; bagsIn <= 4; bagsIn++) {
-      for (let bagsOn = 0; bagsOn <= 4 - bagsIn; bagsOn++) {
+    for (let bagsIn = 0; bagsIn <= maxBags; bagsIn++) {
+      for (let bagsOn = 0; bagsOn <= maxBags - bagsIn; bagsOn++) {
         const score = bagsIn * 3 + bagsOn;
         if (score === targetScore) {
           validCombinations.push({ bagsIn, bagsOn });
@@ -143,18 +143,15 @@ export default function GhostPlayerScreen() {
       }
     }
 
-    // Pick a random valid combination (if any exist)
     if (validCombinations.length > 0) {
       return validCombinations[Math.floor(Math.random() * validCombinations.length)];
     }
 
-    // Fallback: get as close as possible to target score
-    // This handles cases like score=11 which is impossible with 4 bags
     let bestCombo = { bagsIn: 0, bagsOn: 0 };
     let bestDiff = Infinity;
 
-    for (let bagsIn = 0; bagsIn <= 4; bagsIn++) {
-      for (let bagsOn = 0; bagsOn <= 4 - bagsIn; bagsOn++) {
+    for (let bagsIn = 0; bagsIn <= maxBags; bagsIn++) {
+      for (let bagsOn = 0; bagsOn <= maxBags - bagsIn; bagsOn++) {
         const score = bagsIn * 3 + bagsOn;
         const diff = Math.abs(score - targetScore);
         if (diff < bestDiff) {
