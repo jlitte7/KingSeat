@@ -35,7 +35,7 @@ export interface GhostPlayerGame {
   playerScore: number;
   ghostScore: number;
   rounds: GhostRound[];
-  ghostDifficulty: "easy" | "medium" | "hard" | "pro";
+  ghostDifficulty: "easy" | "medium" | "hard" | "pro" | "ghost5" | "ghost6" | "ghost7" | "ghost8" | "ghost9" | "ghost10" | "ghost11";
   winnerId: "player" | "ghost" | null;
   completed: boolean;
   createdAt: string;
@@ -152,7 +152,7 @@ interface PracticeState {
 
   // Ghost Player actions
   createGhostPlayerGame: (
-    difficulty: "easy" | "medium" | "hard" | "pro",
+    difficulty: GhostPlayerGame["ghostDifficulty"],
     playerId?: string
   ) => GhostPlayerGame;
   addGhostRound: (gameId: string, round: GhostRound) => void;
@@ -323,7 +323,7 @@ export const usePracticeStore = create<PracticeState>()(
 
       // Ghost Player actions
       createGhostPlayerGame: (
-        difficulty: "easy" | "medium" | "hard" | "pro",
+        difficulty: GhostPlayerGame["ghostDifficulty"],
         playerId?: string
       ) => {
         const game: GhostPlayerGame = {

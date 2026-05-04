@@ -13,7 +13,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { usePracticeStore, GhostRound } from "../state/practice-store";
 import { LinearGradient } from "expo-linear-gradient";
 
-type Difficulty = "easy" | "medium" | "hard" | "pro";
+type Difficulty = "easy" | "medium" | "hard" | "pro" | "ghost5" | "ghost6" | "ghost7" | "ghost8" | "ghost9" | "ghost10" | "ghost11";
 
 interface DifficultyConfig {
   name: string;
@@ -57,6 +57,13 @@ const difficultySettings: Record<Difficulty, DifficultyConfig> = {
     color1: "#dc2626",
     color2: "#b91c1c",
   },
+  ghost5: { name: "Ghost 5", description: "Scores 5 every round", avgBagsIn: 1, avgBagsOn: 2, color1: "#06b6d4", color2: "#0891b2" },
+  ghost6: { name: "Ghost 6", description: "Scores 6 every round", avgBagsIn: 2, avgBagsOn: 0, color1: "#3b82f6", color2: "#2563eb" },
+  ghost7: { name: "Ghost 7", description: "Scores 7 every round", avgBagsIn: 2, avgBagsOn: 1, color1: "#a855f7", color2: "#9333ea" },
+  ghost8: { name: "Ghost 8", description: "Scores 8 every round", avgBagsIn: 2, avgBagsOn: 2, color1: "#ec4899", color2: "#db2777" },
+  ghost9: { name: "Ghost 9", description: "Scores 9 every round", avgBagsIn: 3, avgBagsOn: 0, color1: "#f97316", color2: "#ea580c" },
+  ghost10: { name: "Ghost 10", description: "Scores 10 every round", avgBagsIn: 3, avgBagsOn: 1, color1: "#ef4444", color2: "#dc2626" },
+  ghost11: { name: "Ghost 11", description: "Scores 11 every round", avgBagsIn: 3, avgBagsOn: 2, color1: "#b91c1c", color2: "#991b1b" },
 };
 
 // Ghost scores only the exact values listed in the difficulty name
@@ -65,7 +72,14 @@ const ghostScoreOptions: Record<Difficulty, number[]> = {
   easy: [1, 2, 3],
   medium: [4, 5, 6],
   hard: [7, 8, 9],
-  pro: [10, 12], // Only 10 or 12, no 11
+  pro: [10, 12],
+  ghost5: [5],
+  ghost6: [6],
+  ghost7: [7],
+  ghost8: [8],
+  ghost9: [9],
+  ghost10: [10],
+  ghost11: [11],
 };
 
 export default function GhostPlayerScreen() {
